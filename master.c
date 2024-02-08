@@ -1,18 +1,4 @@
-// progetto Sistemi Operativi: Cavallo Alessandra, Fistos Andrei, Faraca Niccolò.
-
-#define _GNU_SOURCE
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <string.h>
-#include <signal.h>
-#include <errno.h>
-#define N_ATOM_INIT 5
-#define ENERGY_DEMAND 2000
-#define SIM_DURATION 30
-#define ENERGY_EXPLODE_THRESHOLD 200000000
-
+#include "library.h"
 
 void print_stats(stats);
 int stat_total_value(int *, int *);

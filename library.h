@@ -1,0 +1,9 @@
+#define _GNU_SOURCE
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <signal.h>
+#include <errno.h>
+#include "parameters.txt"
