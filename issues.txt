@@ -1,0 +1,21 @@
+/*
+Memoria condivisa
+Semafori
+Gestione terminazioni
+Makefile
+Definizione metodi nella libreria?
+Ripulire tutto a fine simulazione
+
+ATOMO 
+- fork dei figli
+- condizione numero atomico minimo (conteggio scorie aumenta -> contatore in memoria condivisa)
+- energia liberata: metodo (int n1, int n2) con figlio1 che passa n1 e figlio2 che passa n2
+
+ATTIVATORE 
+- controllo numero atomico < numero minimo -> scorie + 1 (memoria dinamica con contatore e code di messaggi)
+- segnale scissione
+
+ALIMENTATORE 
+struct time gestisce tempo in nanosecondi; ogni tot nanosecondi crea nuovi atomi
+
+*/
