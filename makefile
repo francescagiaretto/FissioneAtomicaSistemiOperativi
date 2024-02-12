@@ -1,12 +1,16 @@
-init : 
-	gcc -c master.c
-	gcc master.o -o master
-	gcc -c atomo.c
-	gcc atomo.o -o atomo
-	gcc -c attivatore.c
-	gcc attivatore.o -o attivatore
-	gcc -c alimentatore.c
-	gcc alimentatore.o -o alimentatore
+init: master atomo attivatore alimentatore library.h
+
+master: master.c library.h
+	gcc master.c -Wvla -Wextra -Werror -o master
+
+atomo: atomo.c library.h
+	gcc atomo.c -Wvla -Wextra -Werror -o atomo
+
+attivatore: attivatore.c library.h
+	gcc attivatore.c -Wvla -Wextra -Werror -o attivatore
+
+alimentatore: alimentatore.c library.h
+	gcc alimentatore.c -Wvla -Wextra -Werror -o alimentatore
 	
 run: 
 	./master
