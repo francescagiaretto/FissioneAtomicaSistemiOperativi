@@ -11,6 +11,9 @@ attivatore: attivatore.c library.h
 
 alimentatore: alimentatore.c library.h
 	gcc alimentatore.c -Wvla -Wextra -Werror -o alimentatore
+
+inibitore: inibitore.c library.h
+	gcc inibitore.c -Wvla -Wextra -Werror -o inibitore
 	
 run: 
 	./master
