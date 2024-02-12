@@ -5,20 +5,6 @@
 void print_stats(stats);
 int stat_total_value(int *, int *);
 
-typedef struct stats {
-    int n_activ_rel;    // relativa è contata nel secondo
-    int n_activ_total;  // totale è la somma delle relative fino al momento
-    int n_div_rel;
-    int n_div_total;
-    int prod_energy_rel;
-    int prod_energy_tot;
-    int cons_energy_rel;
-    int cons_energy_tot;
-    int prod_waste_rel;
-    int prod_waste_tot;
-
-} stats;
-
 void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva dall'alarm(30), che definisce la terminazione "timeout"
     write(0, "timeout.\n", 10);
     exit(0);
@@ -34,7 +20,7 @@ int main(int argc, char* argv[]) {
 
     srand(getppid());
     int random = (rand() % 70) + 1;
-    char * num_atomico = (char *)&random; 
+    char * num_atomico = (char *)&random;
     char * vec_atomo[] = {"atomo", NULL};
     char * vec_alim[] = {"alimentatore", NULL};
     char * vec_attiv[] = {"attivatore", num_atomico, NULL};
