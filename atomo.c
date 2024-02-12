@@ -2,6 +2,7 @@
 
 int main(int argc, char* argv[]){
     
+    
     printf("%d", atoi(argv[1]));
     
     // controllo iniziale: se l'atomo non ha pid meltdown

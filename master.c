@@ -1,4 +1,5 @@
 #include "library.h"
+#include <time.h>
 
 // ? come giostrare i metodi nella libreria ?
 
@@ -32,12 +33,9 @@ int main(int argc, char* argv[]) {
     pid_t * pid_atomi;
     stats stat = {0};   // inizializzo la struct a 0
 
-    srand(getppid());
-    int random = (rand() % 70) + 1;
-    char * num_atomico = (char *)&random; 
-    char * vec_atomo[] = {"atomo", (char*)&random, NULL};
+
     char * vec_alim[] = {"alimentatore", NULL};
-    char * vec_attiv[] = {"attivatore", num_atomico, NULL};
+    char * vec_attiv[] = {"attivatore", NULL};
 
 
     // creazione processo attivatore e alimentatore
@@ -72,6 +70,11 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         pid_atomi[i] = fork();
 
+        srand(time(NULL));
+        int random = (rand() % (57 - 48 + 1)) + 48;
+        char * num_atomico = (char *)&random;
+        char * vec_atomo[] = {"atomo", (char*)&random, NULL};
+
         switch(pid_atomi[i]) {
 
             case -1:
@@ -80,6 +83,7 @@ int main(int argc, char* argv[]) {
 
             case 0: // caso figli: libero la memoria allocata con la malloc
             free(pid_atomi);
+
             if (execve("atomo", vec_atomo, NULL) == -1) {perror("execve atomi"); exit(EXIT_FAILURE);}  // non funziona
             break;
 
