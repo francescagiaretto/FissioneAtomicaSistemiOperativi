@@ -34,10 +34,11 @@ int main(int argc, char* argv[]) {
 
     srand(getppid());
     int random = (rand() % 70) + 1;
-    char num_atomico = '5';
-    char * vec_atomo[] = {"atomo", num_atomico, NULL};
-    char * vec_alim[] = {};
-    char * vec_attiv[] = {num_atomico};
+    char * num_atomico = (char *)&random; 
+    char * vec_atomo[] = {"atomo", NULL};
+    char * vec_alim[] = {"alimentazione", NULL};
+    char * vec_attiv[] = {"attivatore", num_atomico, NULL};
+
 
     // creazione processo attivatore e alimentatore
     switch(pid_alimentatore = fork()) {
@@ -47,7 +48,7 @@ int main(int argc, char* argv[]) {
             printf("meltdown."); exit(EXIT_FAILURE);
 
         case 0:
-        if(execve("alimentatore", vec_alim, NULL) == -1) {perror("execve"); exit(EXIT_FAILURE);}
+        if(execve("alimentatore", vec_alim, NULL) == -1) {perror("execve alim"); exit(EXIT_FAILURE);}
         break;
 
         default: // siamo nel processo padre
@@ -59,7 +60,7 @@ int main(int argc, char* argv[]) {
             exit(EXIT_FAILURE);
 
             case 0:
-            if(execve("attivatore", vec_attiv, NULL) == -1) { perror("execve"); exit(EXIT_FAILURE);} 
+            if(execve("attivatore", vec_attiv, NULL) == -1) { perror("execve attiv"); exit(EXIT_FAILURE);} 
             break;
         }
         break;
@@ -79,7 +80,7 @@ int main(int argc, char* argv[]) {
 
             case 0: // caso figli: libero la memoria allocata con la malloc
             free(pid_atomi);
-            if (execve("atomo", vec_atomo, NULL) == -1) {perror("execve"); exit(EXIT_FAILURE);}  // non funziona
+            if (execve("atomo", vec_atomo, NULL) == -1) {perror("execve atomi"); exit(EXIT_FAILURE);}  // non funziona
             break;
 
             default:
