@@ -28,9 +28,9 @@ int main(int argc, char* argv[]) {
     stats stat = {0};   // inizializzo la struct a 0
 
     srand(getppid());
-    char random = (rand() % 70) + 1;
-    char * num_atomico = (char *)&random; 
-    char * vec_atomo[] = {&random};
+    int random = (rand() % 70) + 1;
+    char num_atomico = '5';
+    char * vec_atomo[] = {"atomo", num_atomico, NULL};
     char * vec_alim[] = {};
     char * vec_attiv[] = {num_atomico};
 

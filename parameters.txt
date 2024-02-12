@@ -1,4 +1,4 @@
-#define N_ATOM_INIT 5
+#define N_ATOM_INIT 2
 #define N_ATOM_MAX 25
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 1
