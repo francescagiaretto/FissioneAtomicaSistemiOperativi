@@ -28,9 +28,9 @@ int main(int argc, char* argv[]) {
     stats stat = {0};   // inizializzo la struct a 0
 
     srand(getppid());
-    int random = (rand() % 70) + 1;
+    char random = (rand() % 70) + 1;
     char * num_atomico = (char *)&random; 
-    char * vec_atomo[] = {};
+    char * vec_atomo[] = {&random};
     char * vec_alim[] = {};
     char * vec_attiv[] = {num_atomico};
 
@@ -89,6 +89,8 @@ int main(int argc, char* argv[]) {
     bzero(&sa, sizeof(&sa));
     sa.sa_handler = &signal_handler;
     sigaction(SIGALRM, &sa, NULL);
+
+    free(pid_atomi);
 
     alarm(5);
     for(; 1; ) {
