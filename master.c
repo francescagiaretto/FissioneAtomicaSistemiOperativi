@@ -1,5 +1,7 @@
 #include "library.h"
 
+// ? come giostrare i metodi nella libreria ?
+
 void print_stats(stats);
 int stat_total_value(int *, int *);
 
@@ -18,11 +20,14 @@ typedef struct stats {
 } stats;
 
 void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva dall'alarm(30), che definisce la terminazione "timeout"
-    write(0, "timeout.\n", 9);
+    write(0, "timeout.\n", 10);
     exit(0);
 }
 
 int main(int argc, char* argv[]) {
+
+    // TODO controllare energy_explode_threshold
+
     pid_t pid_alimentatore, pid_attivatore;     // pid dei processi alimentatore e attivatore
     pid_t * pid_atomi;
     stats stat = {0};   // inizializzo la struct a 0
@@ -45,7 +50,7 @@ int main(int argc, char* argv[]) {
         if(execve("alimentatore", vec_alim, NULL) == -1) {perror("execve"); exit(EXIT_FAILURE);}
         break;
 
-        default:
+        default: // siamo nel processo padre
 
         switch(pid_attivatore = fork()) {
 
@@ -72,7 +77,7 @@ int main(int argc, char* argv[]) {
             printf("meltdown.");
             exit(EXIT_FAILURE);
 
-            case 0:
+            case 0: // caso figli: libero la memoria allocata con la malloc
             free(pid_atomi);
             if (execve("atomo", vec_atomo, NULL) == -1) {perror("execve"); exit(EXIT_FAILURE);}  // non funziona
             break;
@@ -86,7 +91,7 @@ int main(int argc, char* argv[]) {
     // solo quando tutto è in regola posso far partire la simulazione, che dura 30 secondi 
     struct sigaction sa;
 
-    bzero(&sa, sizeof(&sa));
+    bzero(&sa, sizeof(&sa)); // azzera tutta la struct per passarla al figlio
     sa.sa_handler = &signal_handler;
     sigaction(SIGALRM, &sa, NULL);
 
@@ -98,6 +103,8 @@ int main(int argc, char* argv[]) {
         
         sleep(1);
     }
+
+    // TODO liberare memoria a simulazione terminata
 }
 
 void print_stats(stats stat) {
