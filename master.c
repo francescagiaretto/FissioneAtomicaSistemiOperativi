@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     srand(getppid());
     int random = (rand() % 70) + 1;
     char * num_atomico = (char *)&random;
-    char * vec_atomo[] = {"atomo", NULL};
+    char * vec_atomo[] = {"atomo", (char*)&random, NULL};
     char * vec_alim[] = {"alimentatore", NULL};
     char * vec_attiv[] = {"attivatore", num_atomico, NULL};
 
