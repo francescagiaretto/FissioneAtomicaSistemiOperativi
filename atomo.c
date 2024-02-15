@@ -10,21 +10,25 @@ int main(int argc, char* argv[]){
         // scorie++
     }
 
-    switch (fork())
-    {
-        case -1: // meltdown
-            printf("meltdown.");
-            exit(EXIT_FAILURE);
-        break;
-        
-        case 0: // controlli il nipote
-            srand(time(NULL));
-            n_atomico_bro1 = rand()% n_atomico_padre + 1;
-            n_atomico_bro2 = n_atomico_padre - n_atomico_bro1;
-            printf("Padre: %d, Bro1: %d, Bro2: %d", n_atomico_padre, n_atomico_bro1, n_atomico_bro2);
-        break;
+    for (int i =0 ; i < 2; i++) {
 
-        default: // controlli il figlio
-        break;
+            switch (fork())
+
+            {
+                case -1: // meltdown
+                    printf("meltdown.");
+                    exit(EXIT_FAILURE);
+                break;
+                
+                case 0: // controlli il nipote
+                    srand(time(NULL));
+                    n_atomico_bro1 = rand()% n_atomico_padre + 1;
+                    n_atomico_bro2 = n_atomico_padre - n_atomico_bro1;
+                    printf("Padre: %d, Bro1: %d, Bro2: %d", n_atomico_padre, n_atomico_bro1, n_atomico_bro2);
+                break;
+
+                default: // controlli il figlio
+                break;
+            }
     }
 }
