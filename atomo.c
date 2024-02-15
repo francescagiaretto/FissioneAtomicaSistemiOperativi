@@ -3,7 +3,7 @@
 int main(int argc, char* argv[]){
     int n_atomico_bro1; int n_atomico_bro2; int temp;
     int n_atomico_padre = atoi(argv[1]);
-    printf("%d", n_atomico_padre);
+
     
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
         // termino processo
