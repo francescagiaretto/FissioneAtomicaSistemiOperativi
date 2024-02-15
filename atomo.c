@@ -12,20 +12,19 @@ int main(int argc, char* argv[]){
 
     switch (fork())
     {
-    
-        case 0: // controlli il nipote
-        srand(time(NULL));
-        n_atomico_bro1 = rand()% n_atomico_padre + 1;
-        n_atomico_bro2 = n_atomico_padre - n_atomico_bro1;
-        print("Padre: %d, Bro1: %d, Bro2: 5d", n_atomico_padre, n_atomico_bro1, n_atomico_bro2);
-        break;
-
         case -1: // meltdown
+            printf("meltdown.");
+            exit(EXIT_FAILURE);
+        break;
+        
+        case 0: // controlli il nipote
+            srand(time(NULL));
+            n_atomico_bro1 = rand()% n_atomico_padre + 1;
+            n_atomico_bro2 = n_atomico_padre - n_atomico_bro1;
+            printf("Padre: %d, Bro1: %d, Bro2: %d", n_atomico_padre, n_atomico_bro1, n_atomico_bro2);
         break;
 
         default: // controlli il figlio
         break;
     }
-
-    // scissione atomica: pid padre + pid figlio = pid originale padre
 }
