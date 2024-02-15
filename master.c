@@ -1,5 +1,4 @@
 #include "library.h"
-#include <time.h>
 
 // ? come giostrare i metodi nella libreria ?
 
@@ -7,7 +6,7 @@ void print_stats(stats);
 int stat_total_value(int *, int *);
 
 void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva dall'alarm(30), che definisce la terminazione "timeout"
-    write(0, "timeout.\n", 10);
+    write(0, "Simulazione terminata: timeout.\n", 10);
     exit(0);
 }
 
@@ -29,10 +28,10 @@ int main(int argc, char* argv[]) {
         // controlla se c'è meltdown
 
         case -1:
-            printf("meltdown."); exit(EXIT_FAILURE);
+            printf("Simulazione terminata: meltdown."); exit(EXIT_FAILURE);
 
         case 0:
-        if(execve("alimentatore", vec_alim, NULL) == -1) {perror("execve alim"); exit(EXIT_FAILURE);}
+        if(execve("alimentatore", vec_alim, NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
         break;
 
         default: // siamo nel processo padre
@@ -40,11 +39,11 @@ int main(int argc, char* argv[]) {
         switch(pid_attivatore = fork()) {
 
             case -1:
-            printf("meltdown.");
+            printf("Simulazione terminata: meltdown.");
             exit(EXIT_FAILURE);
 
             case 0:
-            if(execve("attivatore", vec_attiv, NULL) == -1) { perror("execve attiv"); exit(EXIT_FAILURE);} 
+            if(execve("attivatore", vec_attiv, NULL) == -1) { perror("Execve attiv"); exit(EXIT_FAILURE);} 
             break;
         }
         break;
@@ -58,7 +57,7 @@ int main(int argc, char* argv[]) {
 
         int range = 118; // numero atomico compreso tra 1 e 118 (max tavola periodica)
 
-        srand(time(NULL));
+        srand(getpid());
         int num_atomico = rand() % range + 1;
         sprintf(n_atom, "%d", num_atomico);
         char * vec_atomo[] = {"atomo", n_atom, NULL};
@@ -66,17 +65,17 @@ int main(int argc, char* argv[]) {
         switch(pid_atomi[i]) {
 
             case -1:
-                printf("meltdown.");
+                printf("Simulazione terminata: meltdown.");
                 exit(EXIT_FAILURE);
             break;
 
             case 0: // caso figli: libero la memoria allocata con la malloc
                 free(pid_atomi);
-                if (execve("atomo", vec_atomo, NULL) == -1) {perror("execve atomi"); exit(EXIT_FAILURE);}  // non funziona
+                if (execve("atomo", vec_atomo, NULL) == -1) {perror("Execve atomi"); exit(EXIT_FAILURE);}  // non funziona
             break;
 
             default:
-                printf("atomo con pid %d\n", pid_atomi[i]);
+                printf("Atomo con pid %d\n", pid_atomi[i]);
             break;
         }
     }
