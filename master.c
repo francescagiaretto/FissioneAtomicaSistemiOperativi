@@ -1,4 +1,5 @@
 #include "library.h"
+#include <time.h>
 
 // ? come giostrare i metodi nella libreria ?
 
@@ -55,9 +56,8 @@ int main(int argc, char* argv[]) {
         pid_atomi[i] = fork();
 
         srand(time(NULL));
-        int random = (rand() % (57 - 48 + 1)) + 48;
-        char * num_atomico = (char *)&random;
-        char * vec_atomo[] = {"atomo", (char*)&random, NULL};
+        int num_atomico = (rand() % (57 - 48 + 1)) + 48;
+        char * vec_atomo[] = {"atomo", (char*)&num_atomico, NULL};
 
         switch(pid_atomi[i]) {
 
@@ -99,23 +99,25 @@ int main(int argc, char* argv[]) {
 void print_stats(stats stat) {
     static int count = 0;
 
-    int col_width = 40;
     printf("\n\n\n\n");
-    printf("STATISTICHE:\n");
-    printf("%-*s | %-*s\n", col_width, "Tipo", col_width, "Valore");
-    printf("%-*c | %-*c\n", col_width, '-', col_width, '-');
+    printf("STATISTICHE RELATIVE ALL'ULTIMO SECONDO:\n");
+    printf("- numero attivazioni:   %d\n", stat.n_activ_rel);
+    printf("- numero scissioni:     %d\n", stat.n_div_rel);
+    printf("- numero enegia prodotta:       %d\n", stat.prod_energy_rel);
+    printf("- numero energia consumata:     %d\n", stat.cons_energy_rel);
+    printf("- numero scorie prodotte:       %d\n", stat.prod_waste_rel);
+    
+    printf("\n");
 
-    char *col1[11] = {"Attivazioni ultimo secondo:","Attivazioni totali:","Scissioni ultimo secondo:","Scissioni totali:",
-        "Energia prodotta ultimo secondo:","Energia prodotta totale:","Energia consumata ultimo secondo:","Energia consumata totale:",
-        "Scorie prodotte ultimo secondo:","Scorie prodotte totali:"};
-    int col2[11] = {stat.n_activ_rel,stat.n_activ_total,stat.n_div_rel,stat.n_div_total,stat.prod_energy_rel,stat.prod_energy_tot,
-        stat.cons_energy_rel,stat.cons_energy_tot,stat.prod_waste_rel,stat.prod_waste_tot};
-
-    for (long unsigned int i = 0; i < (sizeof(col1)/sizeof(col1[0]))-1; i++) {
-        printf("%-*s | %-*d\n", col_width, col1[i], col_width, col2[i]);
-    }
+    printf("STATISTCHE TOTALI:\n");
+    printf("- numero attivazioni: %d\n", stat_total_value(&stat.n_activ_total, &stat.n_activ_rel));
+    printf("- numero scissioni: %d\n", stat_total_value(&stat.n_div_total, &stat.n_div_rel));
+    printf("- numero enegia prodotta: %d\n", stat_total_value(&stat.prod_energy_tot, &stat.prod_energy_rel));
+    printf("- numero energia consumata: %d\n", stat_total_value(&stat.cons_energy_tot, &stat.cons_energy_rel));
+    printf("- numero scorie prodotte: %d\n", stat_total_value(&stat.prod_waste_tot, &stat.prod_energy_rel));
 
     printf("%d\n", count++);
+    
 }
 
 int stat_total_value(int * tot_value, int * rel_value) {
