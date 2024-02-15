@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
         int range = 118; // numero atomico compreso tra 1 e 118 (max tavola periodica)
 
         srand(time(NULL));
-        int num_atomico = rand() % range + 90;
+        int num_atomico = rand() % range + 1;
         sprintf(n_atom, "%d", num_atomico);
         char * vec_atomo[] = {"atomo", n_atom, NULL};
 
