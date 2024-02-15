@@ -58,6 +58,7 @@ int main(int argc, char* argv[]) {
         int range = 118 - 90 + 1; // numero atomico compreso tra 118 (max tavola periodica) e 90 (min per fissione)
 
         srand(time(NULL));
+
         int num_atomico = rand() % range + 90;
         char * vec_atomo[] = {"atomo", (char*)&num_atomico, NULL};
 
