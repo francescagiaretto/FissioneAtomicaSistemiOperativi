@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
         pid_atomi[i] = fork();
 
         srand(time(NULL));
-        int num_atomico = (rand()) + 90;
+        int num_atomico = (rand() % 118) + 90;
         char * vec_atomo[] = {"atomo", (char*)&num_atomico, NULL};
 
         switch(pid_atomi[i]) {
