@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         pid_atomi[i] = fork();
 
-        int range = 118; // numero atomico compreso tra 118 (max tavola periodica) e 90 (min per fissione)
+        int range = 118; // numero atomico compreso tra 1 e 118 (max tavola periodica)
 
         srand(time(NULL));
 
