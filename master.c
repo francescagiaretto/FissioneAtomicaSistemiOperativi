@@ -55,8 +55,14 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         pid_atomi[i] = fork();
 
+        int range = 118 - 90 + 1; // numero atomico compreso tra 118 (max tavola periodica) e 90 (min per fissione)
+
         srand(time(NULL));
+<<<<<<< HEAD
         int num_atomico = (rand() % 118) + 90;
+=======
+        int num_atomico = rand() % range + 90;
+>>>>>>> refs/remotes/origin/main
         char * vec_atomo[] = {"atomo", (char*)&num_atomico, NULL};
 
         switch(pid_atomi[i]) {
