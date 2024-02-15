@@ -18,7 +18,6 @@ int main(int argc, char* argv[]) {
     pid_t pid_alimentatore, pid_attivatore;     // pid dei processi alimentatore e attivatore
     pid_t * pid_atomi;
     stats stat = {0};   // inizializzo la struct a 0
-    char n_atom[4];        // vettore passato al dato
 
     char * vec_alim[] = {"alimentatore", NULL};
     char * vec_attiv[] = {"attivatore", NULL};
@@ -56,12 +55,12 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         pid_atomi[i] = fork();
 
-        int range = 118 - 90 + 1; // numero atomico compreso tra 118 (max tavola periodica) e 90 (min per fissione)
+        int range = 118; // numero atomico compreso tra 118 (max tavola periodica) e 90 (min per fissione)
 
         srand(time(NULL));
-        int num_atomico = rand() % range + 90;
-        sprintf(n_atom, "%d", num_atomico);
-        char * vec_atomo[] = {"atomo", n_atom, NULL};
+
+        int num_atomico = rand() % range + 1;
+        char * vec_atomo[] = {"atomo", (char*)&num_atomico, NULL};
 
         switch(pid_atomi[i]) {
 
@@ -71,15 +70,12 @@ int main(int argc, char* argv[]) {
 
             case 0: // caso figli: libero la memoria allocata con la malloc
             free(pid_atomi);
-            printf("%d", num_atomico);
-
 
             if (execve("atomo", vec_atomo, NULL) == -1) {perror("execve atomi"); exit(EXIT_FAILURE);}  // non funziona
             break;
 
             default:
             printf("atomo con pid %d\n", pid_atomi[i]);
-            
             break;
         }
     }
