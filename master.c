@@ -125,6 +125,7 @@ void print_stats(stats stat) {
     
 }
 
+// ! metodo non usato ancora, da aggiustare per gestire i valori totali
 int stat_total_value(int * tot_value, int * rel_value) {
         *tot_value += *rel_value;
         return *tot_value;
