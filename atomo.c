@@ -10,10 +10,12 @@ int main(int argc, char* argv[]){
         // termino processo
         // scorie++
     }
-    
+
     nipote1 = rand()% n_atomico_padre + 1;
     nipote2 = n_atomico_padre - nipote1;
 
+
+    // TODO gestire la fork quando lo richiede l'attivatore.
     for (int i = 0 ; i < 2; i++) {
 
         pid_t pid_atomi = fork();
