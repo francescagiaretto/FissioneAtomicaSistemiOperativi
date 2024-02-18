@@ -2,13 +2,15 @@
 
 int main() {
 
-    // STRUCT per definire una sleep contata in nanosecondi, non possibile usando una sleep() normale.
+    //* STRUCT per definire una sleep contata in nanosecondi, non possibile usando una sleep() normale.
     struct timespec step_nanosec;
-    step_nanosec.tv_sec = 0;            
-    step_nanosec.tv_nsec = STEP_ALIMENTATORE;
+    step_nanosec.tv_sec = 0;           // secondi    
+    step_nanosec.tv_nsec = STEP_ALIMENTATORE;   // nanosecondi
 
     // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
 
+    // ! commentato per evitare che crei conflitto quando eseguiamo le prove
+    
     /* while(1) {
         nanosleep(&step_nanosec, NULL);
 

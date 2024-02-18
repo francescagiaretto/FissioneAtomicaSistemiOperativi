@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // solo quando tutto è in regola posso far partire la simulazione, che dura 30 secondi 
+    // ! solo quando tutto è in regola posso far partire la simulazione, che dura SIM_DURATION secondi 
     struct sigaction sa;
 
     bzero(&sa, sizeof(&sa)); // azzera tutta la struct per passarla al figlio
@@ -92,6 +92,8 @@ int main(int argc, char* argv[]) {
     alarm(SIM_DURATION);
     for(; 1; ) {
         print_stats(stat);
+
+        // TODO: prelevare la quantità ENERGY_DEMAND di energia
         
         sleep(1);
     }
