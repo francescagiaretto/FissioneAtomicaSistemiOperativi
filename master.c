@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
             printf("Simulazione terminata: meltdown."); exit(EXIT_FAILURE);
 
         case 0:
-        if(execve("alimentatore", vec_alim, NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
+        if(execve("./alimentatore", vec_alim, NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
         break;
 
         default: // siamo nel processo padre
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
             exit(EXIT_FAILURE);
 
             case 0:
-            if(execve("attivatore", vec_attiv, NULL) == -1) { perror("Execve attiv"); exit(EXIT_FAILURE);} 
+            if(execve("./attivatore", vec_attiv, NULL) == -1) { perror("Execve attiv"); exit(EXIT_FAILURE);} 
             break;
         }
         break;
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 
             case 0: // caso figli: libero la memoria allocata con la malloc
                 free(pid_atomi);
-                if (execve("atomo", vec_atomo, NULL) == -1) {perror("Execve atomi"); exit(EXIT_FAILURE);}  // non funziona
+                if (execve("./atomo", vec_atomo, NULL) == -1) {perror("Execve atomi"); exit(EXIT_FAILURE);}  // non funziona
             break;
 
             default:
