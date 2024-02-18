@@ -99,6 +99,7 @@ int main(int argc, char* argv[]) {
     // TODO liberare memoria a simulazione terminata
 }
 
+
 void print_stats(stats stat) {
     static int count = 0;
 

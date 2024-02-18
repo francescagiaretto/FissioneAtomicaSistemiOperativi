@@ -20,8 +20,8 @@ int main(int argc, char* argv[]){
 
         pid_t pid_atomi = fork();
         
-        srand(getpid()); // meglio usare getpid piuttosto che time(NULL) perché time randomizza in base al tempo del programma
-                        // mentre così usa il pid che è sempre diverso, il tempo del programma invece è sempre lo stesso
+        srand(getpid()); //*  meglio usare getpid piuttosto che time(NULL) perché time randomizza in base al tempo del programma
+                        //*  mentre così usa il pid che è sempre diverso, il tempo del programma invece è sempre lo stesso
 
         sprintf(appoggio, "%d",vec_nipoti[i]);
         char * vec_atomo[] = {"atomo", appoggio, NULL};
