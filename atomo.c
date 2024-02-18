@@ -8,8 +8,8 @@ int main(int argc, char* argv[]){
 
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
         // termino processo
-        // scorie++
-    }
+        // scorie++         
+    }  
 
     nipote1 = rand()% n_atomico_padre + 1;
     nipote2 = n_atomico_padre - nipote1;
@@ -26,6 +26,7 @@ int main(int argc, char* argv[]){
         sprintf(appoggio, "%d",vec_nipoti[i]);
         char * vec_atomo[] = {"atomo", appoggio, NULL};
 
+        // TODO funzione energy() che incrementa l'energia liberata nelle statistiche del master
             switch (pid_atomi)
 
             {
@@ -35,11 +36,10 @@ int main(int argc, char* argv[]){
                 break;
                 
                 case 0: // controlli il figlio
-                    if (execve("atomo", vec_atomo, NULL)==-1) {perror("Execve nipote"); exit(EXIT_FAILURE);} 
+                    if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve nipote"); exit(EXIT_FAILURE);} 
                 break;
 
                 default: // controlli il padre
-                    printf("sono pid: %d\n", getpid());
                     printf("Padre: %d, Nipote1: %d, Nipote2: %d\n", n_atomico_padre, nipote1, nipote2);
                 break;
             }
