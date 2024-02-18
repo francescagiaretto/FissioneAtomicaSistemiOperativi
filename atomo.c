@@ -10,16 +10,16 @@ int main(int argc, char* argv[]){
         // termino processo
         // scorie++
     }
-
-    srand(getpid()); // meglio usare getpid piuttosto che time(NULL) perché time randomizza in base al tempo del programma
-                        // mentre così usa il pid che è sempre diverso, il tempo del programma invece è sempre lo stesso
+    nipote1 = rand()% n_atomico_padre + 1;
+    nipote2 = n_atomico_padre - nipote1;
 
     for (int i = 0 ; i < 2; i++) {
 
         pid_t pid_atomi = fork();
         
-        nipote1 = rand()% n_atomico_padre + 1;
-        nipote2 = n_atomico_padre - nipote1;
+        srand(getpid()); // meglio usare getpid piuttosto che time(NULL) perché time randomizza in base al tempo del programma
+                        // mentre così usa il pid che è sempre diverso, il tempo del programma invece è sempre lo stesso
+
 
         sprintf(appoggio, "%d",vec_nipoti[i]);
         char * vec_atomo[] = {"atomo", appoggio, NULL};
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]){
                 break;
                 
                 case 0: // controlli il figlio
-                    if (execve("./atomo", vec_atomo, NULL)==-1) {perror("Execve nipote"); exit(EXIT_FAILURE);} 
+                    if (execve("atomo", vec_atomo, NULL)==-1) {perror("Execve nipote"); exit(EXIT_FAILURE);} 
                 break;
 
                 default: // controlli il padre
