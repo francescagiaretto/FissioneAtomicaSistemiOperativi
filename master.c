@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     free(pid_atomi);
 
-    alarm(5);
+    alarm(SIM_DURATION);
     for(; 1; ) {
         print_stats(stat);
         
