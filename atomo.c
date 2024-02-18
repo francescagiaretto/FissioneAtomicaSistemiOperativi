@@ -37,7 +37,7 @@ int main(int argc, char* argv[]){
                 break;
 
                 default: // controlli il padre
-                    printf("Padre: %d, Nipote1: %d, Nipote: %d\n", n_atomico_padre, nipote1, nipote2);
+                    printf("Padre: %d, Nipote1: %d, Nipote2: %d\n", n_atomico_padre, nipote1, nipote2);
                 break;
             }
     }
