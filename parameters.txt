@@ -1,9 +1,11 @@
-#define N_ATOM_INIT 5
+#define N_ATOM_INIT 1
 #define N_ATOM_MAX 25
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 1
-#define STEP_ALIMENTATORE 200000
 #define N_NUOVI_ATOMI 5
 #define SIM_DURATION 30
 #define ENERGY_EXPLODE_THRESHOLD 200000000
 #define MIN_N_ATOMICO 5
+#define MAX(a, b) ((a > b) ? (a) : (b))
+
+            
