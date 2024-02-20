@@ -8,3 +8,4 @@
 #define MIN_N_ATOMICO 5
 #define STEP_ALIMENTATORE 25930
             
+            

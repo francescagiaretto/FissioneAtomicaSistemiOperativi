@@ -1,15 +1,31 @@
 #include "library.h"
 
 int main(int argc, char* argv[]){
-    int nipote1 = 0; int nipote2= 0; int vec_nipoti[] = {nipote1,nipote2};
-    int n_atomico_padre = atoi(argv[1]); int EN_LIB = 0;
 
-    char appoggio[3];
+    int n_atomico_padre = atoi(argv[1]); int EN_LIB = 0;
 
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
         // termino processo
-        // scorie++         
+        // scorie++  
+
+        //! CODA DI MESSAGGI IDEA PER EN_LI DA PASSARE       
     }  
+
+    /*
+    1. Crei la coda di messaggi id = msggget(key_ t chiave, IPC_CREAT, 0600) IPC creat accede sempre alla coda di messaggi o la crea
+    2. if (coda == -1) {
+
+        ErrExit("msgget")
+
+    }
+    3. TODO ricorda di fare la cancellazione immediata appena usate
+    4. il valore di ritorno è una struct
+    5. crei un errore apposito per energia liberata < 0
+    */
+
+    int nipote1 = 0; int nipote2= 0; int vec_nipoti[] = {nipote1,nipote2};
+
+    char appoggio[3];
 
     nipote1 = rand()% n_atomico_padre + 1;
     nipote2 = n_atomico_padre - nipote1;
