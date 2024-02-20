@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[]){
     int nipote1 = 0; int nipote2= 0; int vec_nipoti[] = {nipote1,nipote2};
-    int n_atomico_padre = atoi(argv[1]);
+    int n_atomico_padre = atoi(argv[1]); int EN_LIB = 0;
 
     char appoggio[3];
 
@@ -40,7 +40,9 @@ int main(int argc, char* argv[]){
                 break;
 
                 default: // controlli il padre
-                    printf("Padre: %d, Nipote1: %d, Nipote2: %d\n", n_atomico_padre, nipote1, nipote2);
+                int max_num = MAX(n_atomico_bro1, n_atomico_bro2);
+                EN_LIB = n_atomico_bro1*n_atomico_bro2 - max_num; // NECESSARIO FARLO ANCHE NEL NIPOTE?         
+                printf("Padre: %d, Nipote1: %d, Nipote2: %d\n", n_atomico_padre, nipote1, nipote2);
                 break;
             }
     }
