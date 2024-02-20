@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#define MAX(a, b) ((a > b) ? (a) : (b))
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
