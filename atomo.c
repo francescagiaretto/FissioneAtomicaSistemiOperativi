@@ -40,8 +40,8 @@ int main(int argc, char* argv[]){
                 break;
 
                 default: // controlli il padre
-                int max_num = MAX(n_atomico_bro1, n_atomico_bro2);
-                EN_LIB = n_atomico_bro1*n_atomico_bro2 - max_num; // NECESSARIO FARLO ANCHE NEL NIPOTE?         
+                int max_num = MAX(nipote1, nipote2);
+                EN_LIB = nipote1*nipote2 - max_num; // NECESSARIO FARLO ANCHE NEL NIPOTE?         
                 printf("Padre: %d, Nipote1: %d, Nipote2: %d\n", n_atomico_padre, nipote1, nipote2);
                 break;
             }
