@@ -7,7 +7,7 @@ int main(int argc, char* argv[]){
     char appoggio[3];
 
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
-        // termino processo
+        kill(getpid(), SIGTERM);
         // scorie++         
     }  
 
