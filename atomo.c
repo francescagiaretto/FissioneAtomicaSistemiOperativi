@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
     int temp = n_atomico_padre;
     n_atomico_padre = rand()% n_atomico_padre + 1;
     figlio = temp - n_atomico_padre;
-
+    //cacca
 
     // TODO gestire la fork quando lo richiede l'attivatore.
     pid_t pid_atomi = fork();
