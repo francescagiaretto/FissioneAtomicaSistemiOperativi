@@ -34,10 +34,11 @@ int main(int argc, char* argv[]){
             case 0: // controlli il figlio
                 if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve nipote"); exit(EXIT_FAILURE);} 
             break;
+            
             default: // controlli il padre
-            int max_num = MAX(figlio, n_atomico_padre);
-            EN_LIB = figlio*n_atomico_padre - max_num; // NECESSARIO FARLO ANCHE NEL NIPOTE?         
-            printf("Padre: %d, Figlio: %d\n", n_atomico_padre, figlio);
+                int max_num = MAX(figlio, n_atomico_padre);
+                EN_LIB = figlio*n_atomico_padre - max_num; // NECESSARIO FARLO ANCHE NEL NIPOTE?         
+                printf("Padre: %d, Figlio: %d\n", n_atomico_padre, figlio);
             break;
         }
 }

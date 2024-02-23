@@ -29,23 +29,24 @@ int main(int argc, char* argv[]) {
 
         case -1:
             printf("Simulazione terminata: meltdown."); exit(EXIT_FAILURE);
+        break;
 
         case 0:
-        if(execve("./alimentatore", vec_alim, NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
+            if(execve("./alimentatore", vec_alim, NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
         break;
 
         default: // siamo nel processo padre
+            switch(pid_attivatore = fork()) {
 
-        switch(pid_attivatore = fork()) {
+                case -1:
+                    printf("Simulazione terminata: meltdown.");
+                    exit(EXIT_FAILURE);
+                break;
 
-            case -1:
-            printf("Simulazione terminata: meltdown.");
-            exit(EXIT_FAILURE);
-
-            case 0:
-            if(execve("./attivatore", vec_attiv, NULL) == -1) { perror("Execve attiv"); exit(EXIT_FAILURE);} 
-            break;
-        }
+                case 0:
+                    if(execve("./attivatore", vec_attiv, NULL) == -1) { perror("Execve attiv"); exit(EXIT_FAILURE);} 
+                break;
+            }
         break;
     }
 
