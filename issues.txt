@@ -1,13 +1,10 @@
 /*
-Memoria condivisa
 Semafori
 Gestione terminazioni
-Makefile
 Definizione metodi nella libreria?
 Ripulire tutto a fine simulazione
 
 ATOMO 
-- fork dei figli
 - condizione numero atomico minimo (conteggio scorie aumenta -> contatore in memoria condivisa)
 - energia liberata: metodo (int n1, int n2) con figlio1 che passa n1 e figlio2 che passa n2
 
@@ -15,15 +12,9 @@ ATTIVATORE
 - controllo numero atomico < numero minimo -> scorie + 1 (memoria dinamica con contatore e code di messaggi)
 - segnale scissione
 
-ALIMENTATORE 
-struct time gestisce tempo in nanosecondi; ogni tot nanosecondi crea nuovi atomi
-
 SHARED MEMORY
 Il funzionamento è simile a quello delle code di messaggi
-Si crea col comando shmget; la dimensione si può definire tra i parametri per comodità
-L'accesso alla memoria condivisa si fa tramite una variabile puntatore, che viene collegata alla shmem con il comando shmat;
-    successivamente è necessario controllare che il collegamento sia avvenuto (restituisco quindi errore se la lunghezza del
-    puntatore è -1)
+
 ! IMPORTANTE 
     Le interazioni con la shmem vanno regolate coi semafori: se qualcuno legge e non c'è nulla dà errore 
     Creo quindi un semaforo con semget
@@ -31,8 +22,21 @@ L'accesso alla memoria condivisa si fa tramite una variabile puntatore, che vien
 Per le operazioni di lettura e scrittura in shmem si usa memcpy (alternativamente si può creare anche una variabile con il
     puntatore come valore, ma ad esempio a Gabri non funzionava)
 
-! IMPORTANTE
-    Alla fine della simulazione è fondamentale "staccare" dalla shmem la variabile puntatore (funzione shmdt)
-    e deallocare la memoria condivisa (shmctl)
 
+*/
+
+/*
+COSE FATTE
+Creazione shmem (shmget), collegamento a pointer (shmat), detach pointer (shmdt), deallocare shmem(shmctl)
+
+ALIMENTATORE 
+struct time gestisce tempo in nanosecondi; ogni tot nanosecondi crea nuovi atomi
+
+ATOMO 
+- fork dei figli
+- condizione numero atomico minimo
+
+
+
+Makefile
 */

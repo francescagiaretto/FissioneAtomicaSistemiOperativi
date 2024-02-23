@@ -2,7 +2,7 @@
 
 // ? come giostrare i metodi nella libreria ?
 
-void print_stats(stats);
+void print_stats(stat_rel, stat_tot);
 int stat_total_value(int *, int *);
 
 void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva dall'alarm(30), che definisce la terminazione "timeout"
@@ -16,12 +16,32 @@ int main(int argc, char* argv[]) {
 
     pid_t pid_alimentatore, pid_attivatore;     // pid dei processi alimentatore e attivatore
     pid_t * pid_atomi;
-    stats stat = {0};   // inizializzo la struct a 0
+
+    // inizializzo le struct a 0
+    stat_tot totali = {0};
+    stat_rel relative = {0};
     char n_atom[4]; 
 
     char * vec_alim[] = {"alimentatore", NULL};
     char * vec_attiv[] = {"attivatore", NULL};
 
+    // creo la chiave della shared memory
+    key_t shmkey = ftok(".", '0');
+    // creo la memoria condivisa
+    int shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT);
+    if (shmid == -1) {
+        perror("Shared memory creation"); exit(EXIT_FAILURE);
+    }
+
+    // collego alla memoria una variabile puntatore per l'accesso alla shmem
+    struct shmseg * shmem_p;
+    shmem_p = (struct shmseg *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
+                                            // indirizzo valido in Unix non è per forza valido altrove
+    if (shmem_p == (void *) -1) {
+        perror("Pointer not attached"); exit(EXIT_FAILURE);
+    }
+
+    
 
     // creazione processo attivatore e alimentatore
     switch(pid_alimentatore = fork()) {
@@ -89,21 +109,25 @@ int main(int argc, char* argv[]) {
     sigaction(SIGALRM, &sa, NULL);
 
     free(pid_atomi);
-
     alarm(SIM_DURATION);
+
     for(; 1; ) {
-        print_stats(stat);
+        print_stats(relative, totali);
 
         // TODO: prelevare la quantità ENERGY_DEMAND di energia
         
         sleep(1);
+        stat_rel relative = {0};
     }
 
-    // TODO liberare memoria a simulazione terminata
+    memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
+
+    shmdt(shmem_p);
+    shmctl(shmid, IPC_RMID, NULL);
 }
 
 
-void print_stats(stats stat) {
+void print_stats(stat_rel relative, stat_tot totali) {
     static int count = 0;
 
     int col_width = 40;
@@ -115,15 +139,14 @@ void print_stats(stats stat) {
     char *col1[11] = {"Attivazioni ultimo secondo:","Attivazioni totali:","Scissioni ultimo secondo:","Scissioni totali:",
         "Energia prodotta ultimo secondo:","Energia prodotta totale:","Energia consumata ultimo secondo:","Energia consumata totale:",
         "Scorie prodotte ultimo secondo:","Scorie prodotte totali:"};
-    int col2[11] = {stat.n_activ_rel,stat.n_activ_total,stat.n_div_rel,stat.n_div_total,stat.prod_energy_rel,stat.prod_energy_tot,
-        stat.cons_energy_rel,stat.cons_energy_tot,stat.prod_waste_rel,stat.prod_waste_tot};
+    int col2[11] = {relative.n_activ_rel,totali.n_activ_total,relative.n_div_rel,totali.n_div_total,relative.prod_energy_rel,totali.prod_energy_tot,
+        relative.cons_energy_rel,totali.cons_energy_tot,relative.prod_waste_rel,totali.prod_waste_tot};
 
     for (long unsigned int i = 0; i < (sizeof(col1)/sizeof(col1[0]))-1; i++) {
         printf("%-*s | %-*d\n", col_width, col1[i], col_width, col2[i]);
     }
 
     printf("%d\n", count++);
-    
 }
 
 // ! metodo non usato ancora, da aggiustare per gestire i valori totali
@@ -131,3 +154,7 @@ int stat_total_value(int * tot_value, int * rel_value) {
         *tot_value += *rel_value;
         return *tot_value;
     }
+
+
+
+// ! crea il ricevitore di dato e prova a stampare

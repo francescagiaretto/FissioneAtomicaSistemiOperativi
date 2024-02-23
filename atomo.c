@@ -1,15 +1,24 @@
 #include "library.h"
 
 int main(int argc, char* argv[]){
+    // necessario crearti vettore per muoverti in memoria condivisa
+    
+    int n_atomico_padre = atoi(argv[1]); 
+    void * shmem_p = argv[2];
     int figlio = 0; int vec_nipoti[] = {figlio};
-    int n_atomico_padre = atoi(argv[1]); int EN_LIB = 0;
-
-    char appoggio[3];
-
+    int EN_LIB = 0;
+    int * num_scorie = 0;
+    
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
         kill(getpid(), SIGTERM);
-        // scorie++         
-    }  
+        // TODO shared memory per scorie
+        // scorie_relative+ 
+        //num_scorie = sizeof(scorie_aggiunteora)
+        num_scorie++;
+        memcpy(shmem_p, num_scorie, sizeof(num_scorie)); //! incompleto
+    } 
+
+    char appoggio[3];
 
     int temp = n_atomico_padre;
     n_atomico_padre = rand()% n_atomico_padre + 1;
@@ -20,8 +29,9 @@ int main(int argc, char* argv[]){
     
     srand(getpid()); //*  meglio usare getpid piuttosto che time(NULL) perché time randomizza in base al tempo del programma
                     //*  mentre così usa il pid che è sempre diverso, il tempo del programma invece è sempre lo stesso
-    sprintf(appoggio, "%d",vec_nipoti);
+    sprintf(appoggio, "%d", *vec_nipoti);
     char * vec_atomo[] = {"atomo", appoggio, NULL};
+
     // TODO funzione energy() che incrementa l'energia liberata nelle statistiche del master
         switch (pid_atomi)
         {
