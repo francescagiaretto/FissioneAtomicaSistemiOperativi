@@ -11,17 +11,7 @@ int main(int argc, char* argv[]){
         //! CODA DI MESSAGGI IDEA PER EN_LI DA PASSARE       
     }  
 
-    /*
-    1. Crei la coda di messaggi id = msggget(key_ t chiave, IPC_CREAT, 0600) IPC creat accede sempre alla coda di messaggi o la crea
-    2. if (coda == -1) {
-
-        ErrExit("msgget")
-
-    }
-    3. TODO ricorda di fare la cancellazione immediata appena usate
-    4. il valore di ritorno è una struct
-    5. crei un errore apposito per energia liberata < 0
-    */
+    
 
     int nipote1 = 0; int nipote2= 0; int vec_nipoti[] = {nipote1,nipote2};
 
