@@ -9,7 +9,8 @@
 #include <errno.h>
 #include <time.h>
 #include "parameters.txt"
-
+#include <sys/types.h>
+#include <sys/msg.h>
 typedef struct stats {
     int n_activ_rel;    // relativa è contata nel secondo
     int n_activ_total;  // totale è la somma delle relative fino al momento
@@ -23,3 +24,4 @@ typedef struct stats {
     int prod_waste_tot;
 
 } stats;
+

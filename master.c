@@ -100,7 +100,6 @@ int main(int argc, char* argv[]) {
     }
 
     // TODO liberare memoria a simulazione terminata
-    // TODO shmdt() per deallocare puntatore alla memoria
 }
 
 
