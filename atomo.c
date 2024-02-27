@@ -4,18 +4,14 @@ int main(int argc, char* argv[]){
     // necessario crearti vettore per muoverti in memoria condivisa
     
     int n_atomico_padre = atoi(argv[1]); 
-    void * shmem_p = argv[2];
-    int figlio = 0; int vec_nipoti[] = {figlio};
-    int EN_LIB = 0;
-    int * num_scorie = 0;
+    buffer_dati * shmem_p = (buffer_dati *) argv[2];
+    int figlio = 0, vec_nipoti[] = {figlio}, EN_LIB = 0;
+
     
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
+        shmem_p -> num_scorie = shmem_p -> num_scorie++;
+        //memcpy(shmem_p -> num_scorie, &scorie, sizeof(scorie)); // destinazione, origine, numero di byte scritti
         kill(getpid(), SIGTERM);
-        // TODO shared memory per scorie
-        // scorie_relative+ 
-        //num_scorie = sizeof(scorie_aggiunteora)
-        num_scorie++;
-        memcpy(shmem_p, num_scorie, sizeof(num_scorie)); //! incompleto
     } 
 
     char appoggio[3];

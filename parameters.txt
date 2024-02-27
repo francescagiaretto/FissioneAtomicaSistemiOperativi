@@ -1,11 +1,11 @@
-#define N_ATOM_INIT 5
+#define N_ATOM_INIT 6
 #define N_ATOM_MAX 25
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 1
 #define N_NUOVI_ATOMI 5
-#define SIM_DURATION 30
+#define SIM_DURATION 5
 #define ENERGY_EXPLODE_THRESHOLD 200000000
-#define MIN_N_ATOMICO 30000
+#define MIN_N_ATOMICO 10000
 #define STEP_ALIMENTATORE 25930
 #define SHM_SIZE 50             
-            
+#define RNG_N_ATOMICO 118            

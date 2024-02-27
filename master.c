@@ -1,4 +1,4 @@
-#include "library.h"
+    #include "library.h"
 
 // ? come giostrare i metodi nella libreria ?
 
@@ -6,7 +6,7 @@ void print_stats(stat_rel, stat_tot);
 int stat_total_value(int *, int *);
 
 void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva dall'alarm(30), che definisce la terminazione "timeout"
-    write(0, "Simulazione terminata: timeout.\n", 10);
+    write(0, "Simulazione terminata: timeout.\n", 32);
     exit(0);
 }
 
@@ -18,8 +18,7 @@ int main(int argc, char* argv[]) {
     pid_t * pid_atomi;
 
     // inizializzo le struct a 0
-    stat_tot totali = {0};
-    stat_rel relative = {0};
+    stat_tot totali = {0}; stat_rel relative = {0};
     char n_atom[4]; 
 
     char * vec_alim[] = {"alimentatore", NULL};
@@ -28,14 +27,14 @@ int main(int argc, char* argv[]) {
     // creo la chiave della shared memory
     key_t shmkey = ftok("master.c", 'A');
     // creo la memoria condivisa
-    int shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT);
+    int shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT|0666);
     if (shmid == -1) {
         perror("Shared memory creation"); exit(EXIT_FAILURE);
     }
 
     // collego alla memoria una variabile puntatore per l'accesso alla shmem
-    struct shmseg * shmem_p;
-    shmem_p = (struct shmseg *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
+    buffer_dati * shmem_p;
+    shmem_p = (struct buffer_dati *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
                                             // indirizzo valido in Unix non è per forza valido altrove
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached"); exit(EXIT_FAILURE);
@@ -76,12 +75,10 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         pid_atomi[i] = fork();
 
-        int range = 118; // numero atomico compreso tra 1 e 118 (max tavola periodica)
-
         srand(getpid());
-        int num_atomico = rand() % range + 1;
+        int num_atomico = rand() % RNG_N_ATOMICO + 1;
         sprintf(n_atom, "%d", num_atomico);
-        char * vec_atomo[] = {"atomo", n_atom, NULL};
+        char * vec_atomo[] = {"atomo", n_atom, (char*)shmem_p, NULL};
 
         switch(pid_atomi[i]) {
 
@@ -110,8 +107,14 @@ int main(int argc, char* argv[]) {
 
     free(pid_atomi);
     alarm(SIM_DURATION);
+    
 
     for(; 1; ) {
+        int scorie = shmem_p -> num_scorie;
+        //memcpy(&relative.prod_waste_rel, &scorie, sizeof(scorie)); //! CONTROLLA MEGLIO
+        // relative.prod_waste_rel = shmem_p -> num_scorie;
+        // shmem_p -> num_scorie;
+        printf("%d\n", scorie);
         print_stats(relative, totali);
 
         // TODO: prelevare la quantità ENERGY_DEMAND di energia
@@ -120,7 +123,6 @@ int main(int argc, char* argv[]) {
         stat_rel relative = {0};
     }
 
-    memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
 
     shmdt(shmem_p);
     shmctl(shmid, IPC_RMID, NULL);
