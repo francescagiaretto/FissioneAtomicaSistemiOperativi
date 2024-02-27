@@ -6,6 +6,7 @@ void print_stats(stat_rel, stat_tot);
 int stat_total_value(int *, int *);
 
 void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva dall'alarm(30), che definisce la terminazione "timeout"
+    
     write(0, "Simulazione terminata: timeout.\n", 32);
     exit(0);
 }
@@ -106,10 +107,9 @@ int main(int argc, char* argv[]) {
     sigaction(SIGALRM, &sa, NULL);
 
     free(pid_atomi);
-    alarm(SIM_DURATION);
-    
+    alarm(SIM_DURATION);    
 
-    for(; 1; ) {
+    while(1) {
         int scorie = shmem_p -> num_scorie;
         //memcpy(&relative.prod_waste_rel, &scorie, sizeof(scorie)); //! CONTROLLA MEGLIO
         // relative.prod_waste_rel = shmem_p -> num_scorie;
@@ -126,6 +126,7 @@ int main(int argc, char* argv[]) {
 
     shmdt(shmem_p);
     shmctl(shmid, IPC_RMID, NULL);
+    //! SEMAFORO AL POSTO DEL CICLO
 }
 
 

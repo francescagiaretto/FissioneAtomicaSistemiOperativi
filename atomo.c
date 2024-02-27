@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
     }
     
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
-        shmem_p -> num_scorie = shmem_p -> num_scorie++;
+        shmem_p -> num_scorie = shmem_p -> num_scorie + 1;
         //memcpy(shmem_p -> num_scorie, &scorie, sizeof(scorie)); // destinazione, origine, numero di byte scritti
         kill(getpid(), SIGTERM);
     } 
