@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     char * vec_attiv[] = {"attivatore", NULL};
 
     // creo la chiave della shared memory
-    key_t shmkey = ftok(".", '0');
+    key_t shmkey = ftok("master.c", 'A');
     // creo la memoria condivisa
     int shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT);
     if (shmid == -1) {
