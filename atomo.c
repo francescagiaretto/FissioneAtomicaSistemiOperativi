@@ -4,9 +4,15 @@ int main(int argc, char* argv[]){
     // necessario crearti vettore per muoverti in memoria condivisa
     
     int n_atomico_padre = atoi(argv[1]); 
-    buffer_dati * shmem_p = (buffer_dati *) argv[2];
+    buffer_dati * shmem_p;
     int figlio = 0, vec_nipoti[] = {figlio}, EN_LIB = 0;
-
+    
+    // il figlio si collega alla shmem
+    int shmid = atoi(argv[2]);
+    shmem_p = (buffer_dati *) shmat(shmid, NULL, 0);
+    if (shmem_p == (void *) -1) {
+        perror("Pointer not attached."); exit(EXIT_FAILURE);
+    }
     
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
         shmem_p -> num_scorie = shmem_p -> num_scorie++;

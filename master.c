@@ -1,4 +1,4 @@
-    #include "library.h"
+#include "library.h"
 
 // ? come giostrare i metodi nella libreria ?
 
@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 
     // inizializzo le struct a 0
     stat_tot totali = {0}; stat_rel relative = {0};
-    char n_atom[4]; 
+    char n_atom[4], id[4];
 
     char * vec_alim[] = {"alimentatore", NULL};
     char * vec_attiv[] = {"attivatore", NULL};
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
         perror("Pointer not attached"); exit(EXIT_FAILURE);
     }
 
-    
+    sprintf(id, "%d", shmid);
 
     // creazione processo attivatore e alimentatore
     switch(pid_alimentatore = fork()) {
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         srand(getpid());
         int num_atomico = rand() % RNG_N_ATOMICO + 1;
         sprintf(n_atom, "%d", num_atomico);
-        char * vec_atomo[] = {"atomo", n_atom, (char*)shmem_p, NULL};
+        char * vec_atomo[] = {"atomo", n_atom, id, NULL};
 
         switch(pid_atomi[i]) {
 
