@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
     // collego alla memoria una variabile puntatore per l'accesso alla shmem
     buffer_dati * shmem_p;
-    shmem_p = (struct buffer_dati *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
+    shmem_p = (buffer_dati *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
                                             // indirizzo valido in Unix non è per forza valido altrove
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached"); exit(EXIT_FAILURE);
