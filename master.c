@@ -109,9 +109,9 @@ int main(int argc, char* argv[]) {
 
     free(pid_atomi);
     alarm(SIM_DURATION);
-    
 
-
+    printf("%d", shmem_p-> data[0]);
+        
     for(; 1; ) {
         
         relative.prod_waste_rel = shmem_p -> data[0];
