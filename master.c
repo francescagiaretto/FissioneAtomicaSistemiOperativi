@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     if (shmid == -1) {
         perror("Shared memory creation"); exit(EXIT_FAILURE);
     }
-
+    // ciao
     // collego alla memoria una variabile puntatore per l'accesso alla shmem
     buffer_dati * shmem_p;
     shmem_p = (buffer_dati *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
