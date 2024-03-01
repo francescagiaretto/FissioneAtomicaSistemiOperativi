@@ -8,14 +8,14 @@ int main(int argc, char* argv[]){
     int figlio = 0, vec_figlio[] = {figlio}, EN_LIB = 0;
     
     // il figlio si collega alla shmem
-    int shmid = atoi(argv[1]);
+    int shmid = atoi(argv[2]);
     shmem_p = (buffer_dati *) shmat(shmid, NULL, 0);
 
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached."); exit(EXIT_FAILURE);
     }
 
-    if (1) { // controllo se il pid è inferiore al numero atomico minimo
+    if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
         shmem_p -> data[0] = shmem_p -> data[0] + 1;
         //memcpy(shmem_p -> num_scorie, &scorie, sizeof(scorie)); // destinazione, origine, numero di byte scritti
         kill(getpid(), SIGTERM);

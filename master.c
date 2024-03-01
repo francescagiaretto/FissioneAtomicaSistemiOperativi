@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     // inizializzo le struct a 0
     stat_tot totali = {0};
     stat_rel relative = {0};
-    char n_atom[4]; 
+    char n_atom[4]; char id_shmat[4];
 
     char * vec_alim[] = {"alimentatore", NULL};
     char * vec_attiv[] = {"attivatore", NULL};
@@ -80,7 +80,8 @@ int main(int argc, char* argv[]) {
         srand(getpid());
         int num_atomico = rand() % range + 1;
         sprintf(n_atom, "%d", num_atomico);
-        char * vec_atomo[] = {"atomo", n_atom, NULL};
+        sprintf(id_shmat, "%d", shmid);
+        char * vec_atomo[] = {"atomo", n_atom, id_shmat, NULL};
 
         switch(pid_atomi[i]) {
 
