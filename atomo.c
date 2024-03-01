@@ -5,7 +5,7 @@ int main(int argc, char* argv[]){
     
     int n_atomico_padre = atoi(argv[1]); 
     buffer_dati * shmem_p;
-    int figlio = 0, vec_nipoti[] = {figlio}, EN_LIB = 0;
+    int figlio = 0, vec_figlio[] = {figlio}, EN_LIB = 0;
     
     // il figlio si collega alla shmem
     int shmid = atoi(argv[2]);
@@ -15,7 +15,8 @@ int main(int argc, char* argv[]){
     }
     
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
-        shmem_p -> num_scorie = shmem_p -> num_scorie + 1;
+        shmem_p -> data[0] = shmem_p -> data[0] + 1;
+        printf("%d\n", shmem_p -> data[0]);
         //memcpy(shmem_p -> num_scorie, &scorie, sizeof(scorie)); // destinazione, origine, numero di byte scritti
         kill(getpid(), SIGTERM);
     } 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]){
     
     srand(getpid()); //*  meglio usare getpid piuttosto che time(NULL) perché time randomizza in base al tempo del programma
                     //*  mentre così usa il pid che è sempre diverso, il tempo del programma invece è sempre lo stesso
-    sprintf(appoggio, "%d", *vec_nipoti);
+    sprintf(appoggio, "%d", *vec_figlio);
     char * vec_atomo[] = {"atomo", appoggio, NULL};
 
     // TODO funzione energy() che incrementa l'energia liberata nelle statistiche del master

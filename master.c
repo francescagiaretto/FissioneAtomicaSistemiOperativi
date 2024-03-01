@@ -6,7 +6,7 @@ void print_stats(stat_rel, stat_tot);
 int stat_total_value(int *, int *);
 
 void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva dall'alarm(30), che definisce la terminazione "timeout"
-    write(0, "Simulazione terminata: timeout.\n", 10);
+    write(0, "Simulazione terminata: timeout.\n", 32);
     exit(0);
 }
 
@@ -28,20 +28,19 @@ int main(int argc, char* argv[]) {
     // creo la chiave della shared memory
     key_t shmkey = ftok("master.c", 'A');
     // creo la memoria condivisa
-    int shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT);
+    int shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("Shared memory creation"); exit(EXIT_FAILURE);
     }
 
     // collego alla memoria una variabile puntatore per l'accesso alla shmem
-    struct shmseg * shmem_p;
-    shmem_p = (struct shmseg *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
+    buffer_dati * shmem_p;
+    shmem_p = (buffer_dati *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
                                             // indirizzo valido in Unix non è per forza valido altrove
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached"); exit(EXIT_FAILURE);
     }
 
-    
 
     // creazione processo attivatore e alimentatore
     switch(pid_alimentatore = fork()) {
@@ -111,8 +110,11 @@ int main(int argc, char* argv[]) {
     free(pid_atomi);
     alarm(SIM_DURATION);
 
+
     for(; 1; ) {
-        print_stats(relative, totali);
+        relative.prod_waste_rel = shmem_p -> data[0];
+        // print_stats(relative, totali);
+        printf("%d\n", relative.prod_waste_rel);
 
         // TODO: prelevare la quantità ENERGY_DEMAND di energia
         
@@ -120,7 +122,7 @@ int main(int argc, char* argv[]) {
         stat_rel relative = {0};
     }
 
-    memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
+    //memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
 
     shmdt(shmem_p);
     shmctl(shmid, IPC_RMID, NULL);

@@ -33,5 +33,5 @@ typedef struct stat_tot { // totale è la somma delle relative fino al momento
 
 typedef struct buffer_dati {
     int posizione;
-    int num_scorie;
+    int data[10];
 } buffer_dati;
