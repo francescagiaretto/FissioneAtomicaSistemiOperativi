@@ -16,7 +16,6 @@ int main(int argc, char* argv[]){
     
     if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
         shmem_p -> data[0] = shmem_p -> data[0] + 1;
-        printf("%d\n", shmem_p -> data[0]);
         //memcpy(shmem_p -> num_scorie, &scorie, sizeof(scorie)); // destinazione, origine, numero di byte scritti
         kill(getpid(), SIGTERM);
     } 
@@ -44,6 +43,7 @@ int main(int argc, char* argv[]){
             break;
             
             case 0: // controlli il figlio
+                shmdt(shmem_p);
                 if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve nipote"); exit(EXIT_FAILURE);} 
             break;
             

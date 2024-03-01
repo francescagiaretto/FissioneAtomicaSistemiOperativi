@@ -109,12 +109,14 @@ int main(int argc, char* argv[]) {
 
     free(pid_atomi);
     alarm(SIM_DURATION);
+    
 
 
     for(; 1; ) {
+        
         relative.prod_waste_rel = shmem_p -> data[0];
-        // print_stats(relative, totali);
-        printf("%d\n", relative.prod_waste_rel);
+
+        print_stats(relative, totali);
 
         // TODO: prelevare la quantità ENERGY_DEMAND di energia
         
