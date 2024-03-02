@@ -13,7 +13,7 @@ void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva da
 int main(int argc, char* argv[]) {
 
     // TODO controllare energy_explode_threshold
-
+    int num_atomico;
     pid_t pid_alimentatore, pid_attivatore;     // pid dei processi alimentatore e attivatore
     pid_t * pid_atomi;
 
@@ -75,10 +75,9 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         pid_atomi[i] = fork();
 
-        int range = 118; // numero atomico compreso tra 1 e 118 (max tavola periodica)
 
         srand(getpid());
-        int num_atomico = rand() % range + 1;
+        num_atomico = rand() % RNG_N_ATOMICO + 1;
         sprintf(n_atom, "%d", num_atomico);
         sprintf(id_shmat, "%d", shmid);
         char * vec_atomo[] = {"atomo", n_atom, id_shmat, NULL};
@@ -158,7 +157,7 @@ void print_stats(stat_rel relative, stat_tot totali) {
 int stat_total_value(int * tot_value, int * rel_value) {
         *tot_value += *rel_value;
         return *tot_value;
-    }
+}
 
 
 

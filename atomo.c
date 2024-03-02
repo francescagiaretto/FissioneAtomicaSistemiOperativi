@@ -26,13 +26,12 @@ int main(int argc, char* argv[]){
     generate_n_atom(&n_atomico_padre, &n_atomico_figlio);
 
     // TODO gestire la fork quando lo richiede l'attivatore.
-    pid_t pid_atomo = fork();
 
     sprintf(n_atom_scissione, "%d", n_atomico_figlio);
     char * vec_atomo[] = {"atomo", n_atom_scissione, NULL};
 
     // TODO funzione energy() che incrementa l'energia liberata nelle statistiche del master
-        switch (pid_atomo)
+        switch (fork())
         {
             case -1: // meltdown
                 printf("Simulazione terminata: meltdown.");
@@ -45,7 +44,8 @@ int main(int argc, char* argv[]){
             break;
             
             default: // controlli il padre
-                en_lib = n_atomico_figlio*n_atomico_padre - MAX(n_atomico_figlio, n_atomico_padre);     
+                en_lib = n_atomico_figlio*n_atomico_padre - MAX(n_atomico_figlio, n_atomico_padre);    
+                // TODO inviare energia liberata al master
                 printf("Padre: %d, n_atomico_figlio: %d\n", n_atomico_padre, n_atomico_figlio);
             break;
         }
