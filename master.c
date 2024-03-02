@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
         // TODO: prelevare la quantità ENERGY_DEMAND di energia
         
         sleep(1);
-        stat_rel relative = {0};
+        bzero(&relative, sizeof(&relative));
     }
 
     //memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
