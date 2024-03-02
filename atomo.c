@@ -4,12 +4,12 @@ void generate_n_atom(int *, int *);
 
 int main(int argc, char* argv[]){
     
-    int n_atomico_padre = atoi(argv[1]); int n_atomico_figlio, en_lib;
+    int n_atomico_padre = atoi(argv[1]); int n_atomico_figlio, en_lib, shmid;
     buffer_dati * shmem_p;
     char n_atom_scissione[3];
     
     // il figlio si collega alla shmem
-    int shmid = atoi(argv[2]);
+    shmid = atoi(argv[2]);
     shmem_p = (buffer_dati *) shmat(shmid, NULL, 0);
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached."); exit(EXIT_FAILURE);

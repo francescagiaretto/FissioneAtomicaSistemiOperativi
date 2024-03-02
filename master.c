@@ -13,9 +13,11 @@ void signal_handler(int sig) {  // gestisce il segnale di sigalarm che arriva da
 int main(int argc, char* argv[]) {
 
     // TODO controllare energy_explode_threshold
-    int num_atomico;
+    int num_atomico, shmid;
     pid_t pid_alimentatore, pid_attivatore;     // pid dei processi alimentatore e attivatore
     pid_t * pid_atomi;
+    key_t shmkey;
+    buffer_dati * shmem_p;
 
     // inizializzo le struct a 0
     stat_tot totali = {0};
@@ -26,15 +28,14 @@ int main(int argc, char* argv[]) {
     char * vec_attiv[] = {"attivatore", NULL};
 
     // creo la chiave della shared memory
-    key_t shmkey = ftok("master.c", 'A');
+    shmkey = ftok("master.c", 'A');
     // creo la memoria condivisa
-    int shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
+    shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("Shared memory creation"); exit(EXIT_FAILURE);
     }
 
     // collego alla memoria una variabile puntatore per l'accesso alla shmem
-    buffer_dati * shmem_p;
     shmem_p = (buffer_dati *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
                                             // indirizzo valido in Unix non è per forza valido altrove
     if (shmem_p == (void *) -1) {
