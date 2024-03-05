@@ -130,10 +130,8 @@ int main(int argc, char* argv[]) {
         stat_rel relative = {0};
     }
 
+    //? la riga qua sotto serve o si può togliere?
     //memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
-
-    shmdt(shmem_p);
-    shmctl(shmid, IPC_RMID, NULL);
 }
 
 

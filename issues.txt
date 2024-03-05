@@ -2,10 +2,6 @@
 Semafori
 Gestione terminazioni
 Definizione metodi nella libreria?
-Ripulire tutto a fine simulazione
-
-ATOMO 
-- energia liberata: metodo (int n1, int n2) con figlio1 che passa n1 e figlio2 che passa n2
 
 ATTIVATORE 
 - controllo numero atomico < numero minimo -> scorie + 1 (memoria dinamica con contatore e code di messaggi)
@@ -13,7 +9,6 @@ ATTIVATORE
 
 SHARED MEMORY
 Il funzionamento è simile a quello delle code di messaggi
-!! Se si runna più volte il codice la shmem mantiene i valori delle simulazioni precedenti
 
 ! IMPORTANTE 
     Le interazioni con la shmem vanno regolate coi semafori: se qualcuno legge e non c'è nulla dà errore 
@@ -27,6 +22,9 @@ Per le operazioni di lettura e scrittura in shmem si usa memcpy (alternativament
 
 /*
 COSE FATTE
+Ripulire tutto a fine simulazione
+
+
 Creazione shmem (shmget), collegamento a pointer (shmat), detach pointer (shmdt), deallocare shmem(shmctl)
 
 ALIMENTATORE 
@@ -35,7 +33,7 @@ struct time gestisce tempo in nanosecondi; ogni tot nanosecondi crea nuovi atomi
 ATOMO 
 - fork dei figli
 - condizione numero atomico minimo
-
+- energia liberata: metodo (int n1, int n2) con figlio1 che passa n1 e figlio2 che passa n2
 
 
 Makefile
