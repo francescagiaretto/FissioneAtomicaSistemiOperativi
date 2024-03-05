@@ -24,9 +24,6 @@ int main(int argc, char* argv[]) {
     stat_rel relative = {0};
     char n_atom[4]; char id_shmat[4];
 
-    char * vec_alim[] = {"alimentatore", NULL};
-    char * vec_attiv[] = {"attivatore", NULL};
-
     // creo la chiave della shared memory
     shmkey = ftok("master.c", 'A');
     // creo la memoria condivisa
@@ -35,12 +32,17 @@ int main(int argc, char* argv[]) {
         perror("Shared memory creation"); exit(EXIT_FAILURE);
     }
 
+    sprintf(id_shmat, "%d", shmid);
+
     // collego alla memoria una variabile puntatore per l'accesso alla shmem
     shmem_p = (buffer_dati *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
                                             // indirizzo valido in Unix non è per forza valido altrove
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached"); exit(EXIT_FAILURE);
     }
+
+    char * vec_alim[] = {"alimentatore", id_shmat, NULL};
+    char * vec_attiv[] = {"attivatore", NULL};
 
 
     // creazione processo attivatore e alimentatore
@@ -80,7 +82,6 @@ int main(int argc, char* argv[]) {
         srand(getpid());
         num_atomico = rand() % RNG_N_ATOMICO + 1;
         sprintf(n_atom, "%d", num_atomico);
-        sprintf(id_shmat, "%d", shmid);
         char * vec_atomo[] = {"atomo", n_atom, id_shmat, NULL};
 
         switch(pid_atomi[i]) {
