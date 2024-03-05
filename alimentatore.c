@@ -4,7 +4,7 @@ int main(int argc, char * argv[]) {
 
     //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
     int shmid = atoi(argv[1]); int n_atomico;
-    char n_atomico[4];
+    char n_atom[4];
     srand(getpid());
 
     //* STRUCT per definire una sleep contata in nanosecondi, non possibile usando una sleep() normale.
@@ -19,7 +19,7 @@ int main(int argc, char * argv[]) {
 
         for(int i = 0; i < N_NUOVI_ATOMI; i++){
             n_atomico = rand() % RNG_NUM_ATOMICO + 1;
-            sprintf(n_atomico, "%d", n_atomico)
+            sprintf(n_atom, "%d", n_atomico);
             char * vec_atomo = {"atomo", n_atomico, shmid, NULL}
 
             switch(fork()) {
