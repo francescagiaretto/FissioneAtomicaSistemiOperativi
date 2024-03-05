@@ -40,7 +40,6 @@ int main(int argc, char* argv[]){
             
             case 0: // checking child
                 shmdt(shmem_p);
-                en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);    
                 if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve grandchild"); exit(EXIT_FAILURE);} 
             break;
             
