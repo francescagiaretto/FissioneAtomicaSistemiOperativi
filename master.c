@@ -35,37 +35,35 @@ int main(int argc, char* argv[]) {
     // creating shared memory
     shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
     if (shmid == -1) {
-        perror("Shared memory creation.\n"); exit(EXIT_FAILURE);
+        perror("Shared memory creation"); exit(EXIT_FAILURE);
     }
 
-    sprintf(id_shmat, "%d", shmid);
-
-    // access to shmem is handled through attached pointer
-    shmem_p = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available
-                                                    // outside of Unix
+    // collego alla memoria una variabile puntatore per l'accesso alla shmem
+    data_buffer * shmem_p;
+    shmem_p = (data_buffer *)shmat(shmid, NULL, 0); // NULL perché un altro indirizzo riduce la portabilità del codice: un 
+                                            // indirizzo valido in Unix non è per forza valido altrove
     if (shmem_p == (void *) -1) {
-        perror("Pointer not attached.\n"); exit(EXIT_FAILURE);
+        perror("Pointer not attached"); exit(EXIT_FAILURE);
     }
 
-    char * vec_alim[] = {"alimentatore", id_shmat, NULL};
-    char * vec_attiv[] = {"attivatore", NULL};
 
-
-    // creating attivatore and alimentatore
+    // creazione processo attivatore e alimentatore
     switch(pid_alimentatore = fork()) {
+        // controlla se c'è meltdown
+
         case -1:
-            printf("Simulation terminated due to meltdown.\n"); exit(EXIT_FAILURE);
+            printf("Simulazione terminata: meltdown."); exit(EXIT_FAILURE);
         break;
 
         case 0:
-            if(execve("./alimentatore", vec_alim, NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
+            if(execve("./alimentatore", vec_alim , NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
         break;
 
-        default: // parent process
+        default: // siamo nel processo padre
             switch(pid_attivatore = fork()) {
 
                 case -1:
-                    printf("Simulation terminated due to meltdown.\n");
+                    printf("Simulazione terminata: meltdown.");
                     exit(EXIT_FAILURE);
                 break;
 
@@ -76,107 +74,96 @@ int main(int argc, char* argv[]) {
         break;
     }
 
-    pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
+    pid_atomi = malloc(sizeof(pid_t) * N_ATOM_INIT);    // allocazione dinamica di memoria per l'array di pid atomi
 
-    // creating children
+    // creazione processi atomo
     for(int i = 0; i < N_ATOM_INIT; i++) {
-        pid_atoms[i] = fork();
+        pid_atomi[i] = fork();
 
-        // generating random pid for children
+        int range = 118; // numero atomico compreso tra 1 e 118 (max tavola periodica)
+
         srand(getpid());
-        atomic_num = rand() % RNG_N_ATOMICO + 1;
-        sprintf(n_atom, "%d", atomic_num);
+        int num_atomico = rand() % range + 1;
+        sprintf(n_atom, "%d", num_atomico);
+        sprintf(id_shmat, "%d", shmid);
         char * vec_atomo[] = {"atomo", n_atom, id_shmat, NULL};
 
-        switch(pid_atoms[i]) {
+        switch(pid_atomi[i]) {
 
             case -1:
-                printf("Simulation terminated due to meltdown.\n");
+                printf("Simulazione terminata: meltdown.");
                 exit(EXIT_FAILURE);
             break;
 
-            case 0: // children: freeing allocated memory
-                free(pid_atoms);
-                if (execve("./atomo", vec_atomo, NULL) == -1) {perror("Execve atomo"); exit(EXIT_FAILURE);}
+            case 0: // caso figli: libero la memoria allocata con la malloc
+                free(pid_atomi);
+                if (execve("./atomo", vec_atomo, NULL) == -1) {perror("Execve atomi"); exit(EXIT_FAILURE);}  // non funziona
             break;
 
             default:
-                printf("Atom's pid is %d\n", pid_atoms[i]);
+                printf("Atomo con pid %d\n", pid_atomi[i]);
             break;
         }
     }
 
-    // ! once everything is set the simulation starts (lasting SIM_DURATION seconds)
+    // ! solo quando tutto è in regola posso far partire la simulazione, che dura SIM_DURATION secondi 
     struct sigaction sa;
 
-    bzero(&sa, sizeof(&sa)); // emptying struct to send to child
+    bzero(&sa, sizeof(&sa)); // azzera tutta la struct per passarla al figlio
     sa.sa_handler = &signal_handler;
     sigaction(SIGALRM, &sa, NULL);
 
-    free(pid_atoms);
+    free(pid_atomi);
     alarm(SIM_DURATION);
 
-    //? vogliamo metterla in shmem?
-    //int available_en;
+    printf("%d", shmem_p-> data[0]);
         
     for(; 1; ) {
         
         relative.prod_waste_rel = shmem_p -> data[0];
-        relative.prod_energy_rel = shmem_p -> data[1];
 
-        print_stats(relative, total);
+        print_stats(relative, totali);
 
-      /*  if (ENERGY_DEMAND > total.prod_energy_tot) {
-            printf("Simulation terminated due to blackout.\n"); exit(EXIT_FAILURE);
-        } else {
-            available_en = total.prod_energy_tot - ENERGY_DEMAND;
-        } */
+        // TODO: prelevare la quantità ENERGY_DEMAND di energia
         
         sleep(1);
-        bzero(&relative, sizeof(&relative));
+        stat_rel relative = {0};
     }
 
-    //? la riga qua sotto serve o si può togliere?
     //memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
+
+    shmdt(shmem_p);
+    shmctl(shmid, IPC_RMID, NULL);
 }
 
 
-void print_stats(stat_rel relative, stat_tot total) {
+void print_stats(stat_rel relative, stat_tot totali) {
     static int count = 0;
 
-    int col1_width = 35;
-    int col2_width = 10;
+    int col_width = 40;
     printf("\n\n\n\n");
-    printf("STATS:\n");
-    for (int i = 0; i <= (col1_width + col2_width); i++) {
-        printf("-");
-    }
-    printf("\n");
+    printf("STATISTICHE:\n");
+    printf("%-*s | %-*s\n", col_width, "Tipo", col_width, "Valore");
+    printf("%-*c | %-*c\n", col_width, '-', col_width, '-');
 
-    char *col1[11] = {"Last second activations:","Total activations:","Last second divisions:","Total divisions:",
-        "Last second produced energy:","Total produced energy:","Last second consumed energy:","Total consumed energy:",
-        "Last second waste:","Total waste:"};
-    int col2[11] = {relative.n_activ_rel,total.n_activ_total,relative.n_div_rel,total.n_div_total,relative.prod_energy_rel,total.prod_energy_tot,
-        relative.cons_energy_rel,total.cons_energy_tot,relative.prod_waste_rel,total.prod_waste_tot};
+    char *col1[11] = {"Attivazioni ultimo secondo:","Attivazioni totali:","Scissioni ultimo secondo:","Scissioni totali:",
+        "Energia prodotta ultimo secondo:","Energia prodotta totale:","Energia consumata ultimo secondo:","Energia consumata totale:",
+        "Scorie prodotte ultimo secondo:","Scorie prodotte totali:"};
+    int col2[11] = {relative.n_activ_rel,totali.n_activ_total,relative.n_div_rel,totali.n_div_total,relative.prod_energy_rel,totali.prod_energy_tot,
+        relative.cons_energy_rel,totali.cons_energy_tot,relative.prod_waste_rel,totali.prod_waste_tot};
 
     for (long unsigned int i = 0; i < (sizeof(col1)/sizeof(col1[0]))-1; i++) {
-        printf("%-*s | %-*d\n", col1_width, col1[i], col2_width, col2[i]);
-        if (i%2!=0) {
-            for (int i = 0; i <= (col1_width + col2_width); i++) {
-                printf("-");
-            }
-            printf("\n");
-        }
+        printf("%-*s | %-*d\n", col_width, col1[i], col_width, col2[i]);
     }
 
-    printf("Simulation timer: %d\n", count++);
+    printf("%d\n", count++);
 }
 
 // ! metodo non usato ancora, da aggiustare per gestire i valori totali
 int stat_total_value(int * tot_value, int * rel_value) {
         *tot_value += *rel_value;
         return *tot_value;
-}
+    }
 
 
 
