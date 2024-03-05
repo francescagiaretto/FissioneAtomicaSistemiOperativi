@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
             switch(pid_attivatore = fork()) {
 
                 case -1:
-                    char * message = "explode.";
+                    char * message = "meltdown.";
                     termination(message, shmid, shmem_p);
                 break;
 
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
         switch(pid_atoms[i]) {
 
             case -1:
-                char * message = "explode.";
+                char * message = "meltdown.";
                 termination(message, shmid, shmem_p);
             break;
 
@@ -126,8 +126,10 @@ int main(int argc, char* argv[]) {
 
         print_stats(relative, total);
 
+        // blackout
       /*  if (ENERGY_DEMAND > total.prod_energy_tot) {
-            printf("Simulation terminated due to blackout.\n"); exit(EXIT_FAILURE);
+            char * message = "blackout.";
+            termination(message, shmid, shmem_p);
         } else {
             available_en = total.prod_energy_tot - ENERGY_DEMAND;
         } */

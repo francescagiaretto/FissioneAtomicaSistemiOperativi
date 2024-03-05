@@ -34,7 +34,7 @@ int main(int argc, char* argv[]){
         switch (fork())
         {
             case -1:
-                char * message = "explode.";
+                char * message = "meltdown.";
                 termination(message, shmid, shmem_p);
             break;
             
