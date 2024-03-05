@@ -14,6 +14,7 @@ ATTIVATORE
 
 SHARED MEMORY
 Il funzionamento è simile a quello delle code di messaggi
+!! Se si runna più volte il codice la shmem mantiene i valori delle simulazioni precedenti
 
 ! IMPORTANTE 
     Le interazioni con la shmem vanno regolate coi semafori: se qualcuno legge e non c'è nulla dà errore 

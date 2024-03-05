@@ -4,57 +4,57 @@ void generate_n_atom(int *, int *);
 
 int main(int argc, char* argv[]){
     
-    int n_atomico_padre = atoi(argv[1]); int n_atomico_figlio, en_lib, shmid;
-    buffer_dati * shmem_p;
-    char n_atom_scissione[3];
+    int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
+    data_buffer * shmem_p;
+    char division_atom_num[3];
     
-    // il figlio si collega alla shmem
+    // child accessing shmem
     shmid = atoi(argv[2]);
-    shmem_p = (buffer_dati *) shmat(shmid, NULL, 0);
+    shmem_p = (data_buffer *) shmat(shmid, NULL, 0);
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached."); exit(EXIT_FAILURE);
     }
 
-    if (n_atomico_padre <= MIN_N_ATOMICO) { // controllo se il pid è inferiore al numero atomico minimo
+    if (parent_atom_num <= MIN_N_ATOMICO) { // checking if pid is less than minimum
         shmem_p -> data[0] = shmem_p -> data[0] + 1;
         kill(getpid(), SIGTERM);
     } 
 
-    srand(getpid()); //*  meglio usare getpid piuttosto che time(NULL) perché time randomizza in base al tempo del programma
-                    //*  mentre così usa il pid che è sempre diverso, il tempo del programma invece è sempre lo stesso
+    srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
+                    //*  identical for more than one atom, while pid is always different
 
-    generate_n_atom(&n_atomico_padre, &n_atomico_figlio);
+    generate_n_atom(&parent_atom_num, &child_atom_num);
 
     // TODO gestire la fork quando lo richiede l'attivatore.
 
-    sprintf(n_atom_scissione, "%d", n_atomico_figlio);
-    char * vec_atomo[] = {"atomo", n_atom_scissione, NULL};
+    sprintf(division_atom_num, "%d", child_atom_num);
+    char * vec_atomo[] = {"atomo", division_atom_num, NULL};
 
     // TODO funzione energy() che incrementa l'energia liberata nelle statistiche del master
         switch (fork())
         {
-            case -1: // meltdown
-                printf("Simulazione terminata: meltdown.");
+            case -1:
+                printf("Simulation terminated due to meltdown.\n");
                 exit(EXIT_FAILURE);
             break;
             
-            case 0: // controlli il figlio
+            case 0: // checking child
                 shmdt(shmem_p);
-                if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve nipote"); exit(EXIT_FAILURE);} 
+                if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve grandchild"); exit(EXIT_FAILURE);} 
             break;
             
-            default: // controlli il padre
-                en_lib = n_atomico_figlio*n_atomico_padre - MAX(n_atomico_figlio, n_atomico_padre);    
+            default: // checking parent
+                en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);    
                 // TODO inviare energia liberata al master
-                printf("Padre: %d, n_atomico_figlio: %d\n", n_atomico_padre, n_atomico_figlio);
+                printf("Parent: %d, child: %d\n", parent_atom_num, child_atom_num);
             break;
         }
 }
 
-// metodo che calcola il numero atomico dopo la scissione
-void generate_n_atom(int * n_atomico_padre, int * n_atomico_figlio) {
-    int temp = *n_atomico_padre;
-    *n_atomico_padre = rand()% *n_atomico_padre + 1;
-    *n_atomico_figlio = temp - *n_atomico_padre;
+// calculates atomic number after division
+void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
+    int temp = *parent_atom_num;
+    *parent_atom_num = rand()% *parent_atom_num + 1;
+    *child_atom_num = temp - *parent_atom_num;
 
 }

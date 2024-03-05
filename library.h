@@ -13,7 +13,7 @@
 #include <sys/msg.h>
 #include <sys/shm.h>
 
-typedef struct stat_rel { // relativa è contata nel secondo
+typedef struct stat_rel { // last second stats
     int n_activ_rel;
     int cons_energy_rel;
     int n_div_rel;
@@ -22,7 +22,7 @@ typedef struct stat_rel { // relativa è contata nel secondo
 
 } stat_rel;
 
-typedef struct stat_tot { // totale è la somma delle relative fino al momento
+typedef struct stat_tot { // adds up relative stats
     int n_activ_total;
     int n_div_total;
     int prod_energy_tot;
@@ -31,7 +31,7 @@ typedef struct stat_tot { // totale è la somma delle relative fino al momento
 
 } stat_tot;
 
-typedef struct buffer_dati {
-    int posizione;
+typedef struct data_buffer {
+    int position;
     int data[10];
-} buffer_dati;
+} data_buffer;

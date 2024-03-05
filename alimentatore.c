@@ -3,14 +3,14 @@
 int main(int argc, char * argv[]) {
 
     //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
-    int shmid = atoi(argv[1]); int n_atomico;
+    int shmid = atoi(argv[1]); int atom_num;
     char n_atom[4];
     srand(getpid());
 
-    //* STRUCT per definire una sleep contata in nanosecondi, non possibile usando una sleep() normale.
+    //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
     struct timespec step_nanosec;
-    step_nanosec.tv_sec = 0;           // secondi    
-    step_nanosec.tv_nsec = STEP_ALIMENTATORE;   // nanosecondi
+    step_nanosec.tv_sec = 0;           // seconds   
+    step_nanosec.tv_nsec = STEP_ALIMENTATORE;   // nanoseconds
 
     // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
     
@@ -18,14 +18,14 @@ int main(int argc, char * argv[]) {
         nanosleep(&step_nanosec, NULL);
 
         for(int i = 0; i < N_NUOVI_ATOMI; i++){
-            n_atomico = rand() % RNG_NUM_ATOMICO + 1;
-            sprintf(n_atom, "%d", n_atomico);
-            char * vec_atomo = {"atomo", n_atomico, shmid, NULL}
+            atom_num = rand() % RNG_NUM_ATOMICO + 1;
+            sprintf(n_atom, "%d", atom_num);
+            char * vec_atomo = {"atomo", atom_num, shmid, NULL}
 
             switch(fork()) {
 
                 case -1:
-                    printf("Simulazione terminata: meltdown.");
+                    printf("Simulation terminated due to meltdown.\n");
                     exit(EXIT_FAILURE);
                 break;
 
