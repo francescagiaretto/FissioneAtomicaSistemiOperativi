@@ -2,7 +2,7 @@
 
 int main(int argc, char * argv[]) {
 
-    /*//! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
+    //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
     int atomic_num;
     char n_atom[4];
     srand(getpid());
@@ -15,7 +15,8 @@ int main(int argc, char * argv[]) {
     // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
     
     while(1) {
-        nanosleep(&step_nanosec, NULL);
+
+        nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
 
         for(int i = 0; i < N_NUOVI_ATOMI; i++){
             atomic_num = rand() % RNG_N_ATOMICO + 1;
@@ -37,5 +38,5 @@ int main(int argc, char * argv[]) {
                 break;
             }
         }
-    }*/
+    }
 }
