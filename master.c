@@ -10,17 +10,21 @@ void signal_handler(int sig) {  // handles sigalarm from alarm(n), which defines
 
 int main(int argc, char* argv[]) {
 
-    // TODO controllare energy_explode_threshold
     int atomic_num, shmid;
     pid_t pid_alimentatore, pid_attivatore;
     pid_t * pid_atoms;
     key_t shmkey;
     data_buffer * shmem_p;
 
-    // structs set to 0
+    // setting structs to 0
     stat_tot total = {0};
     stat_rel relative = {0};
     char n_atom[4]; char id_shmat[4];
+
+    // checking explode condition
+    if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
+        printf("Simulation terminated due to explosion.\n"); exit(EXIT_FAILURE);
+    }
 
     // generating shared memory key
     shmkey = ftok("master.c", 'A');
