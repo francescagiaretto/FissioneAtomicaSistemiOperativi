@@ -3,18 +3,22 @@
 void print_stats(stat_rel, stat_tot);
 int stat_total_value(int *, int *);
 
+int shmid;
+data_buffer * shmem_p;
+
 void signal_handler(int sig) {  // handles sigalarm from alarm(n), which defines the "timeout" condition
     write(0, "Simulation terminated due to timeout.\n", 38);
+    shmdt(shmem_p);
+    shmctl(shmid, IPC_RMID, NULL);
     exit(0);
 }
 
 int main(int argc, char* argv[]) {
 
-    int atomic_num, shmid;
+    int atomic_num;
     pid_t pid_alimentatore, pid_attivatore;
     pid_t * pid_atoms;
     key_t shmkey;
-    data_buffer * shmem_p;
 
     // setting structs to 0
     stat_tot total = {0};
@@ -118,6 +122,7 @@ int main(int argc, char* argv[]) {
     for(; 1; ) {
         
         relative.prod_waste_rel = shmem_p -> data[0];
+        relative.prod_energy_rel = shmem_p -> data[1];
 
         print_stats(relative, total);
 
@@ -133,9 +138,6 @@ int main(int argc, char* argv[]) {
 
     //? la riga qua sotto serve o si può togliere?
     //memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
-
-    shmdt(shmem_p);
-    shmctl(shmid, IPC_RMID, NULL);
 }
 
 

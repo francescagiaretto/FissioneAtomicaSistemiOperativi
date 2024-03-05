@@ -44,8 +44,9 @@ int main(int argc, char* argv[]){
             break;
             
             default: // checking parent
+                //! non sono sicura che funzioni
                 en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);    
-                // TODO inviare energia liberata al master
+                shmem_p -> data[1] = shmem_p -> data[1] + en_lib; // saving relative produced energy in shmem
                 printf("Parent: %d, child: %d\n", parent_atom_num, child_atom_num);
             break;
         }
