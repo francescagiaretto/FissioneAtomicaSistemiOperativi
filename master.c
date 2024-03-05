@@ -135,9 +135,6 @@ int main(int argc, char* argv[]) {
         sleep(1);
         bzero(&relative, sizeof(&relative));
     }
-
-    //? la riga qua sotto serve o si può togliere?
-    //memcpy(shmem_p, &relative.prod_waste_rel, sizeof(shmem_p));
 }
 
 
