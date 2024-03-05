@@ -8,7 +8,7 @@ data_buffer * shmem_p;
 
 void signal_handler(int sig) {  // handles sigalarm from alarm(n), which defines the "timeout" condition  
     char * message = "timeout.";
-    termination(message, shmid, shmem_p);
+    termination(message);
 }
 
 int main(int argc, char* argv[]) {
@@ -21,13 +21,7 @@ int main(int argc, char* argv[]) {
     // setting structs to 0
     stat_tot total = {0};
     stat_rel relative = {0};
-    char n_atom[4]; char id_shmat[4];
-
-    // checking explode condition
-    if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
-        char * message = "explode.";
-        termination(message, shmid, shmem_p);
-    }
+    char n_atom[4], id_shmat[4], pointer_shmem[8];
 
     // generating shared memory key
     shmkey = ftok("master.c", 'A');
@@ -54,7 +48,7 @@ int main(int argc, char* argv[]) {
     switch(pid_alimentatore = fork()) {
         case -1:
             char * message = "meltdown.";
-            termination(message, shmid, shmem_p);
+            termination(message);
         break;
 
         case 0:
@@ -66,7 +60,7 @@ int main(int argc, char* argv[]) {
 
                 case -1:
                     char * message = "meltdown.";
-                    termination(message, shmid, shmem_p);
+                    termination(message);
                 break;
 
                 case 0:
@@ -80,6 +74,12 @@ int main(int argc, char* argv[]) {
 
     // creating children
     for(int i = 0; i < N_ATOM_INIT; i++) {
+        // checking explode condition
+        if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
+            char * message = "explode.";
+            termination(message);
+        }
+
         pid_atoms[i] = fork();
 
         // generating random pid for children
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
             case -1:
                 char * message = "meltdown.";
-                termination(message, shmid, shmem_p);
+                termination(message);
             break;
 
             case 0: // children: freeing allocated memory

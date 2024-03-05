@@ -36,7 +36,7 @@ typedef struct data_buffer {
     int data[10];
 } data_buffer;
 
-void termination(char * message, int shmid, data_buffer * shmem_p) {
+void termination(char * message) {
     printf("Simulation terminated due to %s\n", message);
     fflush(stdout);
     shmdt(&shmem_p);

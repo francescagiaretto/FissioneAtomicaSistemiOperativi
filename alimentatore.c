@@ -27,7 +27,7 @@ int main(int argc, char * argv[]) {
 
                 case -1:
                     char * message = "meltdown.";
-                    termination(message, shmid, shmem_p);
+                    termination(message);
                 break;
 
                 case 0:
