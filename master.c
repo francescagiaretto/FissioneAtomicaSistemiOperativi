@@ -173,8 +173,4 @@ void print_stats(stat_rel relative, stat_tot total) {
 int stat_total_value(int * tot_value, int * rel_value) {
         *tot_value += *rel_value;
         return *tot_value;
-}
-
-
-
-// ! crea il ricevitore di dato e prova a stampare
+} // ! crea il ricevitore di dato e prova a stampare
