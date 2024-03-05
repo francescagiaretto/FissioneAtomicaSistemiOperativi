@@ -6,11 +6,9 @@ int stat_total_value(int *, int *);
 int shmid;
 data_buffer * shmem_p;
 
-void signal_handler(int sig) {  // handles sigalarm from alarm(n), which defines the "timeout" condition
-    write(0, "Simulation terminated due to timeout.\n", 38);
-    shmdt(shmem_p);
-    shmctl(shmid, IPC_RMID, NULL);
-    exit(0);
+void signal_handler(int sig) {  // handles sigalarm from alarm(n), which defines the "timeout" condition  
+    char * message = "timeout.";
+    termination(message, shmid, shmem_p);
 }
 
 int main(int argc, char* argv[]) {
@@ -27,7 +25,8 @@ int main(int argc, char* argv[]) {
 
     // checking explode condition
     if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
-        printf("Simulation terminated due to explosion.\n"); exit(EXIT_FAILURE);
+        char * message = "explode.";
+        termination(message, shmid, shmem_p);
     }
 
     // generating shared memory key
@@ -54,7 +53,8 @@ int main(int argc, char* argv[]) {
     // creating attivatore and alimentatore
     switch(pid_alimentatore = fork()) {
         case -1:
-            printf("Simulation terminated due to meltdown.\n"); exit(EXIT_FAILURE);
+            char * message = "meltdown.";
+            termination(message, shmid, shmem_p);
         break;
 
         case 0:
@@ -65,8 +65,8 @@ int main(int argc, char* argv[]) {
             switch(pid_attivatore = fork()) {
 
                 case -1:
-                    printf("Simulation terminated due to meltdown.\n");
-                    exit(EXIT_FAILURE);
+                    char * message = "explode.";
+                    termination(message, shmid, shmem_p);
                 break;
 
                 case 0:
@@ -91,8 +91,8 @@ int main(int argc, char* argv[]) {
         switch(pid_atoms[i]) {
 
             case -1:
-                printf("Simulation terminated due to meltdown.\n");
-                exit(EXIT_FAILURE);
+                char * message = "explode.";
+                termination(message, shmid, shmem_p);
             break;
 
             case 0: // children: freeing allocated memory

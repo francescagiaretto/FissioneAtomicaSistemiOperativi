@@ -6,7 +6,7 @@ int main(int argc, char* argv[]){
     
     int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
     data_buffer * shmem_p;
-    char division_atom_num[3];
+    char division_atom_num[3], division_parent_num[4];
     
     // child accessing shmem
     shmid = atoi(argv[2]);
@@ -34,20 +34,24 @@ int main(int argc, char* argv[]){
         switch (fork())
         {
             case -1:
-                printf("Simulation terminated due to meltdown.\n");
-                exit(EXIT_FAILURE);
+                char * message = "explode.";
+                termination(message, shmid, shmem_p);
             break;
             
             case 0: // checking child
                 shmdt(shmem_p);
+                en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);    
                 if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve grandchild"); exit(EXIT_FAILURE);} 
             break;
             
             default: // checking parent
-                //! non sono sicura che funzioni
                 en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);    
                 shmem_p -> data[1] = shmem_p -> data[1] + en_lib; // saving relative produced energy in shmem
-                printf("Parent: %d, child: %d\n", parent_atom_num, child_atom_num);
+
+                sprintf(division_parent_num, "%d", parent_atom_num);
+                char * new_vec_atomo[] = {"atomo", division_parent_num, NULL};
+                en_lib = 0;
+                if(execve("atomo", new_vec_atomo, NULL) == -1) {perror("Execve child"); exit(EXIT_FAILURE);} 
             break;
         }
 }

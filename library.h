@@ -35,3 +35,11 @@ typedef struct data_buffer {
     int position;
     int data[10];
 } data_buffer;
+
+void termination(char * message, int shmid, data_buffer * shmem_p) {
+    printf("Simulation terminated due to %s\n", message);
+    fflush(stdout);
+    shmdt(&shmem_p);
+    shmctl(shmid, IPC_RMID, NULL);
+    exit(0);
+}
