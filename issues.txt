@@ -5,7 +5,6 @@ Definizione metodi nella libreria?
 Ripulire tutto a fine simulazione
 
 ATOMO 
-- condizione numero atomico minimo (conteggio scorie aumenta -> contatore in memoria condivisa)
 - energia liberata: metodo (int n1, int n2) con figlio1 che passa n1 e figlio2 che passa n2
 
 ATTIVATORE 

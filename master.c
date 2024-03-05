@@ -111,6 +111,9 @@ int main(int argc, char* argv[]) {
 
     free(pid_atoms);
     alarm(SIM_DURATION);
+
+    //? vogliamo metterla in shmem?
+    //int available_en;
         
     for(; 1; ) {
         
@@ -118,7 +121,11 @@ int main(int argc, char* argv[]) {
 
         print_stats(relative, total);
 
-        // TODO: prelevare la quantità ENERGY_DEMAND di energia
+      /*  if (ENERGY_DEMAND > total.prod_energy_tot) {
+            printf("Simulation terminated due to blackout.\n"); exit(EXIT_FAILURE);
+        } else {
+            available_en = total.prod_energy_tot - ENERGY_DEMAND;
+        } */
         
         sleep(1);
         bzero(&relative, sizeof(&relative));
