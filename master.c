@@ -1,7 +1,7 @@
 #include "library.h"
 
-void print_stats(stat_rel, stat_tot);
-int  stat_total_value(int *, int *);
+void print_stats(data_buffer * shmem_p);
+void  stat_total_value();
 
 int shmid;
 data_buffer * shmem_p;
@@ -13,12 +13,13 @@ void signal_handler(int sig) {
             raise(SIGUSR1);
         break;
 
-        case SIGKILL:
-            exit(0);
+        case SIGTERM:
+           exit(0);
         break;
 
         case SIGUSR1:
             printf("Simulation terminated due to %s\n", shmem_p -> message);
+            
             fflush(stdout);
             shmdt(&shmem_p);
             shmctl(shmid, IPC_RMID, NULL);
@@ -35,8 +36,6 @@ int main(int argc, char* argv[]) {
     key_t shmkey;
 
     // setting structs to 0
-    stat_tot total = {0};
-    stat_rel relative = {0};
     char n_atom[4], id_shmat[4], pointer_shmem[8];
 
     // generating shared memory key
@@ -83,17 +82,12 @@ int main(int argc, char* argv[]) {
                 break;
             }
         break;
-    }
+    } 
 
     pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
 
     // creating children
     for(int i = 0; i < N_ATOM_INIT; i++) {
-        // checking explode condition
-        if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
-            shmem_p -> message = "explode.";
-            raise(SIGUSR1);
-        }
 
         pid_atoms[i] = fork();
 
@@ -137,29 +131,29 @@ int main(int argc, char* argv[]) {
 
     // !!! cambiare condizione for 
     for(; 1; ) {
-        
-        relative.prod_waste_rel = shmem_p -> waste_rel;
-        relative.prod_energy_rel = shmem_p -> prod_en_rel;
-        relative.cons_energy_rel = ENERGY_DEMAND;
-        relative.n_div_rel = shmem_p -> div_rel;
 
-        print_stats(relative, total);
+        print_stats(shmem_p);
+
+        // checking explode condition
+        if (shmem_p -> prod_en_tot >= ENERGY_EXPLODE_THRESHOLD) {
+            shmem_p -> message = "explode.";
+            raise(SIGUSR1);
+        }
 
         // blackout
-      /*  if (ENERGY_DEMAND > total.prod_energy_tot) {
+      /*  if (ENERGY_DEMAND > shmem_p -> prod_en_tot) {
             message = "blackout.";
             signal(SIGUSR1, term_handler);
         } else {
-            available_en = total.prod_energy_tot - ENERGY_DEMAND;
+            available_en = shmem_p -> prod_en_tot - ENERGY_DEMAND;
         } */
         
         sleep(1);
-        bzero(&relative, sizeof(&relative));
     }
 }
 
 
-void print_stats(stat_rel relative, stat_tot total) {
+void print_stats(data_buffer * shmem_p) {
     static int count = 0;
 
     int col1_width = 35;
@@ -174,8 +168,8 @@ void print_stats(stat_rel relative, stat_tot total) {
     char *col1[11] = {"Last second activations:","Total activations:","Last second divisions:","Total divisions:",
         "Last second produced energy:","Total produced energy:","Last second consumed energy:","Total consumed energy:",
         "Last second waste:","Total waste:"};
-    int col2[11] = {relative.n_activ_rel,total.n_activ_total,relative.n_div_rel,total.n_div_total,relative.prod_energy_rel,total.prod_energy_tot,
-        relative.cons_energy_rel,total.cons_energy_tot,relative.prod_waste_rel,total.prod_waste_tot};
+    int col2[11] = {shmem_p -> act_rel, shmem_p -> act_tot, shmem_p -> div_rel, shmem_p -> div_tot, shmem_p -> prod_en_rel,
+        shmem_p -> prod_en_tot, shmem_p -> cons_en_rel, shmem_p -> cons_en_tot, shmem_p -> waste_rel, shmem_p -> waste_tot};
 
     for (long unsigned int i = 0; i < (sizeof(col1)/sizeof(col1[0]))-1; i++) {
         printf("%-*s | %-*d\n", col1_width, col1[i], col2_width, col2[i]);
@@ -191,7 +185,10 @@ void print_stats(stat_rel relative, stat_tot total) {
 }
 
 // ! metodo non usato ancora, da aggiustare per gestire i valori totali
-int stat_total_value(int * tot_value, int * rel_value) {
-        *tot_value += *rel_value;
-        return *tot_value;
+void stat_total_value() {
+        shmem_p -> waste_tot = shmem_p -> waste_tot + shmem_p -> waste_rel;
+        shmem_p -> act_tot = shmem_p -> act_tot + shmem_p -> act_rel;
+        shmem_p -> div_tot = shmem_p -> div_tot + shmem_p -> div_rel;
+        shmem_p -> prod_en_tot = shmem_p -> prod_en_tot + shmem_p -> prod_en_rel;
+        shmem_p -> cons_en_tot = shmem_p -> cons_en_tot + shmem_p -> cons_en_rel;
 } // ! crea il ricevitore di dato e prova a stampare

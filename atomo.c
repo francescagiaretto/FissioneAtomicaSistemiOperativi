@@ -5,7 +5,7 @@ void generate_n_atom(int *, int *);
 int main(int argc, char* argv[]){
     
     int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
-    int key= atoi(argv[2]);
+    int key = atoi(argv[2]);
     data_buffer * shmem_p;
     char division_atom_num[3], division_parent_num[4];
     
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
 
     if (parent_atom_num <= MIN_N_ATOMICO) { // checking if pid is less than minimum
         shmem_p -> waste_rel = shmem_p -> waste_rel +1;
-        kill(getpid(), SIGKILL);
+        kill(getpid(), SIGTERM);
     } 
 
     srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
