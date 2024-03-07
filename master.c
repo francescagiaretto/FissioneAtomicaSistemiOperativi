@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 
         // generating random pid for children
         srand(getpid());
-        atomic_num = rand() % RNG_N_ATOMICO + 1;
+        atomic_num = rand() % N_ATOM_MAX + 1;
         sprintf(n_atom, "%d", atomic_num);
         char * vec_atomo[] = {"atomo", n_atom, id_shmat, NULL};
 
@@ -134,7 +134,8 @@ int main(int argc, char* argv[]) {
 
     //? vogliamo metterla in shmem?
     //int available_en;
-        
+
+    // !!! cambiare condizione for 
     for(; 1; ) {
         
         relative.prod_waste_rel = shmem_p -> waste_rel;

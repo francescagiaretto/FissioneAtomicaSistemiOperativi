@@ -43,6 +43,6 @@ typedef struct data_buffer {
     int act_tot;
     int cons_en_rel;
     int cons_en_tot;
-    char * message;
+    char * message; // termination message
 } data_buffer;
 

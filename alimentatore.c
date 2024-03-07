@@ -17,7 +17,7 @@ int main(int argc, char * argv[]) {
 
     data_buffer * shmem_p = (data_buffer *) shmat(key, NULL, 0);
     if (shmem_p == (void *) -1) {
-        perror("Pointer atomo not attached."); exit(EXIT_FAILURE);
+        perror("Pointer not attached."); exit(EXIT_FAILURE);
     }
 
     //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
@@ -27,13 +27,13 @@ int main(int argc, char * argv[]) {
     
 
     // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
-    
+    //??? va bene while(1) o c'è un modo più elegante di scriverlo?
     while(1) {
 
         nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
 
         for(int i = 0; i < N_NUOVI_ATOMI; i++){
-            atomic_num = rand() % RNG_N_ATOMICO + 1;
+            atomic_num = rand() % N_ATOM_MAX + 1;
             sprintf(n_atom, "%d", atomic_num);
             char * vec_atomo[] = {"atomo", n_atom, argv[1], NULL}; // argv[1] = pointer to shmem
 
@@ -41,7 +41,6 @@ int main(int argc, char * argv[]) {
 
                 case -1:
                     shmem_p -> message = "meltdown.";
-                    //termination(message, shmem_p, shmid); Mandi un segnale a master 
                     kill(getppid(), SIGUSR1);
                 break;
 
