@@ -1,22 +1,24 @@
 #include "library.h"
 
-char * message;
 void signal_handler(int sig);
 
 int main(int argc, char * argv[]) {
 
     //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
-    int atomic_num;
+    int atomic_num, shmid;
+    int key= atoi(argv[1]);
     char n_atom[4];
     srand(getpid());
     
-    /*data_buffer * shmem_p; // inizializzi shm
-    int shmid = atoi(argv[1]);
-    shmem_p = (data_buffer *) shmat(shmid, NULL, 0); 
-    if (shmem_p == (void *) -1) {
-        perror("Pointer not attached."); exit(EXIT_FAILURE);
+    shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("Shared memory creation.\n"); exit(EXIT_FAILURE);
     }
-*/
+
+    data_buffer * shmem_p = (data_buffer *) shmat(key, NULL, 0);
+    if (shmem_p == (void *) -1) {
+        perror("Pointer atomo not attached."); exit(EXIT_FAILURE);
+    }
 
     //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
     struct timespec step_nanosec;
@@ -38,7 +40,7 @@ int main(int argc, char * argv[]) {
             switch(fork()) {
 
                 case -1:
-                    message = "meltdown.";
+                    shmem_p -> message = "meltdown.";
                     //termination(message, shmem_p, shmid); Mandi un segnale a master 
                     kill(getppid(), SIGUSR1);
                 break;

@@ -1,25 +1,28 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
-char * message;
 
 int main(int argc, char* argv[]){
     
     int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
+    int key= atoi(argv[2]);
     data_buffer * shmem_p;
     char division_atom_num[3], division_parent_num[4];
     
     // child accessing shmem
-    shmid = atoi(argv[2]);
-    shmem_p = (data_buffer *) shmat(shmid, NULL, 0);
+    shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("Shared memory creation.\n"); exit(EXIT_FAILURE);
+    }
+
+    shmem_p = (data_buffer *) shmat(key, NULL, 0);
     if (shmem_p == (void *) -1) {
-        perror("Pointer not attached."); exit(EXIT_FAILURE);
+        perror("Pointer atomo not attached."); exit(EXIT_FAILURE);
     }
 
     if (parent_atom_num <= MIN_N_ATOMICO) { // checking if pid is less than minimum
-        printf("Suca");
-        shmem_p -> waste_rel = shmem_p -> waste_rel + 1;
-        kill(getpid(), SIGTERM);
+        shmem_p -> waste_rel = shmem_p -> waste_rel +1;
+        kill(getpid(), SIGKILL);
     } 
 
     srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
@@ -36,7 +39,7 @@ int main(int argc, char* argv[]){
         switch (fork())
         {
             case -1:
-                message = "meltdown.";
+                shmem_p -> message = "meltdown.";
                 kill(getppid(), SIGUSR1);
             break;
             

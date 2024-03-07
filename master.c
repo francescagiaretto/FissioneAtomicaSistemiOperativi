@@ -5,17 +5,20 @@ int  stat_total_value(int *, int *);
 
 int shmid;
 data_buffer * shmem_p;
-char * message;
 
 void signal_handler(int sig) {
     switch(sig) {
         case SIGALRM:
-            message = "timeout.";
+            shmem_p -> message = "timeout.";
             raise(SIGUSR1);
         break;
 
+        case SIGKILL:
+            exit(0);
+        break;
+
         case SIGUSR1:
-            printf("Simulation terminated due to %s\n", message);
+            printf("Simulation terminated due to %s\n", shmem_p -> message);
             fflush(stdout);
             shmdt(&shmem_p);
             shmctl(shmid, IPC_RMID, NULL);
@@ -59,7 +62,7 @@ int main(int argc, char* argv[]) {
     // creating attivatore and alimentatore
     switch(pid_alimentatore = fork()) {
         case -1:
-            message = "meltdown.";
+            shmem_p -> message = "meltdown.";
             raise(SIGUSR1);
         break;
 
@@ -71,7 +74,7 @@ int main(int argc, char* argv[]) {
             switch(pid_attivatore = fork()) {
 
                 case -1:
-                    message = "meltdown.";
+                    shmem_p -> message = "meltdown.";
                     raise(SIGUSR1);
                 break;
 
@@ -88,7 +91,7 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         // checking explode condition
         if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
-            message = "explode.";
+            shmem_p -> message = "explode.";
             raise(SIGUSR1);
         }
 
@@ -103,7 +106,7 @@ int main(int argc, char* argv[]) {
         switch(pid_atoms[i]) {
 
             case -1:
-                message = "meltdown.";
+                shmem_p -> message = "meltdown.";
                 raise(SIGUSR1);
             break;
 
