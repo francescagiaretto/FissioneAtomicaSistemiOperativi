@@ -11,7 +11,7 @@ void signal_handler(int sig) {
     switch(sig) {
         case SIGALRM:
             message = "timeout.";
-            signal(SIGUSR1, signal_handler);
+            raise(SIGUSR1);
         break;
 
         case SIGUSR1:
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     switch(pid_alimentatore = fork()) {
         case -1:
             message = "meltdown.";
-            signal(SIGUSR1, signal_handler);
+            raise(SIGUSR1);
         break;
 
         case 0:
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 
                 case -1:
                     message = "meltdown.";
-                    signal(SIGUSR1, signal_handler);
+                    raise(SIGUSR1);
                 break;
 
                 case 0:
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
         // checking explode condition
         if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
             message = "explode.";
-            signal(SIGUSR1, signal_handler);
+            raise(SIGUSR1);
         }
 
         pid_atoms[i] = fork();
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
 
             case -1:
                 message = "meltdown.";
-                signal(SIGUSR1, signal_handler);
+                raise(SIGUSR1);
             break;
 
             case 0: // children: freeing allocated memory
@@ -134,8 +134,10 @@ int main(int argc, char* argv[]) {
         
     for(; 1; ) {
         
-        relative.prod_waste_rel = shmem_p -> data[0];
-        relative.prod_energy_rel = shmem_p -> data[1];
+        relative.prod_waste_rel = shmem_p -> waste_rel;
+        relative.prod_energy_rel = shmem_p -> prod_en_rel;
+        relative.cons_energy_rel = ENERGY_DEMAND;
+        relative.n_div_rel = shmem_p -> div_rel;
 
         print_stats(relative, total);
 

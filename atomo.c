@@ -1,7 +1,6 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
-void signal_handler(int sig);
 char * message;
 
 int main(int argc, char* argv[]){
@@ -18,7 +17,8 @@ int main(int argc, char* argv[]){
     }
 
     if (parent_atom_num <= MIN_N_ATOMICO) { // checking if pid is less than minimum
-        shmem_p -> data[0] = shmem_p -> data[0] + 1;
+        printf("Suca");
+        shmem_p -> waste_rel = shmem_p -> waste_rel + 1;
         kill(getpid(), SIGTERM);
     } 
 
@@ -37,17 +37,18 @@ int main(int argc, char* argv[]){
         {
             case -1:
                 message = "meltdown.";
-                signal(SIGUSR1, signal_handler);
+                kill(getppid(), SIGUSR1);
             break;
             
             case 0: // checking child
+                shmem_p -> div_rel = shmem_p -> div_rel++;
                 shmdt(shmem_p);
                 if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve grandchild"); exit(EXIT_FAILURE);} 
             break;
             
             default: // checking parent
                 en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);    
-                shmem_p -> data[1] = shmem_p -> data[1] + en_lib; // saving relative produced energy in shmem
+                shmem_p -> prod_en_rel = shmem_p -> prod_en_rel + en_lib; // saving relative produced energy in shmem
 
                 sprintf(division_parent_num, "%d", parent_atom_num);
                 char * new_vec_atomo[] = {"atomo", division_parent_num, NULL};

@@ -40,7 +40,7 @@ int main(int argc, char * argv[]) {
                 case -1:
                     message = "meltdown.";
                     //termination(message, shmem_p, shmid); Mandi un segnale a master 
-                    signal(SIGUSR1, signal_handler);
+                    kill(getppid(), SIGUSR1);
                 break;
 
                 case 0:

@@ -33,6 +33,15 @@ typedef struct stat_tot { // adds up relative stats
 
 typedef struct data_buffer {
     int position;
-    int data[10];
+    int waste_rel;
+    int waste_tot;
+    int prod_en_rel;
+    int prod_en_tot;
+    int div_rel;
+    int div_tot;
+    int act_rel;
+    int act_tot;
+    int cons_en_rel;
+    int cons_en_tot;
 } data_buffer;
 
