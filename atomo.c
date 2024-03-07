@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
         {
             case -1:
                 char * message = "meltdown.";
-                termination(message);
+                termination(message, shmem_p, shmid);
             break;
             
             case 0: // checking child

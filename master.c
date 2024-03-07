@@ -8,7 +8,7 @@ data_buffer * shmem_p;
 
 void signal_handler(int sig) {  // handles sigalarm from alarm(n), which defines the "timeout" condition  
     char * message = "timeout.";
-    termination(message);
+    termination(message, shmem_p, shmid);
 }
 
 int main(int argc, char* argv[]) {
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     switch(pid_alimentatore = fork()) {
         case -1:
             char * message = "meltdown.";
-            termination(message);
+            termination(message, shmem_p, shmid);
         break;
 
         case 0:
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
                 case -1:
                     char * message = "meltdown.";
-                    termination(message);
+                    termination(message, shmem_p, shmid);
                 break;
 
                 case 0:
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
         // checking explode condition
         if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
             char * message = "explode.";
-            termination(message);
+            termination(message, shmem_p, shmid);
         }
 
         pid_atoms[i] = fork();
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
             case -1:
                 char * message = "meltdown.";
-                termination(message);
+                termination(message, shmem_p, shmid);
             break;
 
             case 0: // children: freeing allocated memory
