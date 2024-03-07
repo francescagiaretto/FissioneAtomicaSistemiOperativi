@@ -6,13 +6,14 @@ int main(int argc, char * argv[]) {
     int atomic_num;
     char n_atom[4];
     srand(getpid());
-    data_buffer * shmem_p; // inizializzi shm
+    
+    /*data_buffer * shmem_p; // inizializzi shm
     int shmid = atoi(argv[1]);
-
     shmem_p = (data_buffer *) shmat(shmid, NULL, 0); 
     if (shmem_p == (void *) -1) {
         perror("Pointer not attached."); exit(EXIT_FAILURE);
     }
+*/
 
     //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
     struct timespec step_nanosec;
@@ -35,7 +36,8 @@ int main(int argc, char * argv[]) {
 
                 case -1:
                     char * message = "meltdown.";
-                    termination(message, shmem_p, shmid);
+                    //termination(message, shmem_p, shmid); Mandi un segnale a master 
+                    signal(SIGUSR1, term_handler)
                 break;
 
                 case 0:
