@@ -1,14 +1,27 @@
 #include "library.h"
 
 void print_stats(stat_rel, stat_tot);
-int stat_total_value(int *, int *);
+int  stat_total_value(int *, int *);
 
 int shmid;
 data_buffer * shmem_p;
+char * message;
 
-void signal_handler(int sig) {  // handles sigalarm from alarm(n), which defines the "timeout" condition  
-    char * message = "timeout.";
-    termination(message, shmem_p, shmid);
+void signal_handler(int sig) {
+    switch(sig) {
+        case SIGALRM:
+            message = "timeout.";
+            signal(SIGUSR1, signal_handler);
+        break;
+
+        case SIGUSR1:
+            printf("Simulation terminated due to %s\n", message);
+            fflush(stdout);
+            shmdt(&shmem_p);
+            shmctl(shmid, IPC_RMID, NULL);
+            exit(0);
+        break;
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -43,12 +56,11 @@ int main(int argc, char* argv[]) {
     char * vec_alim[] = {"alimentatore", id_shmat, NULL};
     char * vec_attiv[] = {"attivatore", NULL};
 
-
     // creating attivatore and alimentatore
     switch(pid_alimentatore = fork()) {
         case -1:
-            char * message = "meltdown.";
-            termination(message, shmem_p, shmid);
+            message = "meltdown.";
+            signal(SIGUSR1, signal_handler);
         break;
 
         case 0:
@@ -59,8 +71,8 @@ int main(int argc, char* argv[]) {
             switch(pid_attivatore = fork()) {
 
                 case -1:
-                    char * message = "meltdown.";
-                    termination(message, shmem_p, shmid);
+                    message = "meltdown.";
+                    signal(SIGUSR1, signal_handler);
                 break;
 
                 case 0:
@@ -76,8 +88,8 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < N_ATOM_INIT; i++) {
         // checking explode condition
         if (total.cons_energy_tot >= ENERGY_EXPLODE_THRESHOLD) {
-            char * message = "explode.";
-            termination(message, shmem_p, shmid);
+            message = "explode.";
+            signal(SIGUSR1, signal_handler);
         }
 
         pid_atoms[i] = fork();
@@ -91,8 +103,8 @@ int main(int argc, char* argv[]) {
         switch(pid_atoms[i]) {
 
             case -1:
-                char * message = "meltdown.";
-                termination(message, shmem_p, shmid);
+                message = "meltdown.";
+                signal(SIGUSR1, signal_handler);
             break;
 
             case 0: // children: freeing allocated memory
@@ -112,6 +124,7 @@ int main(int argc, char* argv[]) {
     bzero(&sa, sizeof(&sa)); // emptying struct to send to child
     sa.sa_handler = &signal_handler;
     sigaction(SIGALRM, &sa, NULL);
+    sigaction(SIGUSR1, &sa, NULL);
 
     free(pid_atoms);
     alarm(SIM_DURATION);
@@ -128,8 +141,8 @@ int main(int argc, char* argv[]) {
 
         // blackout
       /*  if (ENERGY_DEMAND > total.prod_energy_tot) {
-            char * message = "blackout.";
-            termination(message, shmid, shmem_p);
+            message = "blackout.";
+            signal(SIGUSR1, term_handler);
         } else {
             available_en = total.prod_energy_tot - ENERGY_DEMAND;
         } */

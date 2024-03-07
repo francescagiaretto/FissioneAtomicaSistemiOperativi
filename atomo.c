@@ -1,6 +1,8 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
+void signal_handler(int sig);
+char * message;
 
 int main(int argc, char* argv[]){
     
@@ -34,8 +36,8 @@ int main(int argc, char* argv[]){
         switch (fork())
         {
             case -1:
-                char * message = "meltdown.";
-                termination(message, shmem_p, shmid);
+                message = "meltdown.";
+                signal(SIGUSR1, signal_handler);
             break;
             
             case 0: // checking child
@@ -60,5 +62,4 @@ void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
     int temp = *parent_atom_num;
     *parent_atom_num = rand()% *parent_atom_num + 1;
     *child_atom_num = temp - *parent_atom_num;
-
 }

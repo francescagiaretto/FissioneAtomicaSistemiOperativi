@@ -1,5 +1,8 @@
 #include "library.h"
 
+char * message;
+void signal_handler(int sig);
+
 int main(int argc, char * argv[]) {
 
     //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
@@ -35,9 +38,9 @@ int main(int argc, char * argv[]) {
             switch(fork()) {
 
                 case -1:
-                    char * message = "meltdown.";
+                    message = "meltdown.";
                     //termination(message, shmem_p, shmid); Mandi un segnale a master 
-                    signal(SIGUSR1, term_handler)
+                    signal(SIGUSR1, signal_handler);
                 break;
 
                 case 0:
@@ -50,3 +53,4 @@ int main(int argc, char * argv[]) {
         }
     }
 }
+
