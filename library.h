@@ -14,17 +14,17 @@
 #include <sys/shm.h>
 
 typedef struct data_buffer {
-    int position;
-    int waste_rel;
-    int waste_tot;
-    int prod_en_rel;
-    int prod_en_tot;
-    int div_rel;
-    int div_tot;
-    int act_rel;
-    int act_tot;
-    int cons_en_rel;
-    int cons_en_tot;
-    char * message; // termination message
+  int position;
+  int waste_rel;
+  int waste_tot;
+  int prod_en_rel;
+  int prod_en_tot;
+  int div_rel;
+  int div_tot;
+  int act_rel;
+  int act_tot;
+  int cons_en_rel;
+  int cons_en_tot;
+  char * message; // termination message
 } data_buffer;
 
