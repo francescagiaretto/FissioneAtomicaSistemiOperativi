@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
     //int available_en;
 
     // !!! cambiare condizione for 
-    for(; 1; ) {
+    for(; 1; ) {// while(country < SIM_DURATION)?
 
         print_stats(shmem_p);
 
