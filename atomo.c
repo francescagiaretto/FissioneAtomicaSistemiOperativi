@@ -9,7 +9,7 @@ int main(int argc, char* argv[]){
 	data_buffer * shmem_p;
 	char division_atom_num[3], division_parent_num[4];
 
-	printf("\n%d, atomico = [%d]\n", getpid(), parent_atom_num);
+	// printf("\n%d, atomico = [%d]\n", getpid(), parent_atom_num);
 	
 	// child accessing shmem
 	shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
@@ -52,7 +52,8 @@ int main(int argc, char* argv[]){
 			break;
 			
 			default: // checking parent
-				en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);    
+				en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);   
+				printf("pid: %d, atom_child = %d, parent_number = %d, en_lib = [%d]\n", getpid(), child_atom_num, parent_atom_num, en_lib); 
 				shmem_p -> prod_en_rel = shmem_p -> prod_en_rel + en_lib; // saving relative produced energy in shmem
 
 				sprintf(division_parent_num, "%d", parent_atom_num);
@@ -65,6 +66,6 @@ int main(int argc, char* argv[]){
 // calculates atomic number after division
 void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
   int temp = *parent_atom_num;
-  *parent_atom_num = rand()% *parent_atom_num + 1;
+  *parent_atom_num = rand() % *parent_atom_num + 1;
   *child_atom_num = temp - *parent_atom_num;
 }
