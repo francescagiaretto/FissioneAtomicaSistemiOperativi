@@ -9,18 +9,14 @@ data_buffer * shmem_p;
 void signal_handler(int sig) {
   switch(sig) {
     case SIGALRM:
-      shmem_p -> message = "timeout.";
+      // *shmem_p -> message = "timeout.";
       raise(SIGUSR1);
     break;
 
-    case SIGTERM:
-      exit(0);
-    break;
-
     case SIGUSR1:
-      printf("Simulation terminated due to %s\n", shmem_p -> message);
+      printf("Simulation terminated due to timeout\n");
       fflush(stdout);
-      shmdt(&shmem_p);
+      shmdt(shmem_p);
       shmctl(shmid, IPC_RMID, NULL);
       exit(0);
     break;
