@@ -28,7 +28,7 @@ int main(int argc, char * argv[]) {
 
   // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?
-  while(1) {
+  /* while(1) {
 
     nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
 
@@ -52,6 +52,6 @@ int main(int argc, char * argv[]) {
         break;
       }
     }
-  }
+  } */
 }
 

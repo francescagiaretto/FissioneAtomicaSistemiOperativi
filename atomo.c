@@ -8,6 +8,8 @@ int main(int argc, char* argv[]){
 	int key = atoi(argv[2]);
 	data_buffer * shmem_p;
 	char division_atom_num[3], division_parent_num[4];
+
+	printf("\n%d, atomico = [%d]\n", getpid(), parent_atom_num);
 	
 	// child accessing shmem
 	shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
@@ -20,7 +22,7 @@ int main(int argc, char* argv[]){
 		perror("Pointer atomo not attached."); exit(EXIT_FAILURE);
 	}
 
-	if (parent_atom_num <= MIN_N_ATOMICO) { // checking if pid is less than minimum
+	if (parent_atom_num <= MIN_N_ATOMICO) { 
 		shmem_p -> waste_rel = shmem_p -> waste_rel +1;
 		kill(getpid(), SIGTERM);
 	} 
@@ -33,7 +35,7 @@ int main(int argc, char* argv[]){
 	// TODO gestire la fork quando lo richiede l'attivatore.
 
 	sprintf(division_atom_num, "%d", child_atom_num);
-	char * vec_atomo[] = {"atomo", division_atom_num, NULL};
+	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], NULL};
 
 	// TODO funzione energy() che incrementa l'energia liberata nelle statistiche del master
 		switch (fork())
@@ -44,8 +46,8 @@ int main(int argc, char* argv[]){
 			break;
 			
 			case 0: // checking child
-				shmem_p -> div_rel = shmem_p -> div_rel++;
-				shmdt(shmem_p);
+				shmem_p -> div_rel = shmem_p -> div_rel + 1;
+				// shmdt(shmem_p);
 				if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve grandchild"); exit(EXIT_FAILURE);} 
 			break;
 			
@@ -54,8 +56,7 @@ int main(int argc, char* argv[]){
 				shmem_p -> prod_en_rel = shmem_p -> prod_en_rel + en_lib; // saving relative produced energy in shmem
 
 				sprintf(division_parent_num, "%d", parent_atom_num);
-				char * new_vec_atomo[] = {"atomo", division_parent_num, NULL};
-				en_lib = 0;
+				char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], NULL};
 				if(execve("atomo", new_vec_atomo, NULL) == -1) {perror("Execve child"); exit(EXIT_FAILURE);} 
 			break;
 		}

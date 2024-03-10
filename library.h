@@ -14,7 +14,6 @@
 #include <sys/shm.h>
 
 typedef struct data_buffer {
-  int position;
   int waste_rel;
   int waste_tot;
   int prod_en_rel;
