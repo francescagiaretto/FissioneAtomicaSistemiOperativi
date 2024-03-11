@@ -13,6 +13,10 @@ void signal_handler(int sig) {
       raise(SIGUSR1);
     break;
 
+    case SIGTERM:
+     raise(SIGUSR1);
+    break;
+
     case SIGUSR1:
       printf("Simulation terminated due to %s\n", shmem_p -> message);
       fflush(stdout);
