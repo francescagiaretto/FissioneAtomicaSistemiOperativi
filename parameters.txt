@@ -1,4 +1,4 @@
-#define N_ATOM_INIT 10
+#define N_ATOM_INIT 2
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 1
@@ -8,3 +8,4 @@
 #define MIN_N_ATOMICO 20
 #define STEP_ALIMENTATORE 25930
 #define SHM_SIZE 50           
+#define N_PROC_INIT N_ATOM_INIT + 2 // n atomi + attivatore + alimentatore

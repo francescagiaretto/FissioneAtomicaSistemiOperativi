@@ -4,7 +4,9 @@
         "*.txt": "c",
         "array": "c",
         "string": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "types.h": "c",
+        "sem.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -1,6 +1,13 @@
 #include "library.h"
 
+int semid;
+
 int main(int argc, char* argv[]) {
+	semid = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+	semctl(semid, 0, SETVAL, 1);
+	sem.sem_num = WAITSEM;
+	sem.sem_op = 0;
+	semop(semid, &sem, 1);
 
 	// ? come comunicare che bisogna fare una scissione? SEGNALE
 
