@@ -1,4 +1,3 @@
-#include "library.h"
 #define MAX(a, b) ((a > b) ? (a) : (b))
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,6 +11,20 @@
 #include <sys/msg.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+
+typedef struct data_buffer {
+  int waste_rel;
+  int prod_en_rel;
+  int div_rel;
+  int act_rel;
+  int cons_en_rel;
+  int waste_tot;
+  int prod_en_tot;
+  int div_tot;
+  int act_tot;
+  int cons_en_tot;
+  char * message; // termination message
+} data_buffer;
 
 void print_stats(data_buffer * shmem_p) {
   static int count = 1;
@@ -44,7 +57,7 @@ void print_stats(data_buffer * shmem_p) {
   printf("Simulation timer: %d\n", count++);
 }
 
-void stat_total_value() {
+void stat_total_value(data_buffer * shmem_p) {
   shmem_p -> waste_tot = shmem_p -> waste_tot + shmem_p -> waste_rel;
   shmem_p -> act_tot = shmem_p -> act_tot + shmem_p -> act_rel;
   shmem_p -> div_tot = shmem_p -> div_tot + shmem_p -> div_rel;
@@ -55,18 +68,3 @@ void stat_total_value() {
 int energy(int child, int parent) {
     return child*parent - MAX(child,parent);
 }
-
-typedef struct data_buffer {
-  int waste_rel;
-  int prod_en_rel;
-  int div_rel;
-  int act_rel;
-  int cons_en_rel;
-  int waste_tot;
-  int prod_en_tot;
-  int div_tot;
-  int act_tot;
-  int cons_en_tot;
-  char * message; // termination message
-} data_buffer;
-

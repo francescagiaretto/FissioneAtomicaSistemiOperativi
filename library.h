@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include "parameters.txt"
+#include "methods.c"
 
 #define WAITSEM 0
 #define ATTIVATORE 1
