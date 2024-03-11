@@ -58,7 +58,8 @@ int main(int argc, char* argv[]){
 			break;
 			
 			default: // checking parent
-				en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);   
+				en_lib = energy(child_atom_num, parent_atom_num);
+				// en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);   
 				// printf("pid: %d, atom_child = %d, parent_number = %d, en_lib = [%d]\n", getpid(), child_atom_num, parent_atom_num, en_lib); 
 				shmem_p -> prod_en_rel = shmem_p -> prod_en_rel + en_lib; // saving relative produced energy in shmem
 

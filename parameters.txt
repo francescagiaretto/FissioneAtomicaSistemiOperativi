@@ -7,5 +7,4 @@
 #define ENERGY_EXPLODE_THRESHOLD 20000000
 #define MIN_N_ATOMICO 20
 #define STEP_ALIMENTATORE 25930
-#define SHM_SIZE 50           
-#define N_PROC_INIT N_ATOM_INIT + 2 // n atomi + attivatore + alimentatore
+#define SHM_SIZE 50

@@ -3,6 +3,28 @@
 int shmid, semid;
 data_buffer * shmem_p;
 
+void signal_handler(int sig) {
+  switch(sig) {
+    case SIGALRM:
+      shmem_p -> message = "timeout.";
+      raise(SIGUSR1);
+    break;
+
+    case SIGTERM:
+     raise(SIGUSR1);
+    break;
+
+    case SIGUSR1:
+      printf("Simulation terminated due to %s\n", shmem_p -> message);
+      fflush(stdout);
+      shmdt(shmem_p);
+      shmctl(shmid, IPC_RMID, NULL);
+      semctl(semid, 0, IPC_RMID);
+      exit(0);
+    break;
+  }
+}
+
 int main(int argc, char* argv[]) {
 
   int atomic_num;
