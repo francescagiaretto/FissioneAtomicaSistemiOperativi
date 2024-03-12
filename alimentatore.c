@@ -11,7 +11,6 @@ int main(int argc, char * argv[]) {
   sem.sem_num = WAITSEM;
   sem.sem_op = 0;
   semop(semid, &sem, 1);
-  printf("\n\n\nTEST ALIMENTATORE\n\n\n");
 
   //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
   int atomic_num, shmid;
