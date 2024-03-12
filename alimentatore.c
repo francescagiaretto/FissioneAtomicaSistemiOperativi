@@ -5,12 +5,13 @@ int semid;
 
 
 int main(int argc, char * argv[]) {
-  semid = semget(atoi(argv[2]), 1, IPC_CREAT | 0666);
-  semctl(semid, 0, SETVAL, 1);
+  if (semid = semget(atoi(argv[2]), 2, IPC_CREAT | 0666)== -1) {
+    perror("semaphore creation:"); exit(EXIT_FAILURE);
+  }
+  /* if(semctl(semid, 0, SETVAL, 0) == -1) {
+    perror("semctl in alimentatore"); exit(EXIT_FAILURE);
+  } */
 
-  sem.sem_num = WAITSEM;
-  sem.sem_op = 0;
-  semop(semid, &sem, 1);
 
   //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
   int atomic_num, shmid;
@@ -33,7 +34,10 @@ int main(int argc, char * argv[]) {
   step_nanosec.tv_sec = 0;           // seconds   
   step_nanosec.tv_nsec = STEP_ALIMENTATORE;   // nanoseconds
 
-
+  /* sem.sem_num = STARTSEM;
+  sem.sem_op = -1;
+  if (semop(semid, &sem, 1) == -1){perror("semop startsem in alimentatore"); exit(EXIT_FAILURE);}
+  printf("\n\n\nTEST ALIMENTATORE\n\n\n");  */
   // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?
   /* while(1) {

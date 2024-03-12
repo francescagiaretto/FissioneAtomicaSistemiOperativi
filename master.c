@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   key_t shmkey, semkey;
 
   // setting structs to 0
-  char n_atom[4], id_shmat[4], pointer_shmem[8], sem_vec[4];
+  char n_atom[8], id_shmat[8], pointer_shmem[8], sem_vec[8];
 
   // generating shared memory key
   shmkey = ftok("master.c", 'A');
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
   // creating shared memory
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   if (shmid == -1) {
-    perror("Shared memory creation.\n"); exit(EXIT_FAILURE);
+    perror("Shared memory creation in master.\n"); exit(EXIT_FAILURE);
   }
 
   sprintf(id_shmat, "%d", shmid);
@@ -55,17 +55,25 @@ int main(int argc, char* argv[]) {
   shmem_p = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available
                                                   // outside of Unix
   if (shmem_p == (void *) -1) {
-    perror("Pointer not attached.\n"); exit(EXIT_FAILURE);
+    perror("Pointer not attached in master"); exit(EXIT_FAILURE);
   }
 
 
   sprintf(sem_vec, "%d", semkey);
   // creating semaphore to handle the simulation
-  semid = semget(semkey, 1, IPC_CREAT | 0666);
-  printf("\n\n\n\n%d\n\n\n\n", semid);
+  semid = semget(semkey, 2, IPC_CREAT | 0666);
+  if(semid == -1) {
+    perror("semaphore creation in master"); exit(EXIT_FAILURE);
+  }
   
 
-  semctl(semid, 0, SETVAL, 1);
+  if(semctl(semid, WAITSEM, SETVAL, 0) == -1) {
+    perror("semctl iniziale"); exit(EXIT_FAILURE);
+  }
+  if(semctl(semid, STARTSEM, SETVAL, 0) == -1) {
+    perror("semctl iniziale"); exit(EXIT_FAILURE);
+  }
+
   sem.sem_flg = 0;
 
   char * vec_alim[] = {"alimentatore", id_shmat, sem_vec, NULL};
@@ -79,6 +87,14 @@ int main(int argc, char* argv[]) {
     break;
 
     case 0:
+      sem.sem_num = WAITSEM;
+      sem.sem_op = 1;
+      if (semop(semid, &sem, 1)==-1){perror("semop startsem"); exit(EXIT_FAILURE);};
+
+      sem.sem_num = STARTSEM;
+      sem.sem_op = -1;
+      if (semop(semid, &sem, 1)==-1){perror("semop startsem"); exit(EXIT_FAILURE);}; 
+      printf("\nTEST ALIMENTATORE\n");
       if(execve("./alimentatore", vec_alim, NULL) == -1) {perror("Execve alim"); exit(EXIT_FAILURE);}
     break;
 
@@ -91,6 +107,14 @@ int main(int argc, char* argv[]) {
           break;
 
           case 0:
+            sem.sem_num = WAITSEM;
+            sem.sem_op = 1;
+            if (semop(semid, &sem, 1)==-1){perror("semop startsem"); exit(EXIT_FAILURE);};
+
+            sem.sem_num = STARTSEM;
+            sem.sem_op = -1;
+            if (semop(semid, &sem, 1)==-1){perror("semop startsem"); exit(EXIT_FAILURE);}; 
+            printf("\nTEST ATTIVATORE\n");
             if(execve("./attivatore", vec_attiv, NULL) == -1) { perror("Execve attiv"); exit(EXIT_FAILURE);} 
           break;
       }
@@ -119,6 +143,14 @@ int main(int argc, char* argv[]) {
 
       case 0: // children: freeing allocated memory
         free(pid_atoms);
+        sem.sem_num = WAITSEM;
+        sem.sem_op = 1;
+        if (semop(semid, &sem, 1)==-1){perror("semop startsem"); exit(EXIT_FAILURE);}
+
+        sem.sem_num = STARTSEM;
+	      sem.sem_op = -1;
+  	    if (semop(semid, &sem, 1) == -1){perror("semop startsem"); exit(EXIT_FAILURE);} 
+        printf("\nTEST ATOMO\n");
         if (execve("./atomo", vec_atomo, NULL) == -1) {perror("Execve atomo"); exit(EXIT_FAILURE);}
       break;
 
@@ -127,6 +159,12 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  printf("PORCODIO PORCAMADONNA\n\n\n\n");
+  sem.sem_num = WAITSEM;
+	sem.sem_op = -(N_ATOM_INIT + 2);
+  if (semop(semid, &sem, 1) ==-1){perror("semop startsem"); exit(EXIT_FAILURE);};
+
+  printf("PORCODIO\n\n\n\n");
   // ! once everything is set the simulation starts (lasting SIM_DURATION seconds)
   struct sigaction sa;
 
@@ -143,10 +181,13 @@ int main(int argc, char* argv[]) {
 
   alarm(SIM_DURATION);
 
+  sem.sem_num = STARTSEM;
+  sem.sem_op = N_ATOM_INIT +2;
+  if (semop(semid, &sem, 1)==-1){perror("semop startsem"); exit(EXIT_FAILURE);};
+  printf("PORCODIO 2\n\n\n\n");
+
   //? vogliamo metterla in shmem?
   //int available_en;
-  sem.sem_op = -1;
-  semop(semid, &sem, 1);
   // !!! cambiare condizione for 
   for(; 1; ) {
     sleep(1);

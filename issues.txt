@@ -20,6 +20,8 @@ Per le operazioni di lettura e scrittura in shmem si usa memcpy (alternativament
 
 */
 
+// 
+
 /*
 COSE FATTE
 Ripulire tutto a fine simulazione

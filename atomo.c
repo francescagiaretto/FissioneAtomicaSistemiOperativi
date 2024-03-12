@@ -5,13 +5,12 @@ int semid;
 
 
 int main(int argc, char* argv[]){
-	semid = semget(atoi(argv[3]), 0, IPC_CREAT | 0666);
-	semctl(semid, 0, SETVAL, 1);
-
-	sem.sem_num = WAITSEM;
-	sem.sem_op = 0;
-	semop(semid, &sem, 0); 
-	printf("\n\n\nTEST ATOMO\n\n\n");
+	if(semid = semget(atoi(argv[3]), 2, IPC_CREAT | 0666) == -1) {
+		perror("semget creation:"); exit(EXIT_FAILURE);
+	}
+	/* if(semctl(semid, 0, SETVAL, 0) == -1) {
+		perror("semctl in atomo"); exit(EXIT_FAILURE);
+	} */
     
 	int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
 	int key = atoi(argv[2]);
@@ -23,12 +22,12 @@ int main(int argc, char* argv[]){
 	// child accessing shmem
 	shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
 	if (shmid == -1) {
-		perror("Shared memory creation.\n"); exit(EXIT_FAILURE);
+		perror("Shared memory creation in atomo"); exit(EXIT_FAILURE);
 	}
 
 	shmem_p = (data_buffer *) shmat(key, NULL, 0);
 	if (shmem_p == (void *) -1) {
-		perror("Pointer atomo not attached."); exit(EXIT_FAILURE);
+		perror("Pointer atomo not attached in atomo"); exit(EXIT_FAILURE);
 	}
 
 	if (parent_atom_num <= MIN_N_ATOMICO) { 
@@ -36,8 +35,15 @@ int main(int argc, char* argv[]){
 		kill(getpid(), SIGTERM);
 	} 
 
+	
+
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
 									//*  identical for more than one atom, while pid is always different
+
+	/* em.sem_num = STARTSEM;
+	sem.sem_op = -1;
+  	if (semop(semid, &sem, 1) == -1){perror("semop startsem in atomo"); exit(EXIT_FAILURE);} 
+	printf("\n\n\nTEST ATOMO\n\n\n"); */
 
 	generate_n_atom(&parent_atom_num, &child_atom_num);
 

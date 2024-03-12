@@ -2,7 +2,7 @@
 #include "parameters.txt"
 
 #define WAITSEM 0
-#define ATTIVATORE 1
+#define STARTSEM 1
 
 #define MAX(a, b) ((a > b) ? (a) : (b))
 #include <stdlib.h>
