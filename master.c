@@ -2,6 +2,7 @@
 
 int shmid, semid;
 data_buffer * shmem_p;
+struct sembuf sem;
 
 void signal_handler(int sig) {
   switch(sig) {
@@ -10,8 +11,12 @@ void signal_handler(int sig) {
       raise(SIGUSR1);
     break;
 
-    case SIGTERM:
+    case SIGINT:
      raise(SIGUSR1);
+    break;
+
+    case SIGTERM:
+      raise(SIGUSR1);
     break;
 
     case SIGUSR1:
@@ -30,13 +35,14 @@ int main(int argc, char* argv[]) {
   int atomic_num;
   pid_t pid_alimentatore, pid_attivatore;
   pid_t * pid_atoms;
-  key_t shmkey;
+  key_t shmkey, semkey;
 
   // setting structs to 0
-  char n_atom[4], id_shmat[4], pointer_shmem[8];
+  char n_atom[4], id_shmat[4], pointer_shmem[8], sem_vec[4];
 
   // generating shared memory key
   shmkey = ftok("master.c", 'A');
+  semkey = ftok("master.c", 'B');
   // creating shared memory
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   if (shmid == -1) {
@@ -53,15 +59,17 @@ int main(int argc, char* argv[]) {
   }
 
 
+  sprintf(sem_vec, "%d", semkey);
   // creating semaphore to handle the simulation
-  semid = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+  semid = semget(semkey, 1, IPC_CREAT | 0666);
+  printf("\n\n\n\n%d\n\n\n\n", semid);
   
 
   semctl(semid, 0, SETVAL, 1);
   sem.sem_flg = 0;
 
-  char * vec_alim[] = {"alimentatore", id_shmat, NULL};
-  char * vec_attiv[] = {"attivatore", NULL};
+  char * vec_alim[] = {"alimentatore", id_shmat, sem_vec, NULL};
+  char * vec_attiv[] = {"attivatore", sem_vec, NULL};
 
   // creating attivatore and alimentatore
   switch(pid_alimentatore = fork()) {
@@ -100,7 +108,7 @@ int main(int argc, char* argv[]) {
     srand(getpid());
     atomic_num = rand() % N_ATOM_MAX + 1;
     sprintf(n_atom, "%d", atomic_num);
-    char * vec_atomo[] = {"atomo", n_atom, id_shmat, NULL};
+    char * vec_atomo[] = {"atomo", n_atom, id_shmat, sem_vec, NULL};
 
     switch(pid_atoms[i]) {
 

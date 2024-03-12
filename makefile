@@ -1,41 +1,24 @@
 # NON FUNZIONA ANCORA. VERSIONE VECCHIA DEL MAKEFILE IN ISSUES.TXT
 
-CC = gcc
-CFLAGS = -Wvla -Wextra -Werror
-INCLUDES = library.h
-DEPENDENCIES = $(INCLUDES) folders
+init: master atomo attivatore alimentatore library.h
 
-init: code/methods code/master code/atomo code/attivatore code/alimentatore code/inibitore $(INCLUDES)
+master: master.c library.h
+	gcc master.c -Wvla -Wextra -Werror -o master
 
-run: code/master
+atomo: atomo.c library.h
+	gcc atomo.c -Wvla -Wextra -Werror -o atomo
 
-folders:
-	mkdir -p object/ code/
+attivatore: attivatore.c library.h
+	gcc attivatore.c -Wvla -Wextra -Werror -o attivatore
 
-#code/%.c: ./%.c $(DEPENDENCIES)
-#$(CC) $(CFLAGS) -c $< -o $@
+alimentatore: alimentatore.c library.h
+	gcc alimentatore.c -Wvla -Wextra -Werror -o alimentatore
 
-object/%.o: /%.c $(DEPENDENCIES)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-
-code/master: object/master.o $(DEPENDENCIES)
-	$(CC) -o code/master
-
-code/atomo: object/atomo.o $(DEPENDENCIES)
-	$(CC) -o code/atomo
-
-code/attivatore: object/attivatore.o $(DEPENDENCIES)
-	$(CC) -o code/attivatore
+inibitore: inibitore.c library.h
+	gcc inibitore.c -Wvla -Wextra -Werror -o inibitore
 	
-code/alimentatore: object/alimentatore.o $(DEPENDENCIES)
-	$(CC) -o code/alimentatore
-
-code/inibitore: object/inibitore.o $(DEPENDENCIES)
-	$(CC) -o code/inibitore
-
-code/methods: object/methods.o $(DEPENDENCIES)
-	$(CC) -o code/methods
+run: 
+	./master
 
 clean:
-	rm -rf object/ code/
+	rm -f *.o
