@@ -119,9 +119,6 @@ int main(int argc, char* argv[]) {
 
       case 0: // children: freeing allocated memory
         free(pid_atoms);
-        sem.sem_num = WAITSEM;
-        sem.sem_op = 0;
-        semop(semid, &sem, 1);
         if (execve("./atomo", vec_atomo, NULL) == -1) {perror("Execve atomo"); exit(EXIT_FAILURE);}
       break;
 
@@ -143,11 +140,11 @@ int main(int argc, char* argv[]) {
   /* if (int sem_op != N_PROC_INIT) {
     fprintf(stderr, "Wrong number of resources.\n"); exit(EXIT_FAILURE);
   } */
+
   alarm(SIM_DURATION);
 
   //? vogliamo metterla in shmem?
   //int available_en;
-
   sem.sem_op = -1;
   semop(semid, &sem, 1);
   // !!! cambiare condizione for 

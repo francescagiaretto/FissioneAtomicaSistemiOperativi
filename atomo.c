@@ -10,7 +10,8 @@ int main(int argc, char* argv[]){
 
 	sem.sem_num = WAITSEM;
 	sem.sem_op = 0;
-	semop(semid, &sem, 1);
+	semop(semid, &sem, 0); 
+	printf("\n\n\nTEST ATOMO\n\n\n");
     
 	int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
 	int key = atoi(argv[2]);
@@ -60,8 +61,6 @@ int main(int argc, char* argv[]){
 			
 			default: // checking parent
 				en_lib = energy(child_atom_num, parent_atom_num);
-				// en_lib = child_atom_num*parent_atom_num - MAX(child_atom_num, parent_atom_num);   
-				// printf("pid: %d, atom_child = %d, parent_number = %d, en_lib = [%d]\n", getpid(), child_atom_num, parent_atom_num, en_lib); 
 				shmem_p -> prod_en_rel = shmem_p -> prod_en_rel + en_lib; // saving relative produced energy in shmem
 
 				sprintf(division_parent_num, "%d", parent_atom_num);
