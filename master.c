@@ -179,8 +179,8 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "Wrong number of resources.\n"); exit(EXIT_FAILURE);
   } */
 
+  sleep(5);
   alarm(SIM_DURATION);
-
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +2;
   if (semop(semid, &sem, 1)==-1){perror("semop startsem"); exit(EXIT_FAILURE);};
