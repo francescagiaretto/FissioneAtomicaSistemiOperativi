@@ -5,37 +5,21 @@ int semid;
 
 
 int main(int argc, char* argv[]){
-	if(semid = semget(atoi(argv[3]), 2, IPC_CREAT | 0666) == -1) {
-		perror("semget creation:"); exit(EXIT_FAILURE);
-	}
-	/* if(semctl(semid, 0, SETVAL, 0) == -1) {
-		perror("semctl in atomo"); exit(EXIT_FAILURE);
-	} */
-    
+
 	int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
 	int key = atoi(argv[2]);
 	data_buffer * shmem_p;
 	char division_atom_num[3], division_parent_num[4];
 
-	// printf("\n%d, atomico = [%d]\n", getpid(), parent_atom_num);
-	
-	// child accessing shmem
+
+	semid = semget(atoi(argv[3]), 2, IPC_CREAT | 0666);
+	check_error(errno);
 	shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-	if (shmid == -1) {
-		perror("Shared memory creation in atomo"); exit(EXIT_FAILURE);
-	}
-
+	check_error(errno);
 	shmem_p = (data_buffer *) shmat(key, NULL, 0);
-	if (shmem_p == (void *) -1) {
-		perror("Pointer atomo not attached in atomo"); exit(EXIT_FAILURE);
-	}
+	check_error(errno);
 
-	if (parent_atom_num <= MIN_N_ATOMICO) { 
-		shmem_p -> waste_rel = shmem_p -> waste_rel +1;
-		kill(getpid(), SIGTERM);
-	} 
-
-	
+	check_waste(parent_atom_num);	
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
 									//*  identical for more than one atom, while pid is always different
@@ -62,7 +46,8 @@ int main(int argc, char* argv[]){
 			
 			case 0: // checking child
 				shmem_p -> div_rel = shmem_p -> div_rel + 1;
-				if(execve("atomo", vec_atomo, NULL)==-1) {perror("Execve grandchild"); exit(EXIT_FAILURE);} 
+				execve("atomo", vec_atomo, NULL);
+				check_error(errno);
 			break;
 			
 			default: // checking parent
@@ -71,7 +56,8 @@ int main(int argc, char* argv[]){
 
 				sprintf(division_parent_num, "%d", parent_atom_num);
 				char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], NULL};
-				if(execve("atomo", new_vec_atomo, NULL) == -1) {perror("Execve child"); exit(EXIT_FAILURE);} 
+				execve("atomo", new_vec_atomo, NULL);
+				check_error(errno);
 			break;
 		}
 }

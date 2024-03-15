@@ -76,3 +76,23 @@ void stat_total_value(data_buffer * shmem_p) {
 int energy(int child, int parent) {
     return child*parent - MAX(child,parent);
 }
+
+void check_error(int errno) {
+  if (errno) {
+    fprintf(stderr, "%s:%d: PID: %d: Error: %d (%s)\n", 
+      __FILE__,
+      __LINE__,
+      getpid(),
+      errno(),
+      strerror(errno()));
+    
+    exit(EXIT_FAILURE);
+  }
+}
+
+void check_waste(int atom_num) {
+  if (atom_num <= MIN_N_ATOMICO) { 
+		shmem_p -> waste_rel = shmem_p -> waste_rel +1;
+		kill(getpid(), SIGTERM);
+	} 
+}

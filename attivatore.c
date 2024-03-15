@@ -4,15 +4,15 @@ int semid;
 
 int main(int argc, char* argv[]) {
 	
-	if (semid = semget(atoi(argv[1]), 2, IPC_CREAT | 0666) == -1) {
-		perror("semget in attivatore failed"); exit(EXIT_FAILURE);
-	}
+	semid = semget(atoi(argv[1]), 2, IPC_CREAT | 0666);
+	check_error(errno);
 	/*if (semctl(semid, 0, SETVAL, 0) ==  -1) {
 		perror("semctl in attivatore failed!"); exit(EXIT_FAILURE);
 	}*/
 	/* sem.sem_num = STARTSEM;
  	sem.sem_op = -1;
-  	if (semop(semid, &sem, 1) == -1){perror("semop startsem in attivatore"); exit(EXIT_FAILURE);} */
+  	semop(semid, &sem, 1)
+	check_error(errno);*/
 
 	// printf("\n\n\nTEST ATTIVATORE\n\n\n");
 	// ? come comunicare che bisogna fare una scissione? SEGNALE

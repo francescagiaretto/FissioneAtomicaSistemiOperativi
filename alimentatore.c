@@ -5,12 +5,8 @@ int semid;
 
 
 int main(int argc, char * argv[]) {
-  if (semid = semget(atoi(argv[2]), 2, IPC_CREAT | 0666)== -1) {
-    perror("semaphore creation:"); exit(EXIT_FAILURE);
-  }
-  /* if(semctl(semid, 0, SETVAL, 0) == -1) {
-    perror("semctl in alimentatore"); exit(EXIT_FAILURE);
-  } */
+  semid = semget(atoi(argv[2]), 2, IPC_CREAT | 0666);
+  check_error(errno);
 
 
   //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
@@ -20,14 +16,10 @@ int main(int argc, char * argv[]) {
   srand(getpid());
 
   shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-  if (shmid == -1) {
-    perror("Shared memory creation.\n"); exit(EXIT_FAILURE);
-  }
+  check_error(errno);
 
   data_buffer * shmem_p = (data_buffer *) shmat(key, NULL, 0);
-  if (shmem_p == (void *) -1) {
-    perror("Pointer not attached."); exit(EXIT_FAILURE);
-  }
+  check_error(errno);
 
   //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
   struct timespec step_nanosec;
@@ -36,7 +28,8 @@ int main(int argc, char * argv[]) {
 
   /* sem.sem_num = STARTSEM;
   sem.sem_op = -1;
-  if (semop(semid, &sem, 1) == -1){perror("semop startsem in alimentatore"); exit(EXIT_FAILURE);}
+  semop(semid, &sem, 1);
+  check_error(errno);
   printf("\n\n\nTEST ALIMENTATORE\n\n\n");  */
   // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?
