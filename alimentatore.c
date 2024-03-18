@@ -1,22 +1,18 @@
 #include "library.h"
 
 void signal_handler(int sig);
-int semid;
+int semid, shmid;
 
 
 int main(int argc, char * argv[]) {
 
    //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
-  int atomic_num, shmid;
+  int atomic_num;
   char n_atom[4];
   srand(getpid());
 
-  semid = semget(atoi(argv[2]), 2, IPC_CREAT | 0666);
-  TEST_ERROR;
-
-  /* shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-  TEST_ERROR; */
   shmid = atoi(argv[1]);
+  semid = atoi(argv[2]);
   data_buffer * shmem_p = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;
 

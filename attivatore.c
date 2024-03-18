@@ -4,8 +4,9 @@ int semid;
 
 int main(int argc, char* argv[]) {
 	
-	semid = semget(atoi(argv[1]), 2, IPC_CREAT | 0666);
-	TEST_ERROR;
+	semid = atoi(argv[1]);
+	/* semid = semget(atoi(argv[1]), 2, IPC_CREAT | 0666);
+	TEST_ERROR; */
 	
 	sem.sem_num = STARTSEM;
  	sem.sem_op = -1;

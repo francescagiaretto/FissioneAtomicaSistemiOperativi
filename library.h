@@ -3,6 +3,7 @@
 
 #define WAITSEM 0
 #define STARTSEM 1
+#define WASTESEM 2
 
 #define MAX(a, b) ((a > b) ? (a) : (b))
 #include <stdlib.h>

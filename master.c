@@ -1,5 +1,6 @@
 #include "library.h"
 
+void set_sem_values();
 int shmid, semid;
 data_buffer * shmem_ptr;
 struct sembuf sem;
@@ -36,34 +37,28 @@ int main(int argc, char* argv[]) {
   pid_t pid_alimentatore, pid_attivatore;
   pid_t * pid_atoms;
   key_t shmkey, semkey;
-  char n_atom[8], id_shmat[8], pointer_shmem[4], sem_vec[8];
+  char n_atom[8], id_shmat[8], pointer_shmem[4], id_sem[8];
 
   shmkey = ftok("master.c", 'A');
   semkey = ftok("master.c", 'B');
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
+    // creating semaphore to handle the simulation
+  semid = semget(semkey, 2, IPC_CREAT | 0666);
+  TEST_ERROR;
+
   shmem_ptr = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available outside of Unix
   TEST_ERROR;
 
-  // creating semaphore to handle the simulation
-  semid = semget(semkey, 2, IPC_CREAT | 0666);
-  TEST_ERROR;
-  
-  //prevents the simulation from starting before everything is set
-  semctl(semid, WAITSEM, SETVAL, 0);
-  TEST_ERROR;
-
-  //allows the simulation to start after everything is set
-  semctl(semid, STARTSEM, SETVAL, 0);
-  TEST_ERROR;
+  set_sem_values();
 
   sem.sem_flg = 0;
 
   sprintf(id_shmat, "%d", shmid);
-  char * vec_alim[] = {"alimentatore", id_shmat, sem_vec, NULL};
-  sprintf(sem_vec, "%d", semkey);
-  char * vec_attiv[] = {"attivatore", sem_vec, NULL};
+  char * vec_alim[] = {"alimentatore", id_shmat, id_sem, NULL};
+  sprintf(id_sem, "%d", semid);
+  char * vec_attiv[] = {"attivatore", id_sem, NULL};
 
   switch(pid_alimentatore = fork()) {
     case -1:
@@ -113,7 +108,7 @@ int main(int argc, char* argv[]) {
     srand(getpid());
     atomic_num = rand() % N_ATOM_MAX + 1;
     sprintf(n_atom, "%d", atomic_num);
-    char * vec_atomo[] = {"atomo", n_atom, id_shmat, sem_vec, NULL};
+    char * vec_atomo[] = {"atomo", n_atom, id_shmat, id_sem, NULL};
 
     switch(pid_atoms[i]) {
 
@@ -185,4 +180,19 @@ int main(int argc, char* argv[]) {
     print_stats(shmem_ptr);
 
   }
+}
+
+void set_sem_values(){
+  
+  //prevents the simulation from starting before everything is set
+  semctl(semid, WAITSEM, SETVAL, 0);
+  TEST_ERROR;
+
+  //allows the simulation to start after everything is set
+  semctl(semid, STARTSEM, SETVAL, 0);
+  TEST_ERROR;
+
+  // handles waste
+  // semctl(semid, WASTESEM, SETVAL, 1);
+  // TEST_ERROR;
 }

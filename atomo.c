@@ -1,23 +1,18 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
-int semid;
+int semid, shmid;
 
 
 int main(int argc, char* argv[]){
 
-	int child_atom_num, en_lib, shmid;
-	int parent_atom_num = atoi(argv[1]);
+	int child_atom_num, en_lib, parent_atom_num;
 	data_buffer * shmem_ptr;
 	char division_atom_num[3], division_parent_num[4];
 
-
-	semid = semget(atoi(argv[3]), 2, IPC_CREAT | 0666);
-	TEST_ERROR;
-
+	parent_atom_num = atoi(argv[1]);
 	shmid = atoi(argv[2]);
-	/* shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-	TEST_ERROR; */
+	semid = atoi(argv[3]);
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
