@@ -28,6 +28,26 @@
 					   errno,\
 					   strerror(errno));}
 
+
+#define CHECK_OPERATION switch (errno) {					\
+		                        case EIDRM:						\
+		                        	printf("PID = %d, riga:%d : semaphore removed while process was waiting\n", \
+		                        	       getpid(), __LINE__);			\
+		                        	exit(EXIT_FAILURE);				\
+		                        case EINVAL:						\
+		                        	printf("PID = %d, riga:%d : semaphore removed or never existed\n", \
+		                        	       getpid(), __LINE__);			\
+		                        	exit(EXIT_FAILURE);				\
+		                        case EAGAIN:						\
+		                        	printf("PID = %d, riga:%d : process continued without waiting\n", \
+		                        	       getpid(), __LINE__);			\
+		                        	exit(EXIT_FAILURE);				\
+		                        				\
+		                        default:						\
+		                        	TEST_ERROR;			\
+                            break;    \
+		                        }							\
+
 struct sembuf sem;
 
 typedef struct data_buffer {

@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
       sem.sem_num = WAITSEM;
       sem.sem_op = 1;
       semop(semid, &sem, 1);
-      TEST_ERROR;
+      CHECK_OPERATION;
 
       execve("./alimentatore", vec_alim, NULL);
       TEST_ERROR;
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
             sem.sem_num = WAITSEM;
             sem.sem_op = 1;
             semop(semid, &sem, 1);
-            TEST_ERROR;
+            CHECK_OPERATION;
 
             execve("./attivatore", vec_attiv, NULL);
             TEST_ERROR;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
         sem.sem_num = WAITSEM;
         sem.sem_op = 1;
         semop(semid, &sem, 1);
-        TEST_ERROR;
+        CHECK_OPERATION;
 
         execve("./atomo", vec_atomo, NULL);
         TEST_ERROR;
@@ -133,13 +133,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  printf("ATTENDO I MIEI FIGLI....\n");
-  sem.sem_num = WAITSEM;
-	sem.sem_op = -(N_ATOM_INIT + 2);
-  semop(semid, &sem, 1);
-  TEST_ERROR;
 
-  printf("PRE SIMULAZIONE\n");
   // ! once everything is set the simulation starts (lasting SIM_DURATION seconds)
   struct sigaction sa;
 
@@ -150,8 +144,16 @@ int main(int argc, char* argv[]) {
 
   free(pid_atoms);
 
+  printf("ATTENDO I MIEI FIGLI....\n");
+  sem.sem_num = WAITSEM;
+	sem.sem_op = -(N_ATOM_INIT + 2);
+  semop(semid, &sem, 1);
+  TEST_ERROR;
+
+  printf("PRE SIMULAZIONE\n");
   
   alarm(SIM_DURATION);
+  
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
@@ -159,7 +161,6 @@ int main(int argc, char* argv[]) {
   
   printf("HO COMINCIATO LA SIMULAZIONE\n");
 
-  //? vogliamo metterla in shmem?
   // !!! cambiare condizione for 
   for(; 1; ) {
     sleep(1);

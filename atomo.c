@@ -1,7 +1,7 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
-void check_waste(int, data_buffer *);
+void check_waste(data_buffer *);
 int semid, shmid;
 
 
@@ -23,16 +23,34 @@ int main(int argc, char* argv[]){
 	sem.sem_num = STARTSEM;
 	sem.sem_op = -1;
   	semop(semid, &sem, 1);
-	// printf("\n\n\nTEST ATOMO CON PID %d\n\n\n", getpid()); 
+	printf("ATOMO CON NUM ATOMICO [%d]\n\n", parent_atom_num);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
-	check_waste(parent_atom_num, shmem_ptr);
+	if(parent_atom_num <= MIN_N_ATOMICO) { 
+
+		sem.sem_op = WASTESEM;
+		sem.sem_op = -1;
+		semop(semid, &sem, 1);
+		CHECK_OPERATION;
+
+		printf("sono processo con pid %d e sto scrivendo per le scorie\n", getpid());
+		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+
+		printf("sono processo con pid %d e sto liberando le risorse le scorie\n", getpid());
+		sem.sem_op = WASTESEM;
+		sem.sem_op = 1;
+		semop(semid, &sem, 1);
+		CHECK_OPERATION;;
+
+		kill(getpid(), SIGTERM);
+	}
+	
 	generate_n_atom(&parent_atom_num, &child_atom_num);
 
 	// TODO gestire la fork quando lo richiede l'attivatore.
 
 	sprintf(division_atom_num, "%d", child_atom_num);
-	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], NULL};
+	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], argv[3], NULL};
 
 	// TODO funzione energy() che incrementa l'energia liberata nelle statistiche del master
 		switch (fork())
@@ -53,7 +71,7 @@ int main(int argc, char* argv[]){
 				shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib; // saving relative produced energy in shmem
 
 				sprintf(division_parent_num, "%d", parent_atom_num);
-				char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], NULL};
+				char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], argv[3], NULL};
 				execve("atomo", new_vec_atomo, NULL);
 				TEST_ERROR;
 			break;
@@ -67,9 +85,23 @@ void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
   *child_atom_num = temp - *parent_atom_num;
 }
 
-void check_waste(int atom_num, data_buffer * shmem_ptr) {
-  if (atom_num <= MIN_N_ATOMICO) { 
+/* void check_waste(data_buffer * shmem_ptr) {
+
+		printf("TEST %d\n\n", getpid());
+		sem.sem_op = WASTESEM;
+		sem.sem_op = -1;
+		semop(semid, &sem, 1);
+		CHECK_OPERATION;
+		printf("TEST 2  %d\n\n", getpid());
+
+		printf("sono processo con pid %d e sto scrivendo le scorie\n", getpid());
 		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+
+		printf("sono processo con pid %d e sto liberando le risorse le scorie\n", getpid());
+		sem.sem_op = WASTESEM;
+		sem.sem_op = 1;
+		semop(semid, &sem, 1);
+		CHECK_OPERATION;;
+
 		kill(getpid(), SIGTERM);
-	} 
-} 
+}  */
