@@ -23,8 +23,8 @@ void signal_handler(int sig) {
 
     case SIGUSR1:
       printf("Simulation terminated due to %s\n", shmem_ptr -> message);
-      // kill(pid_alimentatore, SIGTERM);
-      // kill(pid_attivatore, SIGTERM);
+      kill(pid_alimentatore, SIGTERM);
+      kill(pid_attivatore, SIGTERM);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
       semctl(semid, 0, IPC_RMID);
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
   CHECK_OPERATION;
 
   printf("PRE SIMULAZIONE\n");
-  sleep(5);
+  sleep(2);
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;

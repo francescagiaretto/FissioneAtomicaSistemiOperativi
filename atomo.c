@@ -23,27 +23,29 @@ int main(int argc, char* argv[]){
 	sem.sem_num = STARTSEM;
 	sem.sem_op = -1;
   	semop(semid, &sem, 1);
-	// printf("ATOMO CON NUM ATOMICO [%d]\n\n", parent_atom_num);
+	printf("ATOMO CON NUM ATOMICO [%d]\n\n", parent_atom_num);
 	fflush(stdout);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 
+		//* resta bloccato qua sopra, come mai?
+		printf("TEST\n");
 		sem.sem_op = WASTESEM;
 		sem.sem_op = -1;
 		semop(semid, &sem, 1);
 		CHECK_OPERATION;
 
 		printf("sono processo con pid %d e sto scrivendo per le scorie\n", getpid());
-		fflush(stdout);
 		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 
-		printf("sono processo con pid %d e sto liberando le risorse le scorie\n", getpid());+
-		fflush(stdout);
+		printf("sono processo con pid %d e sto liberando le risorse le scorie\n", getpid());
 		sem.sem_op = WASTESEM;
 		sem.sem_op = 1;
 		semop(semid, &sem, 1);
-		CHECK_OPERATION;;
+		CHECK_OPERATION;
+
+		printf("TEST 2\n");
 
 		raise(SIGTERM);
 	}
