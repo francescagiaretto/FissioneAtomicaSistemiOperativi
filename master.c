@@ -66,7 +66,6 @@ int main(int argc, char* argv[]) {
   char * vec_alim[] = {"alimentatore", id_shmat, sem_vec, NULL};
   char * vec_attiv[] = {"attivatore", sem_vec, NULL};
 
-  // creating attivatore and alimentatore
   switch(pid_alimentatore = fork()) {
     case -1:
       shmem_p -> message = "meltdown.";
@@ -124,7 +123,7 @@ int main(int argc, char* argv[]) {
         raise(SIGUSR1);
       break;
 
-      case 0: // children: freeing allocated memory
+      case 0: 
         free(pid_atoms);
         sem.sem_num = WAITSEM;
         sem.sem_op = 1;
