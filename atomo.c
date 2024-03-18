@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
 
 	sem.sem_num = STARTSEM;
 	sem.sem_op = -1;
-  	if (semop(semid, &sem, 1) == -1){perror("semop startsem in atomo"); exit(EXIT_FAILURE);} 
+  	semop(semid, &sem, 1);
 	// printf("\n\n\nTEST ATOMO CON PID %d\n\n\n", getpid()); 
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
