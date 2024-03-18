@@ -3,7 +3,8 @@
 void set_sem_values();
 int shmid, semid;
 data_buffer * shmem_ptr;
-struct sembuf sem;
+pid_t pid_alimentatore, pid_attivatore;
+pid_t * pid_atoms;
 
 void signal_handler(int sig) {
   switch(sig) {
@@ -22,11 +23,12 @@ void signal_handler(int sig) {
 
     case SIGUSR1:
       printf("Simulation terminated due to %s\n", shmem_ptr -> message);
-      fflush(stdout);
+      // kill(pid_alimentatore, SIGTERM);
+      // kill(pid_attivatore, SIGTERM);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
-      //* i semafori non sono correttamente gestiti
       semctl(semid, 0, IPC_RMID);
+      //* come dico a tutti i processi atomo di fermarsi?
       exit(0);
     break;
   }
@@ -38,7 +40,7 @@ int main(int argc, char* argv[]) {
   pid_t pid_alimentatore, pid_attivatore;
   pid_t * pid_atoms;
   key_t shmkey, semkey;
-  char n_atom[8], id_shmat[8], pointer_shmem[4], id_sem[8];
+  char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8];
 
   shmkey = ftok("master.c", 'A');
   semkey = ftok("master.c", 'B');
@@ -152,7 +154,7 @@ int main(int argc, char* argv[]) {
   CHECK_OPERATION;
 
   printf("PRE SIMULAZIONE\n");
-  
+  sleep(5);
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;

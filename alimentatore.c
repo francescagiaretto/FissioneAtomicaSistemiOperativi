@@ -27,6 +27,9 @@ int main(int argc, char * argv[]) {
   TEST_ERROR;
   // printf("\n\n\nTEST ALIMENTATORE\n\n\n"); 
 
+  for(; 1; ) {
+		
+	}
 
   // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?

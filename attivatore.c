@@ -13,6 +13,9 @@ int main(int argc, char* argv[]) {
   	semop(semid, &sem, 1);
 	TEST_ERROR;
 
+	for(; 1; ) {
+		
+	}
 	// printf("\n\n\nTEST ATTIVATORE\n\n\n");
 	// ? come comunicare che bisogna fare una scissione? SEGNALE
 

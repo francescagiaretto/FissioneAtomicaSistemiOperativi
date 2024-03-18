@@ -23,7 +23,8 @@ int main(int argc, char* argv[]){
 	sem.sem_num = STARTSEM;
 	sem.sem_op = -1;
   	semop(semid, &sem, 1);
-	printf("ATOMO CON NUM ATOMICO [%d]\n\n", parent_atom_num);
+	// printf("ATOMO CON NUM ATOMICO [%d]\n\n", parent_atom_num);
+	fflush(stdout);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
@@ -44,7 +45,7 @@ int main(int argc, char* argv[]){
 		semop(semid, &sem, 1);
 		CHECK_OPERATION;;
 
-		kill(getpid(), SIGTERM);
+		raise(SIGTERM);
 	}
 	
 	generate_n_atom(&parent_atom_num, &child_atom_num);
