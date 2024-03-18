@@ -34,9 +34,11 @@ int main(int argc, char* argv[]){
 		CHECK_OPERATION;
 
 		printf("sono processo con pid %d e sto scrivendo per le scorie\n", getpid());
+		fflush(stdout);
 		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 
-		printf("sono processo con pid %d e sto liberando le risorse le scorie\n", getpid());
+		printf("sono processo con pid %d e sto liberando le risorse le scorie\n", getpid());+
+		fflush(stdout);
 		sem.sem_op = WASTESEM;
 		sem.sem_op = 1;
 		semop(semid, &sem, 1);

@@ -25,6 +25,7 @@ void signal_handler(int sig) {
       fflush(stdout);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
+      //* i semafori non sono correttamente gestiti
       semctl(semid, 0, IPC_RMID);
       exit(0);
     break;
@@ -148,7 +149,7 @@ int main(int argc, char* argv[]) {
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 2);
   semop(semid, &sem, 1);
-  TEST_ERROR;
+  CHECK_OPERATION;
 
   printf("PRE SIMULAZIONE\n");
   
@@ -157,7 +158,7 @@ int main(int argc, char* argv[]) {
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
-  TEST_ERROR;
+  CHECK_OPERATION;
   
   printf("HO COMINCIATO LA SIMULAZIONE\n");
 
