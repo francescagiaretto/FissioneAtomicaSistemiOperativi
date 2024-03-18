@@ -6,7 +6,8 @@ int semid;
 
 int main(int argc, char* argv[]){
 
-	int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
+	int child_atom_num, en_lib, shmid;
+	int parent_atom_num = atoi(argv[1]);
 	int key = atoi(argv[2]);
 	data_buffer * shmem_ptr;
 	char division_atom_num[3], division_parent_num[4];

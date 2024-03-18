@@ -36,26 +36,17 @@ int main(int argc, char* argv[]) {
   pid_t pid_alimentatore, pid_attivatore;
   pid_t * pid_atoms;
   key_t shmkey, semkey;
-
-  // setting structs to 0
   char n_atom[8], id_shmat[8], pointer_shmem[8], sem_vec[8];
 
-  // generating shared memory key
   shmkey = ftok("master.c", 'A');
   semkey = ftok("master.c", 'B');
-  // creating shared memory
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   check_error();
 
-  sprintf(id_shmat, "%d", shmid);
-
-  // access to shmem is handled through attached pointer
   shmem_p = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available
                                                   // outside of Unix
   check_error();
 
-
-  sprintf(sem_vec, "%d", semkey);
   // creating semaphore to handle the simulation
   semid = semget(semkey, 2, IPC_CREAT | 0666);
   check_error();
@@ -70,6 +61,8 @@ int main(int argc, char* argv[]) {
 
   sem.sem_flg = 0;
 
+  sprintf(id_shmat, "%d", shmid);
+  sprintf(sem_vec, "%d", semkey);
   char * vec_alim[] = {"alimentatore", id_shmat, sem_vec, NULL};
   char * vec_attiv[] = {"attivatore", sem_vec, NULL};
 
