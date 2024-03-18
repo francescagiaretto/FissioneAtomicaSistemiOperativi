@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 
   free(pid_atoms);
 
-  sleep(5);
+  
   alarm(SIM_DURATION);
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +2;
