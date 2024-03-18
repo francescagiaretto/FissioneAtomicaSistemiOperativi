@@ -96,9 +96,4 @@ int energy(int child, int parent) {
   }
 } */
 
-void check_waste(int atom_num, data_buffer * shmem_ptr) {
-  if (atom_num <= MIN_N_ATOMICO) { 
-		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
-		kill(getpid(), SIGTERM);
-	} 
-} 
+

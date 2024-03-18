@@ -1,6 +1,7 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
+void check_waste(int, data_buffer *);
 int semid, shmid;
 
 
@@ -65,3 +66,10 @@ void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
   *parent_atom_num = rand() % *parent_atom_num + 1;
   *child_atom_num = temp - *parent_atom_num;
 }
+
+void check_waste(int atom_num, data_buffer * shmem_ptr) {
+  if (atom_num <= MIN_N_ATOMICO) { 
+		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+		kill(getpid(), SIGTERM);
+	} 
+} 
