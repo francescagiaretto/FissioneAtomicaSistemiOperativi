@@ -2,6 +2,7 @@
 Semafori
 Gestione terminazioni
 Definizione metodi nella libreria?
+ABBIAMO COMUNICAZIONE TRA PROCESSI (ALMENO UNO TRA CODE DI MESSAGGI E PIPE)????
 
 ATTIVATORE 
 - controllo numero atomico < numero minimo -> scorie + 1 (memoria dinamica con contatore e code di messaggi)

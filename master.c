@@ -1,7 +1,7 @@
 #include "library.h"
 
 void set_sem_values();
-int shmid, semid;
+int shmid, semid, inib_on;
 data_buffer * shmem_ptr;
 pid_t pid_alimentatore, pid_attivatore;
 pid_t * pid_atoms;
@@ -30,6 +30,16 @@ void signal_handler(int sig) {
       semctl(semid, 0, IPC_RMID);
       //* come dico a tutti i processi atomo di fermarsi?
       exit(0);
+    break;
+
+    case SIGUSR2:
+      if(inib_on == 0) {
+        inib_on = 1;
+        printf("Inibitore attivato. Puoi disattivarlo quando vuoi.\n");
+      } else if (inib_on == 1) {
+        inib_on = 0;
+        printf("Inibitore disattivato. Puoi attivarlo quando vuoi.\n");
+      }
     break;
   }
 }
@@ -182,6 +192,23 @@ int main(int argc, char* argv[]) {
     } */
     
     print_stats(shmem_ptr);
+
+    /*
+      if (inib_on == 0) {
+        printf("Vuoi attivare l'inibitore?\n");
+        if (risposta == y || risposta == Y || risposta == enter) {
+          raise(SIGUSR2);
+          char * vec_inib[] = {"inibitore", inib_on, NULL};
+          execve("./inibitore", vec_inib, NULL);
+        }
+      }
+      else if (inib_on == 1) {
+        printf("Vuoi disattivare l'inibitore?\n");
+        if (risposta == y || risposta == Y || risposta == enter) {
+          raise(SIGUSR2);
+        }
+      }
+    */
 
   }
 }
