@@ -5,16 +5,14 @@ int semid;
 int main(int argc, char* argv[]) {
 	
 	semid = semget(atoi(argv[1]), 2, IPC_CREAT | 0666);
-	check_error(errno);
-	/*if (semctl(semid, 0, SETVAL, 0) ==  -1) {
-		perror("semctl in attivatore failed!"); exit(EXIT_FAILURE);
-	}*/
-	/* sem.sem_num = STARTSEM;
+	check_error();
+	
+	sem.sem_num = STARTSEM;
  	sem.sem_op = -1;
-  	semop(semid, &sem, 1)
-	check_error(errno);*/
+  	semop(semid, &sem, 1);
+	check_error();
 
-	// printf("\n\n\nTEST ATTIVATORE\n\n\n");
+	printf("\n\n\nTEST ATTIVATORE\n\n\n");
 	// ? come comunicare che bisogna fare una scissione? SEGNALE
 
 	// semaforo che controlla n atomi da decidere (possono lavorare 3 atomi insieme)

@@ -45,28 +45,28 @@ int main(int argc, char* argv[]) {
   semkey = ftok("master.c", 'B');
   // creating shared memory
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
-  check_error(errno);
+  check_error();
 
   sprintf(id_shmat, "%d", shmid);
 
   // access to shmem is handled through attached pointer
   shmem_p = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available
                                                   // outside of Unix
-  check_error(errno);
+  check_error();
 
 
   sprintf(sem_vec, "%d", semkey);
   // creating semaphore to handle the simulation
   semid = semget(semkey, 2, IPC_CREAT | 0666);
-  check_error(errno);
+  check_error();
   
   //prevents the simulation from starting before everything is set
   semctl(semid, WAITSEM, SETVAL, 0);
-  check_error(errno);
+  check_error();
 
   //allows the simulation to start after everything is set
   semctl(semid, STARTSEM, SETVAL, 0);
-  check_error(errno);
+  check_error();
 
   sem.sem_flg = 0;
 
@@ -84,16 +84,10 @@ int main(int argc, char* argv[]) {
       sem.sem_num = WAITSEM;
       sem.sem_op = 1;
       semop(semid, &sem, 1);
-      check_error(errno);
+      check_error();
 
-      sem.sem_num = STARTSEM;
-      sem.sem_op = -1;
-      semop(semid, &sem, 1);
-      check_error(errno);
-
-      printf("\nTEST ALIMENTATORE\n");
       execve("./alimentatore", vec_alim, NULL);
-      check_error(errno);
+      check_error();
     break;
 
     default: // parent process
@@ -108,16 +102,10 @@ int main(int argc, char* argv[]) {
             sem.sem_num = WAITSEM;
             sem.sem_op = 1;
             semop(semid, &sem, 1);
-            check_error(errno);
+            check_error();
 
-            sem.sem_num = STARTSEM;
-            sem.sem_op = -1;
-            semop(semid, &sem, 1);
-            check_error(errno);
-
-            printf("\nTEST ATTIVATORE\n");
             execve("./attivatore", vec_attiv, NULL);
-            check_error(errno);
+            check_error();
           break;
       }
     break;
@@ -148,16 +136,10 @@ int main(int argc, char* argv[]) {
         sem.sem_num = WAITSEM;
         sem.sem_op = 1;
         semop(semid, &sem, 1);
-        check_error(errno);
+        check_error();
 
-        sem.sem_num = STARTSEM;
-	      sem.sem_op = -1;
-  	    semop(semid, &sem, 1);
-        check_error(errno);
-         
-        printf("\nTEST ATOMO\n");
         execve("./atomo", vec_atomo, NULL);
-        check_error(errno);
+        check_error();
       break;
 
       default:
@@ -165,13 +147,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  printf("PORCODIO PORCAMADONNA\n\n\n\n");
+  printf("ATTENDO I MIEI FIGLI....\n\n\n\n");
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 2);
   semop(semid, &sem, 1);
   check_error(errno);
 
-  printf("PORCODIO\n\n\n\n");
+  printf("PRE SIMULAZIONE\n\n\n\n");
   // ! once everything is set the simulation starts (lasting SIM_DURATION seconds)
   struct sigaction sa;
 
@@ -182,10 +164,6 @@ int main(int argc, char* argv[]) {
 
   free(pid_atoms);
 
-  /* if (int sem_op != N_PROC_INIT) {
-    fprintf(stderr, "Wrong number of resources.\n"); exit(EXIT_FAILURE);
-  } */
-
   sleep(5);
   alarm(SIM_DURATION);
   sem.sem_num = STARTSEM;
@@ -193,15 +171,14 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
   check_error(errno);
   
-  printf("PORCODIO 2\n\n\n\n");
+  printf("HO COMINCIATO LA SIMULAZIONE\n\n\n\n");
 
   //? vogliamo metterla in shmem?
-  //int available_en;
   // !!! cambiare condizione for 
   for(; 1; ) {
     sleep(1);
     // checking explode condition
-    if (shmem_p -> prod_en_tot >= ENERGY_EXPLODE_THRESHOLD) {
+    if (shmem_p -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
       shmem_p -> message = "explode.";
       raise(SIGUSR1);
     }

@@ -8,27 +8,27 @@ int main(int argc, char* argv[]){
 
 	int parent_atom_num = atoi(argv[1]); int child_atom_num, en_lib, shmid;
 	int key = atoi(argv[2]);
-	data_buffer * shmem_p;
+	data_buffer * shmem_ptr;
 	char division_atom_num[3], division_parent_num[4];
 
 
 	semid = semget(atoi(argv[3]), 2, IPC_CREAT | 0666);
-	check_error(errno);
+	check_error();
 	shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-	check_error(errno);
-	shmem_p = (data_buffer *) shmat(key, NULL, 0);
-	check_error(errno);
-
-	check_waste(parent_atom_num);	
+	check_error();
+	shmem_ptr = (data_buffer *) shmat(key, NULL, 0);
+	check_error();
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
 									//*  identical for more than one atom, while pid is always different
 
-	/* em.sem_num = STARTSEM;
+	sem.sem_num = STARTSEM;
 	sem.sem_op = -1;
   	if (semop(semid, &sem, 1) == -1){perror("semop startsem in atomo"); exit(EXIT_FAILURE);} 
-	printf("\n\n\nTEST ATOMO\n\n\n"); */
+	printf("\n\n\nTEST ATOMO CON PID %d\n\n\n", getpid()); 
 
+	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
+	check_waste(parent_atom_num, shmem_ptr);
 	generate_n_atom(&parent_atom_num, &child_atom_num);
 
 	// TODO gestire la fork quando lo richiede l'attivatore.
@@ -40,19 +40,19 @@ int main(int argc, char* argv[]){
 		switch (fork())
 		{
 			case -1:
-				shmem_p -> message = "meltdown.";
+				shmem_ptr -> message = "meltdown.";
 				kill(getppid(), SIGUSR1);
 			break;
 			
 			case 0: // checking child
-				shmem_p -> div_rel = shmem_p -> div_rel + 1;
+				shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
 				execve("atomo", vec_atomo, NULL);
 				check_error(errno);
 			break;
 			
 			default: // checking parent
 				en_lib = energy(child_atom_num, parent_atom_num);
-				shmem_p -> prod_en_rel = shmem_p -> prod_en_rel + en_lib; // saving relative produced energy in shmem
+				shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib; // saving relative produced energy in shmem
 
 				sprintf(division_parent_num, "%d", parent_atom_num);
 				char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], NULL};

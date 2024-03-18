@@ -16,21 +16,23 @@ int main(int argc, char * argv[]) {
   srand(getpid());
 
   shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-  check_error(errno);
+  check_error();
 
   data_buffer * shmem_p = (data_buffer *) shmat(key, NULL, 0);
-  check_error(errno);
+  check_error();
 
   //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
   struct timespec step_nanosec;
   step_nanosec.tv_sec = 0;           // seconds   
   step_nanosec.tv_nsec = STEP_ALIMENTATORE;   // nanoseconds
 
-  /* sem.sem_num = STARTSEM;
+  sem.sem_num = STARTSEM;
   sem.sem_op = -1;
   semop(semid, &sem, 1);
-  check_error(errno);
-  printf("\n\n\nTEST ALIMENTATORE\n\n\n");  */
+  check_error();
+  printf("\n\n\nTEST ALIMENTATORE\n\n\n"); 
+
+  
   // TODO ogni STEP_ALIMENTATORE nanosecondi deve creare N_NUOVI_ATOMI
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?
   /* while(1) {
