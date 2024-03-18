@@ -1,13 +1,13 @@
 #include "library.h"
 
 int shmid, semid;
-data_buffer * shmem_p;
+data_buffer * shmem_ptr;
 struct sembuf sem;
 
 void signal_handler(int sig) {
   switch(sig) {
     case SIGALRM:
-      shmem_p -> message = "timeout.";
+      shmem_ptr -> message = "timeout.";
       raise(SIGUSR1);
     break;
 
@@ -20,10 +20,12 @@ void signal_handler(int sig) {
     break;
 
     case SIGUSR1:
-      printf("Simulation terminated due to %s\n", shmem_p -> message);
+      printf("Simulation terminated due to %s\n", shmem_ptr -> message);
       fflush(stdout);
-      shmdt(shmem_p);
+      shmdt(shmem_ptr);
+      printf("%p\n", shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
+      printf("%d\n", shmid);
       semctl(semid, 0, IPC_RMID);
       exit(0);
     break;
@@ -36,39 +38,40 @@ int main(int argc, char* argv[]) {
   pid_t pid_alimentatore, pid_attivatore;
   pid_t * pid_atoms;
   key_t shmkey, semkey;
-  char n_atom[8], id_shmat[8], pointer_shmem[8], sem_vec[8];
+  char n_atom[8], id_shmat[8], pointer_shmem[4], sem_vec[8];
 
   shmkey = ftok("master.c", 'A');
+  printf("%d\n\n", shmkey);
   semkey = ftok("master.c", 'B');
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
-  check_error();
+  printf("%d\n", shmid);
+  TEST_ERROR;
 
-  shmem_p = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available
-                                                  // outside of Unix
-  check_error();
+  shmem_ptr = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available outside of Unix
+  TEST_ERROR;
 
   // creating semaphore to handle the simulation
   semid = semget(semkey, 2, IPC_CREAT | 0666);
-  check_error();
+  TEST_ERROR;
   
   //prevents the simulation from starting before everything is set
   semctl(semid, WAITSEM, SETVAL, 0);
-  check_error();
+  TEST_ERROR;
 
   //allows the simulation to start after everything is set
   semctl(semid, STARTSEM, SETVAL, 0);
-  check_error();
+  TEST_ERROR;
 
   sem.sem_flg = 0;
 
   sprintf(id_shmat, "%d", shmid);
-  sprintf(sem_vec, "%d", semkey);
   char * vec_alim[] = {"alimentatore", id_shmat, sem_vec, NULL};
+  sprintf(sem_vec, "%d", semkey);
   char * vec_attiv[] = {"attivatore", sem_vec, NULL};
 
   switch(pid_alimentatore = fork()) {
     case -1:
-      shmem_p -> message = "meltdown.";
+      shmem_ptr -> message = "meltdown.";
       raise(SIGUSR1);
     break;
 
@@ -76,17 +79,17 @@ int main(int argc, char* argv[]) {
       sem.sem_num = WAITSEM;
       sem.sem_op = 1;
       semop(semid, &sem, 1);
-      check_error();
+      TEST_ERROR;
 
       execve("./alimentatore", vec_alim, NULL);
-      check_error();
+      TEST_ERROR;
     break;
 
     default: // parent process
       switch(pid_attivatore = fork()) {
 
           case -1:
-            shmem_p -> message = "meltdown.";
+            shmem_ptr -> message = "meltdown.";
             raise(SIGUSR1);
           break;
 
@@ -94,10 +97,10 @@ int main(int argc, char* argv[]) {
             sem.sem_num = WAITSEM;
             sem.sem_op = 1;
             semop(semid, &sem, 1);
-            check_error();
+            TEST_ERROR;
 
             execve("./attivatore", vec_attiv, NULL);
-            check_error();
+            TEST_ERROR;
           break;
       }
     break;
@@ -119,7 +122,7 @@ int main(int argc, char* argv[]) {
     switch(pid_atoms[i]) {
 
       case -1:
-        shmem_p -> message = "meltdown.";
+        shmem_ptr -> message = "meltdown.";
         raise(SIGUSR1);
       break;
 
@@ -128,10 +131,10 @@ int main(int argc, char* argv[]) {
         sem.sem_num = WAITSEM;
         sem.sem_op = 1;
         semop(semid, &sem, 1);
-        check_error();
+        TEST_ERROR;
 
         execve("./atomo", vec_atomo, NULL);
-        check_error();
+        TEST_ERROR;
       break;
 
       default:
@@ -143,7 +146,7 @@ int main(int argc, char* argv[]) {
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 2);
   semop(semid, &sem, 1);
-  check_error(errno);
+  TEST_ERROR;
 
   printf("PRE SIMULAZIONE\n\n\n\n");
   // ! once everything is set the simulation starts (lasting SIM_DURATION seconds)
@@ -161,7 +164,7 @@ int main(int argc, char* argv[]) {
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
-  check_error(errno);
+  TEST_ERROR;
   
   printf("HO COMINCIATO LA SIMULAZIONE\n\n\n\n");
 
@@ -170,20 +173,20 @@ int main(int argc, char* argv[]) {
   for(; 1; ) {
     sleep(1);
     // checking explode condition
-    if (shmem_p -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
-      shmem_p -> message = "explode.";
+    if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
+      shmem_ptr -> message = "explode.";
       raise(SIGUSR1);
     }
 
     // blackout
-  /*  if (ENERGY_DEMAND > shmem_p -> prod_en_tot) {
+  /*  if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
       message = "blackout.";
       signal(SIGUSR1, term_handler);
     } else {
-      available_en = shmem_p -> prod_en_tot - ENERGY_DEMAND;
+      available_en = shmem_ptr -> prod_en_tot - ENERGY_DEMAND;
     } */
     
-    print_stats(shmem_p);
+    print_stats(shmem_ptr);
 
   }
 }

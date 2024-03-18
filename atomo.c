@@ -8,17 +8,19 @@ int main(int argc, char* argv[]){
 
 	int child_atom_num, en_lib, shmid;
 	int parent_atom_num = atoi(argv[1]);
-	int key = atoi(argv[2]);
 	data_buffer * shmem_ptr;
 	char division_atom_num[3], division_parent_num[4];
 
 
 	semid = semget(atoi(argv[3]), 2, IPC_CREAT | 0666);
-	check_error();
-	shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-	check_error();
-	shmem_ptr = (data_buffer *) shmat(key, NULL, 0);
-	check_error();
+	TEST_ERROR;
+
+	shmid = atoi(argv[2]);
+	printf("%d, %d\n", shmid, getpid());
+	/* shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
+	TEST_ERROR; */
+	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
+	TEST_ERROR;
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
 									//*  identical for more than one atom, while pid is always different
@@ -26,7 +28,7 @@ int main(int argc, char* argv[]){
 	sem.sem_num = STARTSEM;
 	sem.sem_op = -1;
   	if (semop(semid, &sem, 1) == -1){perror("semop startsem in atomo"); exit(EXIT_FAILURE);} 
-	printf("\n\n\nTEST ATOMO CON PID %d\n\n\n", getpid()); 
+	// printf("\n\n\nTEST ATOMO CON PID %d\n\n\n", getpid()); 
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	check_waste(parent_atom_num, shmem_ptr);
@@ -48,7 +50,7 @@ int main(int argc, char* argv[]){
 			case 0: // checking child
 				shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
 				execve("atomo", vec_atomo, NULL);
-				check_error(errno);
+				TEST_ERROR;
 			break;
 			
 			default: // checking parent
@@ -58,7 +60,7 @@ int main(int argc, char* argv[]){
 				sprintf(division_parent_num, "%d", parent_atom_num);
 				char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], NULL};
 				execve("atomo", new_vec_atomo, NULL);
-				check_error(errno);
+				TEST_ERROR;
 			break;
 		}
 }

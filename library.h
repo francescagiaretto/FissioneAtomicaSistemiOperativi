@@ -18,6 +18,15 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 
+
+#define TEST_ERROR   if (errno) {fprintf(stderr, \
+					   "%s:%d: PID=%5d: Error %d (%s)\n",\
+					   __FILE__,\
+					   __LINE__,\
+					   getpid(),\
+					   errno,\
+					   strerror(errno));}
+
 struct sembuf sem;
 
 typedef struct data_buffer {
@@ -77,18 +86,18 @@ int energy(int child, int parent) {
     return child*parent - MAX(child,parent);
 }
 
-void check_error() {
+/* void check_error() {
   if (errno) {
     fprintf(stderr, "line %d in file '%s': Error: %d (%s)\n", 
       __LINE__, __FILE__, errno, strerror(errno));
     
     exit(EXIT_FAILURE);
   }
-}
+} */
 
 void check_waste(int atom_num, data_buffer * shmem_ptr) {
   if (atom_num <= MIN_N_ATOMICO) { 
 		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 		kill(getpid(), SIGTERM);
 	} 
-}
+} 
