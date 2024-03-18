@@ -16,7 +16,6 @@ int main(int argc, char* argv[]){
 	TEST_ERROR;
 
 	shmid = atoi(argv[2]);
-	printf("%d, %d\n", shmid, getpid());
 	/* shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
 	TEST_ERROR; */
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);

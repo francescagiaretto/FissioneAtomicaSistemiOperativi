@@ -23,9 +23,7 @@ void signal_handler(int sig) {
       printf("Simulation terminated due to %s\n", shmem_ptr -> message);
       fflush(stdout);
       shmdt(shmem_ptr);
-      printf("%p\n", shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
-      printf("%d\n", shmid);
       semctl(semid, 0, IPC_RMID);
       exit(0);
     break;
@@ -41,10 +39,8 @@ int main(int argc, char* argv[]) {
   char n_atom[8], id_shmat[8], pointer_shmem[4], sem_vec[8];
 
   shmkey = ftok("master.c", 'A');
-  printf("%d\n\n", shmkey);
   semkey = ftok("master.c", 'B');
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
-  printf("%d\n", shmid);
   TEST_ERROR;
 
   shmem_ptr = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available outside of Unix
@@ -142,13 +138,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  printf("ATTENDO I MIEI FIGLI....\n\n\n\n");
+  printf("ATTENDO I MIEI FIGLI....\n");
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 2);
   semop(semid, &sem, 1);
   TEST_ERROR;
 
-  printf("PRE SIMULAZIONE\n\n\n\n");
+  printf("PRE SIMULAZIONE\n");
   // ! once everything is set the simulation starts (lasting SIM_DURATION seconds)
   struct sigaction sa;
 
@@ -166,7 +162,7 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
   TEST_ERROR;
   
-  printf("HO COMINCIATO LA SIMULAZIONE\n\n\n\n");
+  printf("HO COMINCIATO LA SIMULAZIONE\n");
 
   //? vogliamo metterla in shmem?
   // !!! cambiare condizione for 

@@ -17,7 +17,6 @@ int main(int argc, char * argv[]) {
   /* shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR; */
   shmid = atoi(argv[1]);
-  printf("%d\n", shmid);
   data_buffer * shmem_p = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;
 
