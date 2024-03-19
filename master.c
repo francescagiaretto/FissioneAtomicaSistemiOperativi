@@ -1,7 +1,7 @@
 #include "library.h"
 
 void set_sem_values();
-int shmid, semid, inib_on;
+int shmid, semid, inib_on, available_en;
 data_buffer * shmem_ptr;
 pid_t pid_alimentatore, pid_attivatore;
 pid_t * pid_atoms;
@@ -22,13 +22,15 @@ void signal_handler(int sig) {
     break;
 
     case SIGUSR1:
+      shmem_ptr -> termination = 1;
+      int status = 0;
+      waitpid(-1, &status, WIFEXITED(status));
       printf("Simulation terminated due to %s\n", shmem_ptr -> message);
-      kill(pid_alimentatore, SIGTERM);
-      kill(pid_attivatore, SIGTERM);
+      // kill(pid_alimentatore, SIGTERM);
+      // kill(pid_attivatore, SIGTERM);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
       semctl(semid, 0, IPC_RMID);
-      //* come dico a tutti i processi atomo di fermarsi?
       exit(0);
     break;
 
@@ -71,7 +73,7 @@ int main(int argc, char* argv[]) {
   sprintf(id_shmat, "%d", shmid);
   char * vec_alim[] = {"alimentatore", id_shmat, id_sem, NULL};
   sprintf(id_sem, "%d", semid);
-  char * vec_attiv[] = {"attivatore", id_sem, NULL};
+  char * vec_attiv[] = {"attivatore", id_sem, id_shmat, NULL};
 
   switch(pid_alimentatore = fork()) {
     case -1:
@@ -171,6 +173,8 @@ int main(int argc, char* argv[]) {
   sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
   CHECK_OPERATION;
+
+  shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
   
   printf("HO COMINCIATO LA SIMULAZIONE\n");
 
@@ -183,14 +187,15 @@ int main(int argc, char* argv[]) {
       raise(SIGUSR1);
     }
 
-    // blackout
-  /*  if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
-      message = "blackout.";
-      signal(SIGUSR1, term_handler);
-    } else {
-      available_en = shmem_ptr -> prod_en_tot - ENERGY_DEMAND;
-    } */
+    //blackout
+   /* if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
+      shmem_ptr -> message = "blackout.";
+      raise(SIGUSR1);
+    } else { */
+      shmem_ptr -> cons_en_rel = shmem_ptr -> prod_en_tot - shmem_ptr -> cons_en_rel;
+   // }
     
+    stat_total_value(shmem_ptr);
     print_stats(shmem_ptr);
 
     /*

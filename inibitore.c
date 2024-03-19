@@ -14,5 +14,6 @@ int main(char* argv[]) {
         // la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)
       
       // non devono avvenire explode e meltdown
+        // ? conseguenza naturale o va imposto?
     }
 }
