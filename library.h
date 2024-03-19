@@ -62,7 +62,8 @@ typedef struct data_buffer {
   int act_tot;
   int cons_en_tot;
   char * message; // termination message
-  int termination;
+  int termination; // if set to 1 children processes are killed
+  int attiv_signal;
 } data_buffer;
 
 void print_stats(data_buffer * shmem_ptr) {

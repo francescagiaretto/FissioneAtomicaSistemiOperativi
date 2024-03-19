@@ -43,6 +43,10 @@ void signal_handler(int sig) {
         printf("Inibitore disattivato. Puoi attivarlo quando vuoi.\n");
       }
     break;
+
+    case SIGCHLD:
+      shmem_ptr -> attiv_signal = 1;
+    break;
   }
 }
 

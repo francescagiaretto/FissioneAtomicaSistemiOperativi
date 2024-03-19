@@ -63,6 +63,7 @@ int main(int argc, char* argv[]){
 	sprintf(division_atom_num, "%d", child_atom_num);
 	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], argv[3], NULL};
 
+	//if (shmem_ptr -> attiv_signal == 1) {switch che segue}?
 	switch (fork())
 	{
 		case -1:
