@@ -184,23 +184,23 @@ int main(int argc, char* argv[]) {
 
   // !!! cambiare condizione for 
   for(; 1; ) {
-    sleep(1);
+    sleep(5);
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
       shmem_ptr -> message = "explode.";
       raise(SIGUSR1);
     }
-
-    //blackout
-   /* if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
-      shmem_ptr -> message = "blackout.";
-      raise(SIGUSR1);
-    } else { */
-      shmem_ptr -> cons_en_rel = shmem_ptr -> prod_en_tot - shmem_ptr -> cons_en_rel;
-   // }
     
     stat_total_value(shmem_ptr);
     print_stats(shmem_ptr);
+
+    //blackout
+    if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
+      shmem_ptr -> message = "blackout.";
+      raise(SIGUSR1);
+    } else {
+      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> cons_en_rel;
+    }
 
     /*
       if (inib_on == 0) {
