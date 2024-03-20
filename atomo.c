@@ -1,7 +1,7 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
-void check_waste(data_buffer *);
+void operate_in_sem(int, data_buffer*);
 int semid, shmid;
 
 
@@ -29,13 +29,13 @@ int main(int argc, char* argv[]){
 	sem.sem_num = STARTSEM;
 	sem.sem_op = -1;
   	semop(semid, &sem, 1);
-	printf("ATOMO CON NUM ATOMICO [%d]\n\n", parent_atom_num);
+	printf("ATOMO %d CON NUM ATOMICO [%d]\n\n", getpid(), parent_atom_num);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 
-		//* resta bloccato qua sopra, come mai?
-		sem.sem_num = WASTESEM;
+		operate_in_sem(WASTESEM, shmem_ptr);
+		/* sem.sem_num = WASTESEM;
 		sem.sem_op = -1;
 		printf("SONO FERMO QUI\n");
 		semop(semid, &sem, 1);
@@ -51,8 +51,8 @@ int main(int argc, char* argv[]){
 		semop(semid, &sem, 1);
 		CHECK_OPERATION;
 
-		printf("TEST 2\n");
 
+		raise(SIGTERM); */
 		raise(SIGTERM);
 	}
 	
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
 		break;
 		
 		case 0: // checking child
-			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
+			operate_in_sem(DIVISIONSEM, shmem_ptr);
 			execve("atomo", vec_atomo, NULL);
 			TEST_ERROR;
 		break;
@@ -115,3 +115,60 @@ void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
 
 		kill(getpid(), SIGTERM);
 }  */
+
+void operate_in_sem(int sem_working, data_buffer * shmem_ptr){
+
+	/* sem.sem_num = sem_working;
+	sem.sem_op = -1;
+	printf("SONO FERMO QUI PER %d\n", sem_working);
+	semop(semid, &sem, 1);
+	printf("SONO LIBERATO PER %d\n", sem_working);
+	CHECK_OPERATION; */
+
+	switch(sem_working) {
+		case WASTESEM:
+			sem.sem_num = WASTESEM;
+			sem.sem_op = -1;
+			printf("pid %d, entrando in attesa per le scorie\n", getpid());
+			semop(semid, &sem, 1);
+			CHECK_OPERATION;
+
+			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+
+			sem.sem_num = WASTESEM;
+			sem.sem_op = 1;
+			semop(semid, &sem, 1);
+			printf("pid %d e ho liberato le risorse per le SCORIE\n", getpid());
+			CHECK_OPERATION;
+		break;
+
+		case PROD_ENERGYSEM:
+		break;
+
+		case DIVISIONSEM:
+			sem.sem_num = DIVISIONSEM;
+			sem.sem_op = -1;
+			printf("pid %d, entrando in attesa per le divisioni\n", getpid());
+			semop(semid, &sem, 1);
+			printf("pid %d, uscito dall'attesa per le divisioni\n", getpid());
+			printf("valore semaforo: %d\n", semctl(semid, DIVISIONSEM, GETVAL));
+			CHECK_OPERATION;
+
+			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
+
+			sem.sem_num = DIVISIONSEM;
+			sem.sem_op = 1;
+			semop(semid, &sem, 1);
+			printf("pid %d, ho liberato le risorse per le divisioni\n", getpid());
+			CHECK_OPERATION;
+		break;
+
+		case ACTIVATIONSEM:
+		break;
+	}
+
+	/* sem.sem_num = sem_working;
+	sem.sem_op = 1;
+	semop(semid, &sem, 1);
+	CHECK_OPERATION; */
+}

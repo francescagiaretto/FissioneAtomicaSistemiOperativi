@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
   TEST_ERROR;
 
     // creating semaphore to handle the simulation
-  semid = semget(semkey, 3, IPC_CREAT | 0666);
+  semid = semget(semkey, 6, IPC_CREAT | 0666);
   TEST_ERROR;
 
   shmem_ptr = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available outside of Unix
@@ -234,5 +234,17 @@ void set_sem_values(){
 
   // handles waste
   semctl(semid, WASTESEM, SETVAL, 1);
+  TEST_ERROR;
+
+  // handles energy production
+  semctl(semid, PROD_ENERGYSEM, SETVAL, 1);
+  TEST_ERROR;
+
+  // handles divisions
+  semctl(semid, DIVISIONSEM, SETVAL, 1);
+  TEST_ERROR;
+
+  // handles activations
+  semctl(semid, ACTIVATIONSEM, SETVAL, 1);
   TEST_ERROR;
 }

@@ -15,8 +15,6 @@ int main(int argc, char* argv[]) {
   	TEST_ERROR;
 
 	if (shmem_ptr -> termination == 1) {
-		int status = 0;
-		waitpid(-1, &status, WIFEXITED(status));
 		kill(getpid(), SIGTERM);
 	}
 	
