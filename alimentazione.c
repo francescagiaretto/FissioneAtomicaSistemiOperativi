@@ -28,7 +28,7 @@ int main(int argc, char * argv[]) {
   sem.sem_num = STARTSEM;
   sem.sem_op = -1;
   semop(semid, &sem, 1);
-  TEST_ERROR;
+  CHECK_OPERATION;
   // printf("\n\n\nTEST ALIMENTAZIONE\n\n\n"); 
 
   for(; 1; ) {
@@ -42,9 +42,9 @@ int main(int argc, char * argv[]) {
     nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
 
     for(int i = 0; i < N_NUOVI_ATOMI; i++){
-      atomic_num = rand() % NUM_ATOM_MAX + 1;
+      atomic_num = rand() % N_ATOM_MAX + 1;
       sprintf(n_atom, "%d", atomic_num);
-      char * vec_atomo[] = {"atomo", n_atom, argv[1], NULL}; // argv[1] = pointer to shmem
+      char * vec_atomo[] = {"atomo", n_atom, argv[1], argv[2, NULL}; // argv[1] = pointer to shmem
 
       switch(fork()) {
 
@@ -54,7 +54,8 @@ int main(int argc, char * argv[]) {
         break;
 
         case 0:
-          if (execve("atomo", vec_atomo, NULL)==-1) {perror("Execve grandchild"); exit(EXIT_FAILURE);} 
+          execve("atomo", vec_atomo, NULL);
+          TEST_ERROR;
         break;
 
         default:

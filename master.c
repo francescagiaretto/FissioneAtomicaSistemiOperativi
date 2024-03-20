@@ -116,16 +116,16 @@ int main(int argc, char* argv[]) {
     break;
   } 
 
-  pid_atoms = malloc(sizeof(pid_t) * N_ATOM_MAX);    // dynamic mem allocated for pid atomi array
+  pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
 
   // creating children
-  for(int i = 0; i < N_ATOM_MAX; i++) {
+  for(int i = 0; i < N_ATOM_INIT; i++) {
 
     pid_atoms[i] = fork();
 
     // generating random pid for children
     srand(getpid());
-    atomic_num = rand() % NUM_ATOM_MAX + 1;
+    atomic_num = rand() % N_ATOM_MAX + 1;
     sprintf(n_atom, "%d", atomic_num);
     char * vec_atomo[] = {"atomo", n_atom, id_shmat, id_sem, NULL};
 
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 
   printf("ATTENDO I MIEI FIGLI....\n");
   sem.sem_num = WAITSEM;
-	sem.sem_op = -(N_ATOM_MAX + 2);
+	sem.sem_op = -(N_ATOM_INIT + 2);
   semop(semid, &sem, 1);
   CHECK_OPERATION;
 
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
-  sem.sem_op = N_ATOM_MAX +2;
+  sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
   CHECK_OPERATION;
 

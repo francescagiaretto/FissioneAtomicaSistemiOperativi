@@ -1,5 +1,5 @@
-#define N_ATOM_MAX 10
-#define NUM_ATOM_MAX 118
+#define N_ATOM_INIT 10
+#define N_ATOM_MAX 118
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 1
 #define N_NUOVI_ATOMI 3
