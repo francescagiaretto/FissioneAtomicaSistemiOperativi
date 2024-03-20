@@ -1,21 +1,23 @@
 # NON FUNZIONA ANCORA. VERSIONE VECCHIA DEL MAKEFILE IN ISSUES.TXT
+CC = gcc
+CFLAGS = -Wvla -Wextra -Werror
 
-init: master atomo attivatore alimentatore library.h
+init: master atomo attivatore alimentazione library.h
 
 master: master.c library.h
-	gcc master.c -Wvla -Wextra -Werror -o master
+	$(CC) master.c $(CFLAGS) -o master
 
 atomo: atomo.c library.h
-	gcc atomo.c -Wvla -Wextra -Werror -o atomo
+	$(CC) atomo.c $(CFLAGS) -o atomo
 
 attivatore: attivatore.c library.h
-	gcc attivatore.c -Wvla -Wextra -Werror -o attivatore
+	$(CC) attivatore.c $(CFLAGS) -o attivatore
 
-alimentatore: alimentatore.c library.h
-	gcc alimentatore.c -Wvla -Wextra -Werror -o alimentatore
+alimentazione: alimentazione.c library.h
+	$(CC) alimentazione.c $(CFLAGS) -o alimentazione
 
 inibitore: inibitore.c library.h
-	gcc inibitore.c -Wvla -Wextra -Werror -o inibitore
+	$(CC) inibitore.c $(CFLAGS) -o inibitore
 	
 run: 
 	./master

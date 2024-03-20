@@ -3,7 +3,7 @@
 void set_sem_values();
 int shmid, semid, inib_on, available_en;
 data_buffer * shmem_ptr;
-pid_t pid_alimentatore, pid_attivatore;
+pid_t pid_alimentazione, pid_attivatore;
 pid_t * pid_atoms;
 
 void signal_handler(int sig) {
@@ -26,7 +26,7 @@ void signal_handler(int sig) {
       int status = 0;
       waitpid(-1, &status, WIFEXITED(status));
       printf("Simulation terminated due to %s\n", shmem_ptr -> message);
-      // kill(pid_alimentatore, SIGTERM);
+      // kill(pid_alimentazione, SIGTERM);
       // kill(pid_attivatore, SIGTERM);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
@@ -53,7 +53,7 @@ void signal_handler(int sig) {
 int main(int argc, char* argv[]) {
 
   int atomic_num;
-  pid_t pid_alimentatore, pid_attivatore;
+  pid_t pid_alimentazione, pid_attivatore;
   pid_t * pid_atoms;
   key_t shmkey, semkey;
   char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8];
@@ -75,11 +75,11 @@ int main(int argc, char* argv[]) {
   sem.sem_flg = 0;
 
   sprintf(id_shmat, "%d", shmid);
-  char * vec_alim[] = {"alimentatore", id_shmat, id_sem, NULL};
+  char * vec_alim[] = {"alimentazione", id_shmat, id_sem, NULL};
   sprintf(id_sem, "%d", semid);
   char * vec_attiv[] = {"attivatore", id_sem, id_shmat, NULL};
 
-  switch(pid_alimentatore = fork()) {
+  switch(pid_alimentazione = fork()) {
     case -1:
       shmem_ptr -> message = "meltdown.";
       raise(SIGUSR1);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
       semop(semid, &sem, 1);
       CHECK_OPERATION;
 
-      execve("./alimentatore", vec_alim, NULL);
+      execve("./alimentazione", vec_alim, NULL);
       TEST_ERROR;
     break;
 
@@ -116,16 +116,16 @@ int main(int argc, char* argv[]) {
     break;
   } 
 
-  pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
+  pid_atoms = malloc(sizeof(pid_t) * N_ATOM_MAX);    // dynamic mem allocated for pid atomi array
 
   // creating children
-  for(int i = 0; i < N_ATOM_INIT; i++) {
+  for(int i = 0; i < N_ATOM_MAX; i++) {
 
     pid_atoms[i] = fork();
 
     // generating random pid for children
     srand(getpid());
-    atomic_num = rand() % N_ATOM_MAX + 1;
+    atomic_num = rand() % NUM_ATOM_MAX + 1;
     sprintf(n_atom, "%d", atomic_num);
     char * vec_atomo[] = {"atomo", n_atom, id_shmat, id_sem, NULL};
 
@@ -165,16 +165,16 @@ int main(int argc, char* argv[]) {
 
   printf("ATTENDO I MIEI FIGLI....\n");
   sem.sem_num = WAITSEM;
-	sem.sem_op = -(N_ATOM_INIT + 2);
+	sem.sem_op = -(N_ATOM_MAX + 2);
   semop(semid, &sem, 1);
   CHECK_OPERATION;
 
   printf("PRE SIMULAZIONE\n");
-  sleep(2);
+  sleep(3);
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
-  sem.sem_op = N_ATOM_INIT +2;
+  sem.sem_op = N_ATOM_MAX +2;
   semop(semid, &sem, 1);
   CHECK_OPERATION;
 

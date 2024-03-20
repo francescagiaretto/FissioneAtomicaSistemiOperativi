@@ -118,13 +118,6 @@ void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
 
 void operate_in_sem(int sem_working, data_buffer * shmem_ptr){
 
-	/* sem.sem_num = sem_working;
-	sem.sem_op = -1;
-	printf("SONO FERMO QUI PER %d\n", sem_working);
-	semop(semid, &sem, 1);
-	printf("SONO LIBERATO PER %d\n", sem_working);
-	CHECK_OPERATION; */
-
 	switch(sem_working) {
 		case WASTESEM:
 			sem.sem_num = WASTESEM;
@@ -167,8 +160,4 @@ void operate_in_sem(int sem_working, data_buffer * shmem_ptr){
 		break;
 	}
 
-	/* sem.sem_num = sem_working;
-	sem.sem_op = 1;
-	semop(semid, &sem, 1);
-	CHECK_OPERATION; */
 }
