@@ -8,3 +8,10 @@
 #define MIN_N_ATOMICO 20
 #define STEP_ALIMENTATORE 25930
 #define SHM_SIZE 50
+
+#define WAITSEM 0
+#define STARTSEM 1
+#define WASTESEM 2
+#define PROD_ENERGYSEM 3
+#define DIVISIONSEM 4
+#define ACTIVATIONSEM 5
