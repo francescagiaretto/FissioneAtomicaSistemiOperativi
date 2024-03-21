@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
   int atomic_num;
   pid_t pid_alimentazione, pid_attivatore;
   pid_t * pid_atoms;
-  key_t shmkey, semkey;
+  long unsigned shmkey, semkey;
   char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8];
 
   shmkey = ftok("master.c", 'A');
