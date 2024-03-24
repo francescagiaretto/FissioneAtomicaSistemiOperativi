@@ -3,6 +3,7 @@
 void set_sem_values();
 int shmid, semid, inib_on, available_en;
 data_buffer * shmem_ptr;
+pid_t pid_alimentazione, pid_attivatore;
 
 
 void signal_handler(int sig) {
@@ -25,8 +26,9 @@ void signal_handler(int sig) {
       int status = 0;
       waitpid(-1, &status, WIFEXITED(status));
       printf("Simulation terminated due to %s\n", shmem_ptr -> message);
-      // kill(pid_alimentazione, SIGTERM);
-      // kill(pid_attivatore, SIGTERM);
+
+      kill(pid_alimentazione, SIGTERM);
+      kill(pid_attivatore, SIGTERM);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
       semctl(semid, 0, IPC_RMID);
@@ -52,7 +54,6 @@ void signal_handler(int sig) {
 int main(int argc, char* argv[]) {
 
   int atomic_num;
-  pid_t pid_alimentazione, pid_attivatore;
   pid_t * pid_atoms;
   long unsigned shmkey, semkey;
   char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8];
@@ -66,6 +67,8 @@ int main(int argc, char* argv[]) {
     // creating semaphore to handle the simulation
   semid = semget(semkey, 6, IPC_CREAT | 0666);
   TEST_ERROR;
+
+  printf("MASTER: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
   shmem_ptr = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available outside of Unix
   TEST_ERROR;
@@ -117,8 +120,6 @@ int main(int argc, char* argv[]) {
   } 
 
   pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
-
-  // creating children
   for(int i = 0; i < N_ATOM_INIT; i++) {
 
     pid_atoms[i] = fork();
@@ -152,8 +153,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-
-  // ! once everything is set the simulation starts (lasting SIM_DURATION seconds)
   struct sigaction sa;
 
   bzero(&sa, sizeof(&sa)); // emptying struct to send to child

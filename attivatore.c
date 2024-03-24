@@ -14,9 +14,7 @@ int main(int argc, char* argv[]) {
   	data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   	TEST_ERROR;
 
-	if (shmem_ptr -> termination == 1) {
-		kill(getpid(), SIGTERM);
-	}
+	//printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 	
 	sem.sem_num = STARTSEM;
  	sem.sem_op = -1;

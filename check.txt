@@ -1,0 +1,5 @@
+/**
+ * cheched: shmid and semid are okay in each process.
+ * 
+ * 
+*/

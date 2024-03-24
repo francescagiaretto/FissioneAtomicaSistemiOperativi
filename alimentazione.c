@@ -13,12 +13,10 @@ int main(int argc, char * argv[]) {
 
   shmid = atoi(argv[1]);
   semid = atoi(argv[2]);
+  //printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
   data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;
 
-  if (shmem_ptr -> termination == 1) {
-		kill(getpid(), SIGTERM);
-	}
 
   //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
   struct timespec step_nanosec;
