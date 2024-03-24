@@ -15,7 +15,6 @@ int main(int argc, char * argv[]) {
   semid = atoi(argv[2]);
   msgid = atoi(argv[3]);
 
-  //printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
   data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;
 
@@ -29,7 +28,7 @@ int main(int argc, char * argv[]) {
   sem.sem_op = -1;
   semop(semid, &sem, 1);
   CHECK_OPERATION;
-  // printf("\n\n\nTEST ALIMENTAZIONE\n\n\n"); 
+  printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
   for(; 1; ) {
 		

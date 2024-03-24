@@ -177,6 +177,7 @@ int main(int argc, char* argv[]) {
   CHECK_OPERATION;
 
   printf("PRE SIMULAZIONE\n");
+  sleep(3);
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
@@ -189,7 +190,7 @@ int main(int argc, char* argv[]) {
   printf("HO COMINCIATO LA SIMULAZIONE\n");
 
   // !!! cambiare condizione for 
-  for(; 1; ) {
+  while(1) {
     sleep(1);
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {

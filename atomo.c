@@ -18,7 +18,6 @@ int main(int argc, char* argv[]){
 	semid = atoi(argv[3]);
 	msgid = atoi(argv[4]);
 
-	//printf("ATOMO: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
@@ -32,6 +31,7 @@ int main(int argc, char* argv[]){
 									//*  identical for more than one atom, while pid is always different
 
 	operate_in_sem(STARTSEM, 0);
+	printf("ATOMO: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 	//printf("ATOMO %d CON NUM ATOMICO [%d]\n\n", getpid(), parent_atom_num);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione

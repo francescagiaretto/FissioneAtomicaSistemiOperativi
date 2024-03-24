@@ -1,22 +1,17 @@
 #include "library.h"
+#define MSGYPE 1
 
 int semid, shmid, msgid;
 
 int main(int argc, char* argv[]) {
 	
 	semid = atoi(argv[1]);
-	/* semid = semget(atoi(argv[1]), 2, IPC_CREAT | 0666);
-	TEST_ERROR; */
-
-	// passiamo array con pid atomi = pid_atoms[]
-
 	shmid = atoi(argv[2]);
 	msgid = atoi(argv[3]);
 
   	data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   	TEST_ERROR;
 
-	//printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
 	struct timespec step_nanosec;
   	step_nanosec.tv_sec = 0;           // seconds   
@@ -26,6 +21,8 @@ int main(int argc, char* argv[]) {
  	sem.sem_op = -1;
   	semop(semid, &sem, 1);
 	TEST_ERROR;
+
+	printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
 	// ? come comunicare che bisogna fare una scissione? SEGNALE
 
@@ -44,10 +41,11 @@ int main(int argc, char* argv[]) {
 
 	/* altra implementazione
 
-	int n_atoms = rand() % (pid_atoms) + 1;
+	int n_atoms = rand() % (pid_atoms + 1);
 	for(int i = 0; i < n_atoms; i++) {
 		choose a random pid_atoms[] to divide
 		invia comando di scissione a pid_atoms[chosen];
+		msgsnd();
 	} 
 	nanosleep(&step_nanosec, NULL);
 
