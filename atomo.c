@@ -95,27 +95,6 @@ void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
   *child_atom_num = temp - *parent_atom_num;
 }
 
-/* void check_waste(data_buffer * shmem_ptr) {
-
-		printf("TEST %d\n\n", getpid());
-		sem.sem_op = WASTESEM;
-		sem.sem_op = -1;
-		semop(semid, &sem, 1);
-		CHECK_OPERATION;
-		printf("TEST 2  %d\n\n", getpid());
-
-		printf("sono processo con pid %d e sto scrivendo le scorie\n", getpid());
-		shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
-
-		printf("sono processo con pid %d e sto liberando le risorse le scorie\n", getpid());
-		sem.sem_op = WASTESEM;
-		sem.sem_op = 1;
-		semop(semid, &sem, 1);
-		CHECK_OPERATION;;
-
-		kill(getpid(), SIGTERM);
-}  */
-
 void operate_in_sem(int sem_working, data_buffer * shmem_ptr){
 
 	switch(sem_working) {

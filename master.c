@@ -3,8 +3,7 @@
 void set_sem_values();
 int shmid, semid, inib_on, available_en;
 data_buffer * shmem_ptr;
-pid_t pid_alimentazione, pid_attivatore;
-pid_t * pid_atoms;
+
 
 void signal_handler(int sig) {
   switch(sig) {
@@ -57,6 +56,7 @@ int main(int argc, char* argv[]) {
   pid_t * pid_atoms;
   long unsigned shmkey, semkey;
   char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8];
+  srand(getpid());
 
   shmkey = ftok("master.c", 'A');
   semkey = ftok("master.c", 'B');
@@ -170,7 +170,6 @@ int main(int argc, char* argv[]) {
   CHECK_OPERATION;
 
   printf("PRE SIMULAZIONE\n");
-  sleep(3);
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
@@ -184,7 +183,7 @@ int main(int argc, char* argv[]) {
 
   // !!! cambiare condizione for 
   for(; 1; ) {
-    sleep(5);
+    sleep(1);
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
       shmem_ptr -> message = "explode.";
