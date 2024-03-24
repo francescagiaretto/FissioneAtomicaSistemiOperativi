@@ -24,6 +24,8 @@ int main(int argc, char* argv[]) {
 
 	printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
+	while(1);
+
 	// ? come comunicare che bisogna fare una scissione? SEGNALE
 
 	//! bisogna decidere il criterio per cui si continua ad attivare (es. numero max di atomi)

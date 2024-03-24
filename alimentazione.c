@@ -30,9 +30,7 @@ int main(int argc, char * argv[]) {
   CHECK_OPERATION;
   printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
-  for(; 1; ) {
-		
-	}
+ 	while(1);
 
   // TODO ogni STEP_ALIMENTAZIONE nanosecondi deve creare N_NUOVI_ATOMI
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?
