@@ -1,7 +1,7 @@
 #include "library.h"
 
 void signal_handler(int sig);
-int semid, shmid;
+int semid, shmid, msgid;
 
 
 int main(int argc, char * argv[]) {
@@ -13,6 +13,8 @@ int main(int argc, char * argv[]) {
 
   shmid = atoi(argv[1]);
   semid = atoi(argv[2]);
+  msgid = atoi(argv[3]);
+
   //printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
   data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;

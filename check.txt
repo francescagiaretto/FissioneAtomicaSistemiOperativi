@@ -2,4 +2,15 @@
  * cheched: shmid and semid are okay in each process.
  * 
  * 
+ * ATTIVATORE:
+ *      inviare a n° randomico (tra 1 e tot atomi) il comando di scindersi
+ *      SEMAFORO: sembrerebbe buono, ma per far si che i processi si sblocchino bisognerebbe
+ *      avere n°randomico risorse sul semaforo, il che non è possibile a meno di fare 
+ *      n_atom_init + n°randomico
+ *      
+ *      PIPE: 
+ * 
+ *      SEGNALE:
+ * 
+ *      MESSAGGI:
 */

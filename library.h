@@ -46,6 +46,12 @@
 
 struct sembuf sem;
 
+
+typedef struct message {
+    long type;
+    char message[128];
+} message_buffer;
+
 typedef struct data_buffer {
   int waste_rel;
   int prod_en_rel;
@@ -62,56 +68,6 @@ typedef struct data_buffer {
   int attiv_signal;
 } data_buffer;
 
-void print_stats(data_buffer * shmem_ptr) {
-  static int count = 1;
 
-  int col1_width = 35;
-  int col2_width = 10;
-  printf("\n\n\n\n");
-  printf("STATS:\n");
-  for (int i = 0; i <= (col1_width + col2_width); i++) {
-    printf("-");
-  }
-  printf("\n");
-
-  char *col1[11] = {"Last second activations:","Total activations:","Last second divisions:","Total divisions:",
-    "Last second produced energy:","Total produced energy:","Last second consumed energy:","Total consumed energy:",
-    "Last second waste:","Total waste:"};
-  int col2[11] = {shmem_ptr -> act_rel, shmem_ptr -> act_tot, shmem_ptr -> div_rel, shmem_ptr -> div_tot, shmem_ptr -> prod_en_rel,
-    shmem_ptr -> prod_en_tot, shmem_ptr -> cons_en_rel, shmem_ptr -> cons_en_tot, shmem_ptr -> waste_rel, shmem_ptr -> waste_tot};
-
-  for (long unsigned int i = 0; i < (sizeof(col1)/sizeof(col1[0]))-1; i++) {
-    printf("%-*s | %-*d\n", col1_width, col1[i], col2_width, col2[i]);
-    if (i%2!=0) {
-      for (int i = 0; i <= (col1_width + col2_width); i++) {
-        printf("-");
-      }
-      printf("\n");
-    }
-  }
-
-  printf("Simulation timer: %d\n", count++);
-}
-
-void stat_total_value(data_buffer * shmem_ptr) {
-  shmem_ptr -> waste_tot = shmem_ptr -> waste_tot + shmem_ptr -> waste_rel;
-  shmem_ptr -> act_tot = shmem_ptr -> act_tot + shmem_ptr -> act_rel;
-  shmem_ptr -> div_tot = shmem_ptr -> div_tot + shmem_ptr -> div_rel;
-  shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot + shmem_ptr -> prod_en_rel;
-  shmem_ptr -> cons_en_tot = shmem_ptr -> cons_en_tot + shmem_ptr -> cons_en_rel;
-}
-
-int energy(int child, int parent) {
-    return child*parent - MAX(child,parent);
-}
-
-/* void check_error() {
-  if (errno) {
-    fprintf(stderr, "line %d in file '%s': Error: %d (%s)\n", 
-      __LINE__, __FILE__, errno, strerror(errno));
-    
-    exit(EXIT_FAILURE);
-  }
-} */
 
 

@@ -1,19 +1,22 @@
 #include "library.h"
 
 void generate_n_atom(int *, int *);
-void operate_in_sem(int, data_buffer*);
-int semid, shmid;
+void operate_in_sem(int, int);
+int energy(int, int);
+
+int semid, shmid, msgid;
+data_buffer * shmem_ptr;
 
 
 int main(int argc, char* argv[]){
 
 	int child_atom_num, en_lib, parent_atom_num;
-	data_buffer * shmem_ptr;
 	char division_atom_num[3], division_parent_num[4];
 
 	parent_atom_num = atoi(argv[1]);
 	shmid = atoi(argv[2]);
 	semid = atoi(argv[3]);
+	msgid = atoi(argv[4]);
 
 	//printf("ATOMO: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
@@ -28,15 +31,13 @@ int main(int argc, char* argv[]){
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
 									//*  identical for more than one atom, while pid is always different
 
-	sem.sem_num = STARTSEM;
-	sem.sem_op = -1;
-  	semop(semid, &sem, 1);
+	operate_in_sem(STARTSEM, 0);
 	//printf("ATOMO %d CON NUM ATOMICO [%d]\n\n", getpid(), parent_atom_num);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 
-		operate_in_sem(WASTESEM, shmem_ptr);
+		operate_in_sem(WASTESEM, 0);
 		raise(SIGTERM);
 	}
 	
@@ -56,14 +57,14 @@ int main(int argc, char* argv[]){
 		break;
 		
 		case 0: // checking child
-			operate_in_sem(DIVISIONSEM, shmem_ptr);
+			operate_in_sem(DIVISIONSEM, 0);
 			execve("atomo", vec_atomo, NULL);
 			TEST_ERROR;
 		break;
 		
 		default: // checking parent
 			en_lib = energy(child_atom_num, parent_atom_num);
-			shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib; // saving relative produced energy in shmem
+			operate_in_sem(PROD_ENERGYSEM, en_lib); // saving relative produced energy in shmem
 			sprintf(division_parent_num, "%d", parent_atom_num);
 			char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], argv[3], NULL};
 			execve("atomo", new_vec_atomo, NULL);
@@ -79,9 +80,15 @@ void generate_n_atom(int * parent_atom_num, int * child_atom_num) {
   *child_atom_num = temp - *parent_atom_num;
 }
 
-void operate_in_sem(int sem_working, data_buffer * shmem_ptr){
+void operate_in_sem(int sem_working, int en_lib){
 
 	switch(sem_working) {
+		case STARTSEM:
+			sem.sem_num = STARTSEM;
+			sem.sem_op = -1;
+  			semop(semid, &sem, 1);
+		break;
+
 		case WASTESEM:
 			sem.sem_num = WASTESEM;
 			sem.sem_op = -1;
@@ -99,6 +106,17 @@ void operate_in_sem(int sem_working, data_buffer * shmem_ptr){
 		break;
 
 		case PROD_ENERGYSEM:
+			sem.sem_num = PROD_ENERGYSEM;
+			sem.sem_op = -1;
+			semop(semid, &sem, 1);
+			CHECK_OPERATION;
+
+			shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib;
+
+			sem.sem_num = PROD_ENERGYSEM;
+			sem.sem_op = 1;
+			semop(semid, &sem, 1);
+			CHECK_OPERATION;
 		break;
 
 		case DIVISIONSEM:
@@ -123,4 +141,8 @@ void operate_in_sem(int sem_working, data_buffer * shmem_ptr){
 		break;
 	}
 
+}
+
+int energy(int child, int parent) {
+    return child*parent - MAX(child,parent);
 }

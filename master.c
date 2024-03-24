@@ -1,7 +1,10 @@
 #include "library.h"
 
 void set_sem_values();
-int shmid, semid, inib_on, available_en;
+void print_stats();
+void stat_total_value();
+
+int shmid, semid, inib_on, available_en, msgid;
 data_buffer * shmem_ptr;
 pid_t pid_alimentazione, pid_attivatore;
 
@@ -29,9 +32,12 @@ void signal_handler(int sig) {
 
       kill(pid_alimentazione, SIGTERM);
       kill(pid_attivatore, SIGTERM);
+
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
       semctl(semid, 0, IPC_RMID);
+      msgctl(msgid, IPC_RMID, NULL);
+
       exit(0);
     break;
 
@@ -55,32 +61,34 @@ int main(int argc, char* argv[]) {
 
   int atomic_num;
   pid_t * pid_atoms;
-  long unsigned shmkey, semkey;
-  char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8];
+  key_t shmkey, semkey, msgkey;
+  char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8], id_message[8];
   srand(getpid());
 
   shmkey = ftok("master.c", 'A');
   semkey = ftok("master.c", 'B');
+  msgkey = ftok("master.c", 'C');
+
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
-    // creating semaphore to handle the simulation
   semid = semget(semkey, 6, IPC_CREAT | 0666);
   TEST_ERROR;
 
-  printf("MASTER: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
+  msgid = msgget(msgkey, IPC_CREAT | 0666);
+  TEST_ERROR;
 
   shmem_ptr = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available outside of Unix
   TEST_ERROR;
 
   set_sem_values();
-
   sem.sem_flg = 0;
 
   sprintf(id_shmat, "%d", shmid);
-  char * vec_alim[] = {"alimentazione", id_shmat, id_sem, NULL};
   sprintf(id_sem, "%d", semid);
-  char * vec_attiv[] = {"attivatore", id_sem, id_shmat, NULL};
+  sprintf(id_message, "%d", msgid);
+  char * vec_alim[] = {"alimentazione", id_shmat, id_sem, id_message, NULL};
+  char * vec_attiv[] = {"attivatore", id_sem, id_shmat, id_message, NULL};
 
   switch(pid_alimentazione = fork()) {
     case -1:
@@ -128,7 +136,7 @@ int main(int argc, char* argv[]) {
     srand(getpid());
     atomic_num = rand() % N_ATOM_MAX + 1;
     sprintf(n_atom, "%d", atomic_num);
-    char * vec_atomo[] = {"atomo", n_atom, id_shmat, id_sem, NULL};
+    char * vec_atomo[] = {"atomo", n_atom, id_shmat, id_sem, id_message, NULL};
 
     switch(pid_atoms[i]) {
 
@@ -200,6 +208,9 @@ int main(int argc, char* argv[]) {
       shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> cons_en_rel;
     }
 
+    //! funziona per azzerare la struct ma al momento manda in blackout
+    //bzero(shmem_ptr, 5*sizeof(int));
+
     /*
       if (inib_on == 0) {
         printf("Vuoi attivare l'inibitore?\n");
@@ -245,4 +256,44 @@ void set_sem_values(){
   // handles activations
   semctl(semid, ACTIVATIONSEM, SETVAL, 1);
   TEST_ERROR;
+}
+
+
+void print_stats() {
+  static int count = 1;
+
+  int col1_width = 35;
+  int col2_width = 10;
+  printf("\n\n\n\n");
+  printf("STATS:\n");
+  for (int i = 0; i <= (col1_width + col2_width); i++) {
+    printf("-");
+  }
+  printf("\n");
+
+  char *col1[11] = {"Last second activations:","Total activations:","Last second divisions:","Total divisions:",
+    "Last second produced energy:","Total produced energy:","Last second consumed energy:","Total consumed energy:",
+    "Last second waste:","Total waste:"};
+  int col2[11] = {shmem_ptr -> act_rel, shmem_ptr -> act_tot, shmem_ptr -> div_rel, shmem_ptr -> div_tot, shmem_ptr -> prod_en_rel,
+    shmem_ptr -> prod_en_tot, shmem_ptr -> cons_en_rel, shmem_ptr -> cons_en_tot, shmem_ptr -> waste_rel, shmem_ptr -> waste_tot};
+
+  for (long unsigned int i = 0; i < (sizeof(col1)/sizeof(col1[0]))-1; i++) {
+    printf("%-*s | %-*d\n", col1_width, col1[i], col2_width, col2[i]);
+    if (i%2!=0) {
+      for (int i = 0; i <= (col1_width + col2_width); i++) {
+        printf("-");
+      }
+      printf("\n");
+    }
+  }
+
+  printf("Simulation timer: %d\n", count++);
+}
+
+void stat_total_value() {
+  shmem_ptr -> waste_tot = shmem_ptr -> waste_tot + shmem_ptr -> waste_rel;
+  shmem_ptr -> act_tot = shmem_ptr -> act_tot + shmem_ptr -> act_rel;
+  shmem_ptr -> div_tot = shmem_ptr -> div_tot + shmem_ptr -> div_rel;
+  shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot + shmem_ptr -> prod_en_rel;
+  shmem_ptr -> cons_en_tot = shmem_ptr -> cons_en_tot + shmem_ptr -> cons_en_rel;
 }
