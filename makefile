@@ -2,7 +2,7 @@
 CC = gcc
 CFLAGS = -Wvla -Wextra -Werror
 
-init: master atomo attivatore alimentazione library.h
+init: master atomo attivatore alimentazione inibitore library.h
 
 master: master.c library.h
 	$(CC) master.c $(CFLAGS) -o master

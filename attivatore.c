@@ -41,13 +41,15 @@ int main(int argc, char* argv[]) {
 	}
 	*/
 
-	/* altra implementazione
+	//
+	/* altra implementazioneint n_atoms = rand() % (pid_atoms + 1);
+
+	int array_elememti = malloc(n_atoms); // ipotetico
 
 	int n_atoms = rand() % (pid_atoms + 1);
 	for(int i = 0; i < n_atoms; i++) {
 		choose a random pid_atoms[] to divide
-		invia comando di scissione a pid_atoms[chosen];
-		msgsnd();
+		invia comando di scissione a pid_atoms[chosen] con msgsnd() di tipo scissione;
 	} 
 	nanosleep(&step_nanosec, NULL);
 

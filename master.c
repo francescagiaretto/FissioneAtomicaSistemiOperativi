@@ -127,6 +127,7 @@ int main(int argc, char* argv[]) {
     break;
   } 
 
+  shmem_ptr -> simulation_start = 1;
   pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
   for(int i = 0; i < N_ATOM_INIT; i++) {
 
@@ -177,7 +178,6 @@ int main(int argc, char* argv[]) {
   CHECK_OPERATION;
 
   printf("PRE SIMULAZIONE\n");
-  sleep(3);
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
@@ -207,7 +207,6 @@ int main(int argc, char* argv[]) {
       raise(SIGUSR1);
     }
 
-    //! funziona per azzerare la struct ma al momento manda in blackout
     bzero(shmem_ptr, 5*sizeof(int));
 
     /*
@@ -215,7 +214,7 @@ int main(int argc, char* argv[]) {
         printf("Vuoi attivare l'inibitore?\n");
         if (risposta == y || risposta == Y || risposta == enter) {
           raise(SIGUSR2);
-          char * vec_inib[] = {"inibitore", inib_on, id_shmat, NULL};
+          char * vec_inib[] = {"inibitore", inib_on, NULL};
           execve("./inibitore", vec_inib, NULL);
         }
       }

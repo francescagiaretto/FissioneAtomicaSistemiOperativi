@@ -29,11 +29,11 @@ int main(int argc, char* argv[]){
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
 									//*  identical for more than one atom, while pid is always different
 
-	operate_in_sem(STARTSEM, 0);
-	printf("ATOMO: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
-	//printf("ATOMO %d CON NUM ATOMICO [%d]\n\n", getpid(), parent_atom_num);
 
-	printf("SEMAFORO SBLOCCATO\n");
+	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0);}
+	shmem_ptr -> simulation_start = 0;
+	//printf("ATOMO: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
+	//printf("ATOMO %d CON NUM ATOMICO [%d]\n\n", getpid(), parent_atom_num);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
@@ -84,11 +84,9 @@ void operate_in_sem(int sem_working, int en_lib){
 
 	switch(sem_working) {
 		case STARTSEM:
-			printf("BLOCCO IL PROGRAMMA\n");
 			sem.sem_num = STARTSEM;
 			sem.sem_op = -1;
   			semop(semid, &sem, 1);
-				printf("PROGRAMMA BLOCCATO\n");
 		break;
 
 		case WASTESEM:
