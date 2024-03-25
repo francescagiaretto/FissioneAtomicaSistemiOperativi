@@ -32,8 +32,6 @@ int main(int argc, char* argv[]){
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0);}
 	shmem_ptr -> simulation_start = 0;
-	//printf("ATOMO: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
-	//printf("ATOMO %d CON NUM ATOMICO [%d]\n\n", getpid(), parent_atom_num);
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
@@ -48,7 +46,7 @@ int main(int argc, char* argv[]){
 	sprintf(division_atom_num, "%d", child_atom_num);
 	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], argv[3], NULL};
 
-	//if (shmem_ptr -> attiv_signal == 1) {switch che segue}?
+	operate_in_sem(ACTIVATIONSEM, 0);
 	switch (fork())
 	{
 		case -1:
@@ -92,7 +90,6 @@ void operate_in_sem(int sem_working, int en_lib){
 		case WASTESEM:
 			sem.sem_num = WASTESEM;
 			sem.sem_op = -1;
-			//printf("pid %d, entrando in attesa per le scorie\n", getpid());
 			semop(semid, &sem, 1);
 			CHECK_OPERATION;
 
@@ -101,7 +98,6 @@ void operate_in_sem(int sem_working, int en_lib){
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			//printf("pid %d e ho liberato le risorse per le SCORIE\n", getpid());
 			CHECK_OPERATION;
 		break;
 
@@ -122,10 +118,7 @@ void operate_in_sem(int sem_working, int en_lib){
 		case DIVISIONSEM:
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = -1;
-			//printf("pid %d, entrando in attesa per le divisioni\n", getpid());
 			semop(semid, &sem, 1);
-			//printf("pid %d, uscito dall'attesa per le divisioni\n", getpid());
-			//printf("valore semaforo: %d\n", semctl(semid, DIVISIONSEM, GETVAL));
 			CHECK_OPERATION;
 
 			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
@@ -133,11 +126,21 @@ void operate_in_sem(int sem_working, int en_lib){
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			//printf("pid %d, ho liberato le risorse per le divisioni\n", getpid());
 			CHECK_OPERATION;
 		break;
 
 		case ACTIVATIONSEM:
+			sem.sem_num = ACTIVATIONSEM;
+			sem.sem_op = -1;
+			semop(semid, &sem, 1);
+			CHECK_OPERATION;
+
+			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
+
+			sem.sem_num = ACTIVATIONSEM;
+			sem.sem_op = 1;
+			semop(semid, &sem, 1);
+			CHECK_OPERATION;
 		break;
 	}
 

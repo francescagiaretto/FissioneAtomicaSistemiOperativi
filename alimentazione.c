@@ -15,6 +15,8 @@ int main(int argc, char * argv[]) {
   semid = atoi(argv[2]);
   msgid = atoi(argv[3]);
 
+  message_buffer * my_message;
+
   data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;
 
@@ -28,7 +30,7 @@ int main(int argc, char * argv[]) {
   sem.sem_op = -1;
   semop(semid, &sem, 1);
   CHECK_OPERATION;
-  printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
+  //printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
  	//while(1);
 
@@ -36,13 +38,13 @@ int main(int argc, char * argv[]) {
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?
   while(1) {
 
-    // nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
+    //nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
 
     for(int i = 0; i < N_NUOVI_ATOMI; i++){
       atomic_num = rand() % N_ATOM_MAX + 1;
       sprintf(n_atom, "%d", atomic_num);
       char * vec_atomo[] = {"atomo", n_atom, argv[1], argv[2], argv[3], NULL}; // argv[1] = pointer to shmem
-
+    
       switch(fork()) {
 
         case -1:
@@ -51,16 +53,21 @@ int main(int argc, char * argv[]) {
         break;
 
         case 0:
+          //printf("ALIMENTO NUOVI ATOMI\n");
+          /* sprintf(my_message -> message, "%d", getpid());
+          my_message -> type = MSGTYPE;
+          msgsnd(msgid, &my_message, sizeof(pid_t), 0);
+          TEST_ERROR; */
+
           execve("./atomo", vec_atomo, NULL);
           TEST_ERROR;
         break;
 
         default:
+          // TODO inviare il pid del figlio all'attivatore
         break;
-      }
-    }
-
-    sleep(1);
+      } 
+    } sleep(1);
   } 
 }
 

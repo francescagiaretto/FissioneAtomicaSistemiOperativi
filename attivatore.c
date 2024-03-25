@@ -1,13 +1,17 @@
 #include "library.h"
-#define MSGYPE 1
+
 
 int semid, shmid, msgid;
 
 int main(int argc, char* argv[]) {
-	
+	pid_t new_pid; int n_new_pid = 0;
 	semid = atoi(argv[1]);
 	shmid = atoi(argv[2]);
 	msgid = atoi(argv[3]);
+
+	message_buffer * mymessage; 
+	int * array_new_atoms = malloc(N_ATOM_INIT*sizeof(pid_t));
+
 
   	data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   	TEST_ERROR;
@@ -22,11 +26,9 @@ int main(int argc, char* argv[]) {
   	semop(semid, &sem, 1);
 	TEST_ERROR;
 
-	printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
+	//printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
 	while(1);
-
-	// ? come comunicare che bisogna fare una scissione? SEGNALE
 
 	//! bisogna decidere il criterio per cui si continua ad attivare (es. numero max di atomi)
 
@@ -36,15 +38,17 @@ int main(int argc, char* argv[]) {
 	for ( ; 1 ;) {
 		for(int i = 0; i < sizeof(pid_atoms[]); i++) {
 			kill(pid_atoms[i], SIGCHLD);
-		}
+		} 
 		nanosleep(&step_nanosec, NULL);
 	}
-	*/
+	
+	new_pid = msgrcv(msgid, &mymessage, sizeof(pid_t), MSG_NOERROR);
 
-	//
-	/* altra implementazioneint n_atoms = rand() % (pid_atoms + 1);
+	realloc(array_new_atoms, sizeof(pid_t) * n_new_pid);
 
-	int array_elememti = malloc(n_atoms); // ipotetico
+	int n_atoms = rand() % (pid_atoms + 1);
+
+	/* altra implementazione
 
 	int n_atoms = rand() % (pid_atoms + 1);
 	for(int i = 0; i < n_atoms; i++) {
@@ -53,11 +57,6 @@ int main(int argc, char* argv[]) {
 	} 
 	nanosleep(&step_nanosec, NULL);
 
-	*/
-
-	/**
-	 * in ogni processo tranne master ci sarà un signal handler che gestirà l'arrivo di SIGCHLD
-	 * con attivazione = 1 che sbloccherà il while su cui cicla (spreco di tempo inutile);
 	*/
 
 	// printf("\n\n\nTEST ATTIVATORE\n\n\n");

@@ -16,7 +16,14 @@ void signal_handler(int sig) {
       raise(SIGUSR1);
     break;
 
-    case SIGINT:
+    case SIGINT: /*
+      if(inib_on == 0) {
+        inib_on = 1;
+        printf("Inibitore is on. You can turn it off whenever you want.\n");
+      } else if (inib_on == 1) {
+        inib_on = 0;
+        printf("Inibitore is off. You can turn it on whenever you want.\n");
+      }*/
      raise(SIGUSR1);
     break;
 
@@ -26,12 +33,11 @@ void signal_handler(int sig) {
 
     case SIGUSR1:
       shmem_ptr -> termination = 1;
+      kill(pid_alimentazione, SIGTERM);
+      kill(pid_attivatore, SIGTERM);
       int status = 0;
       waitpid(-1, &status, WIFEXITED(status));
       printf("Simulation terminated due to %s.\n", shmem_ptr -> message);
-
-      kill(pid_alimentazione, SIGTERM);
-      kill(pid_attivatore, SIGTERM);
 
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
@@ -41,18 +47,8 @@ void signal_handler(int sig) {
       exit(0);
     break;
 
-    case SIGUSR2:
-      if(inib_on == 0) {
-        inib_on = 1;
-        printf("Inibitore is on. You can turn it off whenever you want.\n");
-      } else if (inib_on == 1) {
-        inib_on = 0;
-        printf("Inibitore is off. You can turn it on whenever you want.\n");
-      }
-    break;
-
     case SIGCHLD:
-      shmem_ptr -> attiv_signal = 1;
+      shmem_ptr -> attiv_signal = 0;
     break;
   }
 }
@@ -87,8 +83,8 @@ int main(int argc, char* argv[]) {
   sprintf(id_shmat, "%d", shmid);
   sprintf(id_sem, "%d", semid);
   sprintf(id_message, "%d", msgid);
-  char * vec_alim[] = {"alimentazione", id_shmat, id_sem, id_message, NULL};
-  char * vec_attiv[] = {"attivatore", id_sem, id_shmat, id_message, NULL};
+  char * vec_alim[] = {"./alimentazione", id_shmat, id_sem, id_message, NULL};
+  char * vec_attiv[] = {"./attivatore", id_sem, id_shmat, id_message, NULL};
 
   switch(pid_alimentazione = fork()) {
     case -1:
@@ -137,7 +133,7 @@ int main(int argc, char* argv[]) {
     srand(getpid());
     atomic_num = rand() % N_ATOM_MAX + 1;
     sprintf(n_atom, "%d", atomic_num);
-    char * vec_atomo[] = {"atomo", n_atom, id_shmat, id_sem, id_message, NULL};
+    char * vec_atomo[] = {"./atomo", n_atom, id_shmat, id_sem, id_message, NULL};
 
     switch(pid_atoms[i]) {
 
@@ -177,7 +173,7 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
   CHECK_OPERATION;
 
-  printf("PRE SIMULAZIONE\n");
+  //printf("PRE SIMULAZIONE\n");
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
@@ -185,13 +181,14 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
   CHECK_OPERATION;
 
-  shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
   
-  printf("HO COMINCIATO LA SIMULAZIONE\n");
+  //printf("HO COMINCIATO LA SIMULAZIONE\n");
 
   // ?? condizione for va bene? 
   while(1) {
     sleep(1);
+
+    shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
       shmem_ptr -> message = "explode";

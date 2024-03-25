@@ -6,4 +6,10 @@
  *      bisogna capire come fare per l'array di atomi
  * - passare gli atomi nuovamente creati
  * - eliminare dall'array quelli che son terminati
+s
+
+
+ 1. deve avere i pid --> avere un array di pid --> malloc per forza --> realloc --> i pid inviati quando viene fatta una scissione 
+
+ 2. 
 */

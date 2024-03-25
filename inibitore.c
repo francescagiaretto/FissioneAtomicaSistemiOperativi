@@ -31,6 +31,6 @@ int main(char* argv[]) {
       // limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
         // la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)
       
-      
+        //!MANDA SEGNALE A MASTER
     }
 }
