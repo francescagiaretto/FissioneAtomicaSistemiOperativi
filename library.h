@@ -67,7 +67,3 @@ typedef struct data_buffer {
   int termination; // if set to 1 children processes are killed
   int attiv_signal;
 } data_buffer;
-
-
-
-

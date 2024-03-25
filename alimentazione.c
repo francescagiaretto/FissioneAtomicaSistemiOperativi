@@ -46,7 +46,7 @@ int main(int argc, char * argv[]) {
       switch(fork()) {
 
         case -1:
-          shmem_p -> message = "meltdown.";
+          shmem_p -> message = "meltdown";
           kill(getppid(), SIGUSR1);
         break;
 

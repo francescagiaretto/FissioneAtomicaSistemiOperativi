@@ -34,9 +34,10 @@ int main(int argc, char* argv[]){
 	printf("ATOMO: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 	//printf("ATOMO %d CON NUM ATOMICO [%d]\n\n", getpid(), parent_atom_num);
 
+	printf("SEMAFORO SBLOCCATO\n");
+
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
-
 		operate_in_sem(WASTESEM, 0);
 		raise(SIGTERM);
 	}
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]){
 	switch (fork())
 	{
 		case -1:
-			shmem_ptr -> message = "meltdown.";
+			shmem_ptr -> message = "meltdown";
 			kill(getppid(), SIGUSR1);
 		break;
 		
@@ -84,9 +85,11 @@ void operate_in_sem(int sem_working, int en_lib){
 
 	switch(sem_working) {
 		case STARTSEM:
+			printf("BLOCCO IL PROGRAMMA\n");
 			sem.sem_num = STARTSEM;
 			sem.sem_op = -1;
   			semop(semid, &sem, 1);
+				printf("PROGRAMMA BLOCCATO\n");
 		break;
 
 		case WASTESEM:

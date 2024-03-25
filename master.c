@@ -12,7 +12,7 @@ pid_t pid_alimentazione, pid_attivatore;
 void signal_handler(int sig) {
   switch(sig) {
     case SIGALRM:
-      shmem_ptr -> message = "timeout.";
+      shmem_ptr -> message = "timeout";
       raise(SIGUSR1);
     break;
 
@@ -28,7 +28,7 @@ void signal_handler(int sig) {
       shmem_ptr -> termination = 1;
       int status = 0;
       waitpid(-1, &status, WIFEXITED(status));
-      printf("Simulation terminated due to %s\n", shmem_ptr -> message);
+      printf("Simulation terminated due to %s.\n", shmem_ptr -> message);
 
       kill(pid_alimentazione, SIGTERM);
       kill(pid_attivatore, SIGTERM);
@@ -44,10 +44,10 @@ void signal_handler(int sig) {
     case SIGUSR2:
       if(inib_on == 0) {
         inib_on = 1;
-        printf("Inibitore attivato. Puoi disattivarlo quando vuoi.\n");
+        printf("Inibitore is on. You can turn it off whenever you want.\n");
       } else if (inib_on == 1) {
         inib_on = 0;
-        printf("Inibitore disattivato. Puoi attivarlo quando vuoi.\n");
+        printf("Inibitore is off. You can turn it on whenever you want.\n");
       }
     break;
 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
   switch(pid_alimentazione = fork()) {
     case -1:
-      shmem_ptr -> message = "meltdown.";
+      shmem_ptr -> message = "meltdown";
       raise(SIGUSR1);
     break;
 
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
       switch(pid_attivatore = fork()) {
 
           case -1:
-            shmem_ptr -> message = "meltdown.";
+            shmem_ptr -> message = "meltdown";
             raise(SIGUSR1);
           break;
 
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
     switch(pid_atoms[i]) {
 
       case -1:
-        shmem_ptr -> message = "meltdown.";
+        shmem_ptr -> message = "meltdown";
         raise(SIGUSR1);
       break;
 
@@ -189,12 +189,12 @@ int main(int argc, char* argv[]) {
   
   printf("HO COMINCIATO LA SIMULAZIONE\n");
 
-  // !!! cambiare condizione for 
+  // ?? condizione for va bene? 
   while(1) {
     sleep(1);
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
-      shmem_ptr -> message = "explode.";
+      shmem_ptr -> message = "explode";
       raise(SIGUSR1);
     }
     
@@ -203,14 +203,12 @@ int main(int argc, char* argv[]) {
 
     //blackout
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
-      shmem_ptr -> message = "blackout.";
+      shmem_ptr -> message = "blackout";
       raise(SIGUSR1);
-    } else {
-      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> cons_en_rel;
     }
 
     //! funziona per azzerare la struct ma al momento manda in blackout
-    //bzero(shmem_ptr, 5*sizeof(int));
+    bzero(shmem_ptr, 5*sizeof(int));
 
     /*
       if (inib_on == 0) {
