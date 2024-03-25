@@ -215,7 +215,7 @@ int main(int argc, char* argv[]) {
         printf("Vuoi attivare l'inibitore?\n");
         if (risposta == y || risposta == Y || risposta == enter) {
           raise(SIGUSR2);
-          char * vec_inib[] = {"inibitore", inib_on, NULL};
+          char * vec_inib[] = {"inibitore", inib_on, id_shmat, NULL};
           execve("./inibitore", vec_inib, NULL);
         }
       }

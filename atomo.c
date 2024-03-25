@@ -7,7 +7,6 @@ int energy(int, int);
 int semid, shmid, msgid;
 data_buffer * shmem_ptr;
 
-
 int main(int argc, char* argv[]){
 
 	int child_atom_num, en_lib, parent_atom_num;
