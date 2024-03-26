@@ -1,6 +1,5 @@
 #include "library.h"
 
-
 int semid, shmid, msgid;
 
 int main(int argc, char* argv[]) {
