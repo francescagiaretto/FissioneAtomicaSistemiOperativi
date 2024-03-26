@@ -30,8 +30,7 @@ int main(int argc, char* argv[]){
 									//*  identical for more than one atom, while pid is always different
 
 
-	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0);}
-	shmem_ptr -> simulation_start = 0;
+	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
@@ -85,6 +84,8 @@ void operate_in_sem(int sem_working, int en_lib){
 			sem.sem_num = STARTSEM;
 			sem.sem_op = -1;
   			semop(semid, &sem, 1);
+
+			shmem_ptr -> simulation_start = 0;
 		break;
 
 		case WASTESEM:

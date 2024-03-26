@@ -167,7 +167,6 @@ int main(int argc, char* argv[]) {
 
   free(pid_atoms);
 
-  printf("ATTENDO I MIEI FIGLI....\n");
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 2);
   semop(semid, &sem, 1);
@@ -180,6 +179,7 @@ int main(int argc, char* argv[]) {
   sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
   CHECK_OPERATION;
+  printf("COMINCIO SIMULAZIONE:\n\n");
 
   
   //printf("HO COMINCIATO LA SIMULAZIONE\n");
