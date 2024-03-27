@@ -18,7 +18,7 @@ Per le operazioni di lettura e scrittura in shmem si usa memcpy (alternativament
 
 */
 
-// 
+//! CAPIRE COME RIMUOVERE SAFELY I PROCESSI DAL SEMAFORO
 
 /*
 COSE FATTE

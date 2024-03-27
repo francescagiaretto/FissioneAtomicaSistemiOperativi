@@ -15,13 +15,13 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 
-#define N_ATOM_INIT 100
+#define N_ATOM_INIT 1000
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 100
 #define STEP_ATTIVATORE 5000
-#define N_NUOVI_ATOMI 50
+#define N_NUOVI_ATOMI 3
 #define SIM_DURATION 6
-#define ENERGY_EXPLODE_THRESHOLD 20000000
+#define ENERGY_EXPLODE_THRESHOLD 5000000
 #define MIN_N_ATOMICO 90
 #define STEP_ALIMENTAZIONE  8
 #define SHM_SIZE 50

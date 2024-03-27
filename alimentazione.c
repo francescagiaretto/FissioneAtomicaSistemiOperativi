@@ -38,8 +38,6 @@ int main(int argc, char * argv[]) {
   //??? va bene while(1) o c'è un modo più elegante di scriverlo?
   while(1) {
 
-    //nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
-
     for(int i = 0; i < N_NUOVI_ATOMI; i++){
       atomic_num = rand() % N_ATOM_MAX + 1;
       sprintf(n_atom, "%d", atomic_num);
@@ -65,9 +63,10 @@ int main(int argc, char * argv[]) {
 
         default:
           // TODO inviare il pid del figlio all'attivatore
+          nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
         break;
       } 
-    } sleep(1);
+    } 
   } 
 }
 
