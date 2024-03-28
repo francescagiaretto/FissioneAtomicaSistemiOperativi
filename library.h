@@ -17,14 +17,14 @@
 
 #define N_ATOM_INIT 1000
 #define N_ATOM_MAX 118
-#define ENERGY_DEMAND 100
+#define ENERGY_DEMAND 1000
 #define STEP_ATTIVATORE 5000
-#define N_NUOVI_ATOMI 3
-#define SIM_DURATION 6
-#define ENERGY_EXPLODE_THRESHOLD 5000000
-#define MIN_N_ATOMICO 90
+#define N_NUOVI_ATOMI 50
+#define SIM_DURATION 10
+#define ENERGY_EXPLODE_THRESHOLD 10000000
+#define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE  8
-#define SHM_SIZE 50
+#define SHM_SIZE 200
 #define MSGTYPE 1
 
 #define WAITSEM 0
@@ -72,16 +72,16 @@ typedef struct message {
 } message_buffer;
 
 typedef struct data_buffer {
-  int waste_rel;
-  int prod_en_rel;
-  int div_rel;
-  int act_rel;
-  int cons_en_rel;
-  int waste_tot;
-  int prod_en_tot;
-  int div_tot;
-  int act_tot;
-  int cons_en_tot;
+  long waste_rel;
+  long prod_en_rel;
+  long div_rel;
+  long act_rel;
+  long cons_en_rel;
+  long waste_tot;
+  long prod_en_tot;
+  long div_tot;
+  long act_tot;
+  long cons_en_tot;
   char * message; // termination message
   int termination; // if set to 1 children processes are killed
   int attiv_signal;

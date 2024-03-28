@@ -36,7 +36,6 @@ void signal_handler(int sig) {
       kill(pid_alimentazione, SIGTERM);
       kill(pid_attivatore, SIGTERM);
       int status = 0;
-      //waitpid(-1, &status, WIFEXITED(status));
       printf("Simulation terminated due to %s.\n", shmem_ptr -> message);
       waitpid(-1, &status, WIFEXITED(status));
       shmdt(shmem_ptr);

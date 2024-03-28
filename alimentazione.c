@@ -63,7 +63,8 @@ int main(int argc, char * argv[]) {
 
         default:
           // TODO inviare il pid del figlio all'attivatore
-          nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
+          sleep(1);
+          //nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
         break;
       } 
     } 
