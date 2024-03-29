@@ -19,13 +19,13 @@
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 1000
 #define STEP_ATTIVATORE 5000
-#define N_NUOVI_ATOMI 50
+#define N_NUOVI_ATOMI 1
 #define SIM_DURATION 10
 #define ENERGY_EXPLODE_THRESHOLD 10000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE  8
 #define SHM_SIZE 200
-#define MSGTYPE 1
+#define PID_TYPE 1
 
 #define WAITSEM 0
 #define STARTSEM 1
@@ -70,6 +70,8 @@ typedef struct message {
     long type;
     char message[128];
 } message_buffer;
+
+message_buffer * mymessage;
 
 typedef struct data_buffer {
   long waste_rel;

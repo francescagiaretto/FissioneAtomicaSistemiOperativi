@@ -27,6 +27,16 @@ int main(int argc, char* argv[]) {
 
 	//printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
 
+
+
+	msgrcv(msgid, &mymessage, sizeof(pid_t)+1, PID_TYPE, 0);
+	array_new_atoms[0] = atoi(mymessage->message);
+	printf("%d\n\n", array_new_atoms[0]);
+
+
+
+
+
 	while(1);
 
 	//! bisogna decidere il criterio per cui si continua ad attivare (es. numero max di atomi)

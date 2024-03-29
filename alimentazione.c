@@ -15,8 +15,6 @@ int main(int argc, char * argv[]) {
   semid = atoi(argv[2]);
   msgid = atoi(argv[3]);
 
-  message_buffer * my_message;
-
   data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;
 
@@ -52,10 +50,10 @@ int main(int argc, char * argv[]) {
 
         case 0:
           //printf("ALIMENTO NUOVI ATOMI\n");
-          /* sprintf(my_message -> message, "%d", getpid());
-          my_message -> type = MSGTYPE;
-          msgsnd(msgid, &my_message, sizeof(pid_t), 0);
-          TEST_ERROR; */
+          sprintf(mymessage -> message, "%d,", getpid());
+          mymessage->type = PID_TYPE;
+          msgsnd(msgid, &mymessage, sizeof(pid_t)+1, 0);
+          TEST_ERROR; 
 
           execve("./atomo", vec_atomo, NULL);
           TEST_ERROR;

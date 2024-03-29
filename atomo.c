@@ -31,6 +31,7 @@ int main(int argc, char* argv[]){
 
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
+	//printf("TEST ATOMO\n\n");
 
 	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
@@ -123,6 +124,10 @@ void operate_in_sem(int sem_working, int en_lib){
 			CHECK_OPERATION;
 
 			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
+			int bytes = sprintf(mymessage -> message, "%d,", getpid());
+			mymessage->type = PID_TYPE;
+			msgsnd(msgid, &mymessage, bytes++, 0);
+			TEST_ERROR;
 
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = 1;
