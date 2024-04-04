@@ -32,18 +32,12 @@ void signal_handler(int sig) {
     break;
 
     case SIGUSR1:
-      shmem_ptr -> termination = 1;
-      kill(pid_alimentazione, SIGTERM);
-      kill(pid_attivatore, SIGTERM);
-      int status = 0;
       printf("Simulation terminated due to %s.\n", shmem_ptr -> message);
-      waitpid(-1, &status, WIFEXITED(status));
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
       semctl(semid, 0, IPC_RMID);
       msgctl(msgid, IPC_RMID, NULL);
-
-      exit(0);
+      kill(0, SIGTERM);
     break;
 
     case SIGCHLD:
@@ -75,6 +69,8 @@ int main(int argc, char* argv[]) {
 
   shmem_ptr = (data_buffer *)shmat(shmid, NULL, 0); // NULL for improved code portability: address may not be available outside of Unix
   TEST_ERROR;
+
+  shmem_ptr -> pid_master = getpid();
 
   set_sem_values();
   sem.sem_flg = 0;
@@ -177,6 +173,8 @@ int main(int argc, char* argv[]) {
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
+
+  shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
   //CHECK_OPERATION;
   printf("COMINCIO SIMULAZIONE:\n\n");
 
@@ -187,31 +185,22 @@ int main(int argc, char* argv[]) {
   while(1) {
     sleep(1);
     
-    //shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
-      printf("TEST PRE EXPLODE\n\n");
       shmem_ptr -> message = "explode";
-      printf("TEST RAISE\n\n");
       raise(SIGUSR1);
     }
     
     stat_total_value();
     print_stats();
 
-    printf("TEST PRE BZERO\n\n");
-    bzero(shmem_ptr, 5*sizeof(int));
+    bzero(shmem_ptr, 4*sizeof(int));
 
-    printf("TEST PRE ENRGY\n\n");
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
-      printf("TEST PRE BLACKOUT\n\n");
       shmem_ptr -> message = "blackout";
-      printf("TEST RAISE\n\n");
       raise(SIGUSR1);
     }
-
-    printf("NO BLACKOUT CONDITION\n\n");
 
     /*
       if (inib_on == 0) {

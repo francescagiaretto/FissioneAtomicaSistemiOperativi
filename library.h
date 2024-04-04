@@ -19,12 +19,12 @@
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 1000
 #define STEP_ATTIVATORE 5000
-#define N_NUOVI_ATOMI 600
-#define SIM_DURATION 10
-#define ENERGY_EXPLODE_THRESHOLD 2000000
+#define N_NUOVI_ATOMI 6000
+#define SIM_DURATION 15
+#define ENERGY_EXPLODE_THRESHOLD 10000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE  8
-#define SHM_SIZE 200
+#define SHM_SIZE 500
 #define PID_TYPE 1
 
 #define WAITSEM 0
@@ -85,7 +85,7 @@ typedef struct data_buffer {
   int act_tot;
   int cons_en_tot;
   char * message; // termination message
-  int termination; // if set to 1 children processes are killed
   int attiv_signal;
   int simulation_start;
+  pid_t pid_master;
 } data_buffer;

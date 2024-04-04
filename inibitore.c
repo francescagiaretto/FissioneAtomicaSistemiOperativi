@@ -20,10 +20,10 @@ int main(char* argv[]) {
     if (shmem_ptr -> termination == 1) {
         int status = 0;
         waitpid(-1, &status, WIFEXITED(status));
-        kill(getpid(), SIGTERM);
+        kill(shmem_ptr -> pid_master, SIGTERM);
       }
 
-    while (inib_on == 1) {
+   /* while (inib_on == 1) {
       
       // assorbe parte dell'energia prodotta dalla scissione dell'atomo diminuendo la quantità di energia liberata
       //shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - (shmem_ptr -> prod_en_tot)/2;
@@ -32,5 +32,5 @@ int main(char* argv[]) {
         // la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)
       
         //!MANDA SEGNALE A MASTER
-    }
+    } */
 }

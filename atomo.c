@@ -9,6 +9,7 @@ data_buffer * shmem_ptr;
 
 int main(int argc, char* argv[]){
 
+
 	int child_atom_num, en_lib, parent_atom_num;
 	char division_atom_num[3], division_parent_num[4];
 
@@ -20,11 +21,11 @@ int main(int argc, char* argv[]){
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
-	if (shmem_ptr -> termination == 1) {
+	/* if (shmem_ptr -> termination == 1) {
 		int status = 0;
 		waitpid(-1, &status, WIFEXITED(status));
-		kill(getpid(), SIGTERM);
-	}
+		kill(shmem_ptr -> pid_master, SIGTERM);
+	} */
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different
 
@@ -46,13 +47,14 @@ int main(int argc, char* argv[]){
 	switch (fork())
 	{
 		case -1:
+			//printf("MELTDOWN\n");
 			shmem_ptr -> message = "meltdown";
-			kill(getppid(), SIGUSR1);
+			kill(shmem_ptr -> pid_master, SIGUSR1);
 		break;
 		
 		case 0: // checking child
 			operate_in_sem(DIVISIONSEM, 0);
-			execve("atomo", vec_atomo, NULL);
+			execve("./atomo", vec_atomo, NULL);
 			TEST_ERROR;
 		break;
 		
@@ -60,7 +62,7 @@ int main(int argc, char* argv[]){
 			en_lib = energy(child_atom_num, parent_atom_num);
 			operate_in_sem(PROD_ENERGYSEM, en_lib); // saving relative produced energy in shmem
 			sprintf(division_parent_num, "%d", parent_atom_num);
-			char * new_vec_atomo[] = {"atomo", division_parent_num, argv[2], argv[3], NULL};
+			char * new_vec_atomo[] = {"./atomo", division_parent_num, argv[2], argv[3], NULL};
 			execve("atomo", new_vec_atomo, NULL);
 			TEST_ERROR;
 		break;
