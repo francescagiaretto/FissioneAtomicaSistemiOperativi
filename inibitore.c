@@ -26,7 +26,7 @@ int main(char* argv[]) {
     while (inib_on == 1) {
       
       // assorbe parte dell'energia prodotta dalla scissione dell'atomo diminuendo la quantità di energia liberata
-      //shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - 20/100*(shmem_ptr -> prod_en_tot);
+      //shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - (shmem_ptr -> prod_en_tot)/2;
 
       // limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
         // la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)

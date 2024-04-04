@@ -15,13 +15,13 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 
-#define N_ATOM_INIT 1000
+#define N_ATOM_INIT 100
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 1000
 #define STEP_ATTIVATORE 5000
-#define N_NUOVI_ATOMI 1
+#define N_NUOVI_ATOMI 600
 #define SIM_DURATION 10
-#define ENERGY_EXPLODE_THRESHOLD 10000000
+#define ENERGY_EXPLODE_THRESHOLD 2000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE  8
 #define SHM_SIZE 200
@@ -44,24 +44,24 @@
 					   strerror(errno));}
 
 
-#define CHECK_OPERATION switch (errno) {					\
-		                        case EIDRM:						\
+//#define CHECK_OPERATION switch (errno) { \
+		                        case EIDRM: \
 		                        	printf("PID = %d, riga:%d : semaphore removed while process was waiting\n", \
-		                        	       getpid(), __LINE__);			\
-		                        	exit(EXIT_FAILURE);				\
-		                        case EINVAL:						\
+		                        	       getpid(), __LINE__); \
+		                        	exit(EXIT_FAILURE); \
+		                        case EINVAL: \
 		                        	printf("PID = %d, riga:%d : semaphore removed or never existed\n", \
-		                        	       getpid(), __LINE__);			\
-		                        	exit(EXIT_FAILURE);				\
-		                        case EAGAIN:						\
+		                        	       getpid(), __LINE__); \
+		                        	exit(EXIT_FAILURE); \
+		                        case EAGAIN: \
 		                        	printf("PID = %d, riga:%d : process continued without waiting\n", \
-		                        	       getpid(), __LINE__);			\
-		                        	exit(EXIT_FAILURE);				\
-		                        				\
-		                        default:						\
-		                        	TEST_ERROR;			\
-                            break;    \
-		                        }							\
+		                        	       getpid(), __LINE__); \
+		                        	exit(EXIT_FAILURE); \
+		                        		\
+		                        default: \
+		                        	TEST_ERROR; \
+                            break; \
+		                        } \
 
 struct sembuf sem;
 
@@ -74,16 +74,16 @@ typedef struct message {
 message_buffer * mymessage;
 
 typedef struct data_buffer {
-  long waste_rel;
-  long prod_en_rel;
-  long div_rel;
-  long act_rel;
-  long cons_en_rel;
-  long waste_tot;
-  long prod_en_tot;
-  long div_tot;
-  long act_tot;
-  long cons_en_tot;
+  int waste_rel;
+  int prod_en_rel;
+  int div_rel;
+  int act_rel;
+  int cons_en_rel;
+  int waste_tot;
+  int prod_en_tot;
+  int div_tot;
+  int act_tot;
+  int cons_en_tot;
   char * message; // termination message
   int termination; // if set to 1 children processes are killed
   int attiv_signal;

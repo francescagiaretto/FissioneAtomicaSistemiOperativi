@@ -26,14 +26,11 @@ int main(int argc, char* argv[]){
 		kill(getpid(), SIGTERM);
 	}
 
-	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be
-									//*  identical for more than one atom, while pid is always different
+	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different
 
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
-	//printf("TEST ATOMO\n\n");
 
-	//* il controllo delle scorie è fatto dopo che il processo atomo ha ricevuto il comando di scissione
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 		operate_in_sem(WASTESEM, 0);
 		raise(SIGTERM);
@@ -41,7 +38,6 @@ int main(int argc, char* argv[]){
 	
 	generate_n_atom(&parent_atom_num, &child_atom_num);
 
-	// TODO gestire la fork quando lo richiede l'attivatore.
 
 	sprintf(division_atom_num, "%d", child_atom_num);
 	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], argv[3], NULL};
@@ -93,60 +89,60 @@ void operate_in_sem(int sem_working, int en_lib){
 			sem.sem_num = WASTESEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 
 			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 		break;
 
 		case PROD_ENERGYSEM:
 			sem.sem_num = PROD_ENERGYSEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 
 			shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib;
 
 			sem.sem_num = PROD_ENERGYSEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 		break;
 
 		case DIVISIONSEM:
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 
 			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
-			int bytes = sprintf(mymessage -> message, "%d,", getpid());
+			/*int bytes = sprintf(mymessage -> message, "%d,", getpid());
 			mymessage->type = PID_TYPE;
 			msgsnd(msgid, &mymessage, bytes++, 0);
-			TEST_ERROR;
+			TEST_ERROR; */
 
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 		break;
 
 		case ACTIVATIONSEM:
 			sem.sem_num = ACTIVATIONSEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 
 			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
 
 			sem.sem_num = ACTIVATIONSEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			CHECK_OPERATION;
+			//CHECK_OPERATION;
 		break;
 	}
 

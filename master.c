@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
       sem.sem_num = WAITSEM;
       sem.sem_op = 1;
       semop(semid, &sem, 1);
-      CHECK_OPERATION;
+      //CHECK_OPERATION;
 
       execve("./alimentazione", vec_alim, NULL);
       TEST_ERROR;
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
             sem.sem_num = WAITSEM;
             sem.sem_op = 1;
             semop(semid, &sem, 1);
-            CHECK_OPERATION;
+            //CHECK_OPERATION;
 
             execve("./attivatore", vec_attiv, NULL);
             TEST_ERROR;
@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
         sem.sem_num = WAITSEM;
         sem.sem_op = 1;
         semop(semid, &sem, 1);
-        CHECK_OPERATION;
+        //CHECK_OPERATION;
 
         execve("./atomo", vec_atomo, NULL);
         TEST_ERROR;
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 2);
   semop(semid, &sem, 1);
-  CHECK_OPERATION;
+  //CHECK_OPERATION;
 
   //printf("PRE SIMULAZIONE\n");
   alarm(SIM_DURATION);
@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +2;
   semop(semid, &sem, 1);
-  CHECK_OPERATION;
+  //CHECK_OPERATION;
   printf("COMINCIO SIMULAZIONE:\n\n");
 
   
@@ -186,24 +186,32 @@ int main(int argc, char* argv[]) {
   // ?? condizione for va bene? 
   while(1) {
     sleep(1);
-
-    shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
+    
+    //shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
+      printf("TEST PRE EXPLODE\n\n");
       shmem_ptr -> message = "explode";
+      printf("TEST RAISE\n\n");
       raise(SIGUSR1);
     }
     
-    stat_total_value(shmem_ptr);
-    print_stats(shmem_ptr);
+    stat_total_value();
+    print_stats();
 
-    //blackout
+    printf("TEST PRE BZERO\n\n");
+    bzero(shmem_ptr, 5*sizeof(int));
+
+    printf("TEST PRE ENRGY\n\n");
+    // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
+      printf("TEST PRE BLACKOUT\n\n");
       shmem_ptr -> message = "blackout";
+      printf("TEST RAISE\n\n");
       raise(SIGUSR1);
     }
 
-    bzero(shmem_ptr, 5*sizeof(int));
+    printf("NO BLACKOUT CONDITION\n\n");
 
     /*
       if (inib_on == 0) {
@@ -257,7 +265,7 @@ void print_stats() {
   static int count = 1;
 
   int col1_width = 35;
-  int col2_width = 10;
+  int col2_width = 15;
   printf("\n\n\n\n");
   printf("STATS:\n");
   for (int i = 0; i <= (col1_width + col2_width); i++) {

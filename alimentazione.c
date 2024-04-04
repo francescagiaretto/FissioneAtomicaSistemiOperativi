@@ -6,7 +6,6 @@ int semid, shmid, msgid;
 
 int main(int argc, char * argv[]) {
 
-   //! bisogna passargli l'id della shared memory perché altrimenti nel vec_atomo non glielo diamo
   int atomic_num;
   char n_atom[4];
   srand(getpid());
@@ -27,13 +26,8 @@ int main(int argc, char * argv[]) {
   sem.sem_num = STARTSEM;
   sem.sem_op = -1;
   semop(semid, &sem, 1);
-  CHECK_OPERATION;
-  //printf("ALIMENTAZIONE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
+  //CHECK_OPERATION;
 
- 	//while(1);
-
-  // TODO ogni STEP_ALIMENTAZIONE nanosecondi deve creare N_NUOVI_ATOMI
-  //??? va bene while(1) o c'è un modo più elegante di scriverlo?
   while(1) {
 
     for(int i = 0; i < N_NUOVI_ATOMI; i++){
@@ -50,19 +44,18 @@ int main(int argc, char * argv[]) {
 
         case 0:
           //printf("ALIMENTO NUOVI ATOMI\n");
-          sprintf(mymessage -> message, "%d,", getpid());
+          /*sprintf(mymessage -> message, "%d,", getpid());
           mymessage->type = PID_TYPE;
           msgsnd(msgid, &mymessage, sizeof(pid_t)+1, 0);
-          TEST_ERROR; 
+          TEST_ERROR; */
 
           execve("./atomo", vec_atomo, NULL);
           TEST_ERROR;
         break;
 
         default:
-          // TODO inviare il pid del figlio all'attivatore
-          sleep(1);
-          //nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
+        //sleep(1);
+          nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
         break;
       } 
     } 
