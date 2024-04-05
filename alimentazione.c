@@ -55,7 +55,7 @@ int main(int argc, char * argv[]) {
         break;
 
         default:
-        //sleep(1);
+          //sleep(1);
           nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
         break;
       } 

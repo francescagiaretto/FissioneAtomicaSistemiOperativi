@@ -95,7 +95,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+			//shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
@@ -109,7 +109,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib;
+			//shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib;
 
 			sem.sem_num = PROD_ENERGYSEM;
 			sem.sem_op = 1;
@@ -123,7 +123,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
+			//shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
 			/*int bytes = sprintf(mymessage -> message, "%d,", getpid());
 			mymessage->type = PID_TYPE;
 			msgsnd(msgid, &mymessage, bytes++, 0);
@@ -141,7 +141,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
+			//shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
 
 			sem.sem_num = ACTIVATIONSEM;
 			sem.sem_op = 1;

@@ -29,11 +29,12 @@ void signal_handler(int sig) {
     break;
 
     case SIGUSR1:
-      printf("Simulation terminated due to %s.\n", shmem_ptr -> message);
+      printf("Simulation terminated due to %s\n", shmem_ptr -> message);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
       semctl(semid, 0, IPC_RMID);
       msgctl(msgid, IPC_RMID, NULL);
+      free(shmem_ptr->message);
       kill(0, SIGTERM);
     break;
 
