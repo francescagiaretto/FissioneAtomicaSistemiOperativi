@@ -12,7 +12,8 @@ pid_t pid_alimentazione, pid_attivatore;
 void signal_handler(int sig) {
   switch(sig) {
     case SIGALRM:
-      shmem_ptr -> message = "timeout";
+      shmem_ptr->message = malloc(strlen("timeout.") + 1); // +1 per il terminatore NULL
+      strcpy(shmem_ptr->message, "timeout.");
       raise(SIGUSR1);
     break;
 
@@ -25,10 +26,6 @@ void signal_handler(int sig) {
         printf("Inibitore is off. You can turn it on whenever you want.\n");
       }*/
      raise(SIGUSR1);
-    break;
-
-    case SIGTERM:
-      raise(SIGUSR1);
     break;
 
     case SIGUSR1:
@@ -83,7 +80,8 @@ int main(int argc, char* argv[]) {
 
   switch(pid_alimentazione = fork()) {
     case -1:
-      shmem_ptr -> message = "meltdown";
+      shmem_ptr->message = malloc(strlen("meltdown.") + 1); // +1 per il terminatore NULL
+      strcpy(shmem_ptr->message, "meltdown.");
       raise(SIGUSR1);
     break;
 
@@ -101,7 +99,8 @@ int main(int argc, char* argv[]) {
       switch(pid_attivatore = fork()) {
 
           case -1:
-            shmem_ptr -> message = "meltdown";
+            shmem_ptr->message = malloc(strlen("meltdown.") + 1); // +1 per il terminatore NULL
+            strcpy(shmem_ptr->message, "meltdown.");
             raise(SIGUSR1);
           break;
 
@@ -133,7 +132,8 @@ int main(int argc, char* argv[]) {
     switch(pid_atoms[i]) {
 
       case -1:
-        shmem_ptr -> message = "meltdown";
+        shmem_ptr->message = malloc(strlen("meltdown.") + 1); // +1 per il terminatore NULL
+        strcpy(shmem_ptr->message, "meltdown.");
         raise(SIGUSR1);
       break;
 
@@ -187,7 +187,8 @@ int main(int argc, char* argv[]) {
     
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
-      shmem_ptr -> message = "explode";
+      shmem_ptr->message = malloc(strlen("explode.") + 1); // +1 per il terminatore NULL
+      strcpy(shmem_ptr->message, "explode.");
       raise(SIGUSR1);
     }
     
@@ -198,7 +199,8 @@ int main(int argc, char* argv[]) {
 
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
-      shmem_ptr -> message = "blackout";
+      shmem_ptr->message = malloc(strlen("blackout.") + 1); // +1 per il terminatore NULL
+      strcpy(shmem_ptr->message, "blackout.");
       raise(SIGUSR1);
     }
 

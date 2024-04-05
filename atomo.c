@@ -47,8 +47,8 @@ int main(int argc, char* argv[]){
 	switch (fork())
 	{
 		case -1:
-			//printf("MELTDOWN\n");
-			shmem_ptr -> message = "meltdown";
+			shmem_ptr->message = malloc(strlen("meltdown.") + 1); // +1 per il terminatore NULL
+        	strcpy(shmem_ptr->message, "meltdown.");
 			kill(shmem_ptr -> pid_master, SIGUSR1);
 		break;
 		
@@ -60,8 +60,10 @@ int main(int argc, char* argv[]){
 		
 		default: // checking parent
 			en_lib = energy(child_atom_num, parent_atom_num);
+			
 			operate_in_sem(PROD_ENERGYSEM, en_lib); // saving relative produced energy in shmem
 			sprintf(division_parent_num, "%d", parent_atom_num);
+
 			char * new_vec_atomo[] = {"./atomo", division_parent_num, argv[2], argv[3], NULL};
 			execve("atomo", new_vec_atomo, NULL);
 			TEST_ERROR;

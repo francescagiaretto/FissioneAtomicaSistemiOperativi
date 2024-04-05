@@ -17,11 +17,6 @@ int main(char* argv[]) {
     shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	  TEST_ERROR;
 
-    if (shmem_ptr -> termination == 1) {
-        int status = 0;
-        waitpid(-1, &status, WIFEXITED(status));
-        kill(shmem_ptr -> pid_master, SIGTERM);
-      }
 
    /* while (inib_on == 1) {
       
