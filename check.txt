@@ -1,5 +1,5 @@
 /**
- * cheched: shmid and semid are okay in each process.
+ * checked: shmid and semid are okay in each process.
  * 
  * 
  * ATTIVATORE:

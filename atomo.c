@@ -21,11 +21,11 @@ int main(int argc, char* argv[]){
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
-	/* if (shmem_ptr -> termination == 1) {
+	if (shmem_ptr -> termination == 1) {
 		int status = 0;
 		waitpid(-1, &status, WIFEXITED(status));
 		kill(shmem_ptr -> pid_master, SIGTERM);
-	} */
+	}
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different
 
@@ -95,7 +95,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			//shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
@@ -109,7 +109,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			//shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib;
+			shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib;
 
 			sem.sem_num = PROD_ENERGYSEM;
 			sem.sem_op = 1;
@@ -123,7 +123,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			//shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
+			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
 			/*int bytes = sprintf(mymessage -> message, "%d,", getpid());
 			mymessage->type = PID_TYPE;
 			msgsnd(msgid, &mymessage, bytes++, 0);
@@ -141,7 +141,7 @@ void operate_in_sem(int sem_working, int en_lib){
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 
-			//shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
+			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
 
 			sem.sem_num = ACTIVATIONSEM;
 			sem.sem_op = 1;
