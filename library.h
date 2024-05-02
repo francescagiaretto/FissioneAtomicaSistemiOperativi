@@ -87,5 +87,6 @@ typedef struct data_buffer {
   char * message; // termination message
   int attiv_signal;
   int simulation_start;
+  int termination;
   pid_t pid_master;
 } data_buffer;

@@ -21,11 +21,11 @@ int main(int argc, char* argv[]){
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
-	/*if (shmem_ptr -> termination == 1) {
+	if (shmem_ptr -> termination == 1) {
 		int status = 0;
 		waitpid(-1, &status, WIFEXITED(status));
-		kill(shmem_ptr -> pid_master, SIGTERM);
-	} */
+		raise(SIGTERM);
+	} 
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different
 
