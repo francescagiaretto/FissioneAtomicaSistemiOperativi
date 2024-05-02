@@ -14,7 +14,6 @@ int main(int argc, char* argv[]) {
 	data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
-
 	struct timespec step_nanosec;
   	step_nanosec.tv_sec = 0;           // seconds   
   	step_nanosec.tv_nsec = STEP_ATTIVATORE;   // nanoseconds

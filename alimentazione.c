@@ -43,11 +43,7 @@ int main(int argc, char * argv[]) {
         break;
 
         case 0:
-          //printf("ALIMENTO NUOVI ATOMI\n");
-          /*sprintf(mymessage -> message, "%d,", getpid());
-          mymessage->type = PID_TYPE;
-          msgsnd(msgid, &mymessage, sizeof(pid_t)+1, 0);
-          TEST_ERROR; */
+          //7 new_atom(msgid, getpid());
 
           execve("./atomo", vec_atomo, NULL);
           TEST_ERROR;

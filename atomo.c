@@ -95,6 +95,8 @@ void operate_in_sem(int sem_working, int en_lib){
 			//CHECK_OPERATION;
 
 			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+			
+			// new_waste(msgid, getpid());
 
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
