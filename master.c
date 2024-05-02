@@ -12,7 +12,7 @@ pid_t pid_alimentazione, pid_attivatore;
 void signal_handler(int sig) {
   switch(sig) {
     case SIGALRM:
-      shmem_ptr -> message = "timeout."; // +1 per il terminatore NULL
+      shmem_ptr -> message = "timeout.";
       raise(SIGUSR1);
     break;
 
@@ -36,7 +36,7 @@ void signal_handler(int sig) {
       msgctl(msgid, IPC_RMID, NULL);
       kill(pid_alimentazione, SIGTERM);
       kill(pid_attivatore, SIGTERM);
-      kill(0, SIGTERM);
+      raise(SIGTERM);
     break;
 
     case SIGCHLD:
