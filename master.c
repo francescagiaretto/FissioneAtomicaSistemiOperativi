@@ -33,6 +33,8 @@ void signal_handler(int sig) {
       shmctl(shmid, IPC_RMID, NULL);
       semctl(semid, 0, IPC_RMID);
       msgctl(msgid, IPC_RMID, NULL);
+      kill(pid_alimentazione, SIGTERM);
+      kill(pid_attivatore, SIGTERM);
       kill(0, SIGTERM);
     break;
 
