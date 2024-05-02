@@ -15,15 +15,15 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 
-#define N_ATOM_INIT 1000
+#define N_ATOM_INIT 0
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 5000
-#define N_NUOVI_ATOMI 600
-#define SIM_DURATION 10
-#define ENERGY_EXPLODE_THRESHOLD 10000000
+#define N_NUOVI_ATOMI 0
+#define SIM_DURATION 0
+#define ENERGY_EXPLODE_THRESHOLD 100000000
 #define MIN_N_ATOMICO 30
-#define STEP_ALIMENTAZIONE  8
+#define STEP_ALIMENTAZIONE 8
 #define SHM_SIZE 500
 #define PID_TYPE 1
 
@@ -71,7 +71,7 @@ typedef struct message {
     char message[128];
 } message_buffer;
 
-message_buffer * mymessage;
+message_buffer mymessage;
 
 typedef struct data_buffer {
   int waste_rel;

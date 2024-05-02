@@ -29,10 +29,10 @@ int main(int argc, char* argv[]) {
 
 
 
-	/*msgrcv(msgid, &mymessage, sizeof(pid_t)+1, PID_TYPE, 0);
+/*	msgrcv(msgid, &mymessage, sizeof(mymessage), PID_TYPE, 0);
 	array_new_atoms[0] = atoi(mymessage->message);
-	printf("%d\n\n", array_new_atoms[0]); */
-
+	printf("%d\n\n", array_new_atoms[0]); 
+ */
 
 
 

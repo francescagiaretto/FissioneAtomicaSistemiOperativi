@@ -38,8 +38,7 @@ int main(int argc, char * argv[]) {
       switch(fork()) {
 
         case -1:
-          shmem_ptr->message = malloc(strlen("meltdown.") + 1); // +1 per il terminatore NULL
-          strcpy(shmem_ptr->message, "meltdown.");
+          shmem_ptr->message = "meltdown.";
           kill(shmem_ptr -> pid_master, SIGUSR1);
         break;
 

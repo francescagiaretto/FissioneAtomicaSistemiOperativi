@@ -47,8 +47,7 @@ int main(int argc, char* argv[]){
 	switch (fork())
 	{
 		case -1:
-			shmem_ptr->message = malloc(strlen("meltdown.") + 1); // +1 per il terminatore NULL
-        	strcpy(shmem_ptr->message, "meltdown.");
+			shmem_ptr->message = "meltdown.";
 			kill(shmem_ptr -> pid_master, SIGUSR1);
 		break;
 		
@@ -124,10 +123,11 @@ void operate_in_sem(int sem_working, int en_lib){
 			//CHECK_OPERATION;
 
 			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
-			/*int bytes = sprintf(mymessage -> message, "%d,", getpid());
+
+			/* int bytes = sprintf(mymessage -> message, "%d,", getpid());
 			mymessage->type = PID_TYPE;
-			msgsnd(msgid, &mymessage, bytes++, 0);
-			TEST_ERROR; */
+			msgsnd(msgid, &mymessage, bytes++, 0); */
+			// TEST_ERROR; 
 
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = 1;
