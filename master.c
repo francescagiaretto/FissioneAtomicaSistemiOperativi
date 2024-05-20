@@ -4,7 +4,7 @@ void set_sem_values();
 void print_stats();
 void stat_total_value();
 
-int shmid, semid, available_en, msgid;
+int shmid, semid, available_en, msgid, inibsem_master;
 data_buffer * shmem_ptr;
 pid_t pid_alimentazione, pid_attivatore, pid_inibitore;
 
@@ -16,21 +16,29 @@ void signal_handler(int sig) {
       shmem_ptr -> message = "timeout.";
     break;
 
-    case SIGUSR1: 
-    //! controlliamo quante risorse sono disponibili sul semaforo inibitore con semctl
-      if(semctl(semid, INIBSEM, GETVAL) == 0) {
-        sem.sem_num = INIBSEM;
-        //! libera la risorsa sul semaforo e quindi fa partire l'inibitore
-        sem.sem_op = 1;
-        semop(semid, &sem, 1);
-        printf("Inibitore ON.\n");
-        
-      } else if (semctl(semid, INIBSEM, GETVAL) == 1) {
-        //! blocca la risorsa e impedisce all'inibitore di continuare
+    case SIGQUIT:
+      if(semctl(semid, INIBSEM, GETVAL) == 0) { //! la risorsa è bloccata
+        if (inibsem_master == 1) { //! inibsem è in mano al master
+          sem.sem_num = INIBSEM;
+          sem.sem_op = 1;
+          semop(semid, &sem, 1);
+          printf("Inibitore ON. Turn off anytime with ctrl + '\' \n");
+          inibsem_master = 0;
+          kill(pid_inibitore, SIGQUIT);
+
+        } else if (inibsem_master == 0) { //! inibsem è in mano all'inibitore
+          kill(pid_inibitore, SIGQUIT); //! viene ordinato all'inibitore di liberare la risorsa
+          sem.sem_num = INIBSEM;
+          sem.sem_op = -1; //! la risorsa viene bloccata dal master
+          semop(semid, &sem, 1);
+          printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
+          inibsem_master = 1;
+        }
+      } else { //! la risorsa è liberata dall'inibitore
         sem.sem_num = INIBSEM;
         sem.sem_op = -1;
         semop(semid, &sem, 1);
-        printf("Inibitore OFF.\n");
+        printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
       }
     break;
 
@@ -50,7 +58,7 @@ int main(int argc, char* argv[]) {
   pid_t * pid_atoms;
   key_t shmkey, semkey, msgkey;
   char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8], id_message[8];
-  shmem_ptr -> termination  = 0;
+  
   srand(getpid());
 
   shmkey = ftok("master.c", 'A');
@@ -60,7 +68,7 @@ int main(int argc, char* argv[]) {
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
-  semid = semget(semkey, 6, IPC_CREAT | 0666);
+  semid = semget(semkey, 7, IPC_CREAT | 0666);
   TEST_ERROR;
 
   msgid = msgget(msgkey, IPC_CREAT | 0666);
@@ -70,6 +78,7 @@ int main(int argc, char* argv[]) {
   TEST_ERROR;
 
   shmem_ptr -> pid_master = getpid();
+  shmem_ptr -> termination  = 0;
 
   set_sem_values();
   sem.sem_flg = 0;
@@ -93,7 +102,6 @@ int main(int argc, char* argv[]) {
       sem.sem_op = 1;
       semop(semid, &sem, 1);
       //CHECK_OPERATION;
-
       execve("./alimentazione", vec_alim, NULL);
       TEST_ERROR;
     break;
@@ -125,9 +133,10 @@ int main(int argc, char* argv[]) {
               shmem_ptr->message = "meltdown.";
               raise(SIGINT);
             break;
+            
             case 0:
-              sem.sem_num = INIBSEM;
-              sem.sem_op = -1;
+              sem.sem_num = WAITSEM;
+              sem.sem_op = 1;
               semop(semid, &sem, 1);
               //CHECK_OPERATION;
               execve("./inibitore", vec_inib, NULL);
@@ -137,7 +146,7 @@ int main(int argc, char* argv[]) {
       }
     break;
   } 
-
+  
   int simulation_start = 1;
   pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
   for(int i = 0; i < N_ATOM_INIT; i++) {
@@ -175,14 +184,19 @@ int main(int argc, char* argv[]) {
 
   struct sigaction sa;
 
-  semctl(semid, INIBSEM, SETVAL, 0);
-
   bzero(&sa, sizeof(&sa)); // emptying struct to send to child
   sa.sa_handler = &signal_handler;
   sigaction(SIGALRM, &sa, NULL);
   sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGQUIT, &sa, NULL);
+  sigaction(SIGCHLD, &sa, NULL);
 
   free(pid_atoms);
+
+  sem.sem_num = INIBSEM;
+  sem.sem_op = -1;
+  semop(semid, &sem, 1);
+  inibsem_master = 1;
 
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 3);
@@ -193,7 +207,7 @@ int main(int argc, char* argv[]) {
   printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
   scanf("%s", &risposta);
   if (tolower(risposta) == 'y') {
-    raise(SIGUSR1);
+    raise(SIGQUIT);
   }
 
   //printf("PRE SIMULAZIONE\n");
@@ -270,6 +284,9 @@ void set_sem_values(){
   // handles activations
   semctl(semid, ACTIVATIONSEM, SETVAL, 1);
   TEST_ERROR;
+
+  // handles inibitore
+  semctl(semid, INIBSEM, SETVAL, 1);
 }
 
 

@@ -1,7 +1,27 @@
 #include "library.h"
 
-int semid, shmid, msgid;
+int semid, shmid, msgid, inibsem_master;
 data_buffer * shmem_ptr;
+
+void signal_handler(int sig){
+  switch (sig) {
+    case SIGQUIT:
+      if(semctl(semid, INIBSEM, GETVAL) == 1) { //! risorsa libera, va bloccata
+        sem.sem_num = INIBSEM;
+        sem.sem_op = -1;
+        semop(semid, &sem, 1);
+        printf("Inibitore ON. Turn off anytime with ctrl + '\' \n");
+      } else if (semctl(semid, INIBSEM, GETVAL) == 0) { //! risorsa bloccata, va liberata
+        sem.sem_num = INIBSEM;
+        sem.sem_op = 1;
+        semop(semid, &sem, 1);
+        printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
+        kill(shmem_ptr -> pid_master, SIGQUIT);
+      }
+    break;
+
+  }
+}
 
 int main(char* argv[]) {
 
@@ -18,21 +38,26 @@ int main(char* argv[]) {
     shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	  TEST_ERROR;
 
+    struct sigaction sa;
+
+    bzero(&sa, sizeof(&sa)); 
+    sa.sa_handler = &signal_handler;
+    sigaction(SIGQUIT, &sa, NULL);
+
     sem.sem_num = STARTSEM;
     sem.sem_op = -1;
     semop(semid, &sem, 1);
+    
+    sem.sem_num = INIBSEM;
+    sem.sem_op = -1;
+    semop(semid, &sem, 1);
+  
 
-   /* while (shmem_ptr -> termination == 0) {
+    while (shmem_ptr -> termination == 0) {
       //! assorbe un quinto dell'energia totale
-      if(semctl(semid, INIBSEM, GETVAL) == 0) {
-        sem.sem_num = INIBSEM;
-        sem.sem_op = -1;
-        semop(semid, &sem, 1);
-      } else {
-        shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - (shmem_ptr -> prod_en_tot / 5);
-        printf("Ti fotto l'energia\n");
-      }*/
-    //}
+      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - (shmem_ptr -> prod_en_tot / 5);
+      printf("Ti fotto l'energia\n");
+    }
 
    /* 
       // limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
