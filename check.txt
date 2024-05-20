@@ -13,3 +13,45 @@ s
 
  2. 
 */
+
+
+MASTER
+
+if(semctl(semid, INIBSEM, GETVAL) == -1) { //! la risorsa è bloccata
+        if (inibsem_master == 1) { //! inibsem è in mano al master
+          sem.sem_num = INIBSEM;
+          sem.sem_op = 1;
+          semop(semid, &sem, 1);
+          printf("Inibitore ON. Turn off anytime with ctrl + '\' \n");
+          inibsem_master = 0;
+          kill(pid_inibitore, SIGQUIT);
+
+        } else if (inibsem_master == 0) { //! inibsem è in mano all'inibitore
+          kill(pid_inibitore, SIGQUIT); //! viene ordinato all'inibitore di liberare la risorsa
+          printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
+          inibsem_master = 1;
+        }
+      } else { //! la risorsa è accessibile all'inibitore
+        kill(pid_inibitore, SIGQUIT);
+        inibsem_master = 0;
+        printf("Inibitore ON. Turn off anytime with ctrl + '\' \n");
+      }
+
+
+
+//! INIBSEM_MASTER 
+INIB
+
+
+if(semctl(semid, INIBSEM, GETVAL) == 0) { //! risorsa libera, va bloccata
+        sem.sem_num = INIBSEM;
+        sem.sem_op = -1;
+        semop(semid, &sem, 1);
+        printf("Inibitore ON. Turn off anytime with ctrl + '\' \n");
+      } else if (semctl(semid, INIBSEM, GETVAL) == -1) { //! risorsa bloccata, va liberata
+        sem.sem_num = INIBSEM;
+        sem.sem_op = 1;
+        semop(semid, &sem, 1);
+        printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
+        kill(shmem_ptr -> pid_master, SIGQUIT);
+      }

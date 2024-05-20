@@ -1,29 +1,23 @@
 #include "library.h"
 
-int semid, shmid, msgid, inibsem_master;
+int semid, shmid, msgid;
 data_buffer * shmem_ptr;
 
 void signal_handler(int sig){
   switch (sig) {
-    case SIGQUIT:
-      if(semctl(semid, INIBSEM, GETVAL) == 1) { //! risorsa libera, va bloccata
+    case SIGTSTP:
+      if (shmem_ptr -> inib_on != 0) {
         sem.sem_num = INIBSEM;
         sem.sem_op = -1;
         semop(semid, &sem, 1);
-        printf("Inibitore ON. Turn off anytime with ctrl + '\' \n");
-      } else if (semctl(semid, INIBSEM, GETVAL) == 0) { //! risorsa bloccata, va liberata
-        sem.sem_num = INIBSEM;
-        sem.sem_op = 1;
-        semop(semid, &sem, 1);
+        shmem_ptr -> inib_on = 0;
         printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
-        kill(shmem_ptr -> pid_master, SIGQUIT);
       }
     break;
-
   }
 }
 
-int main(char* argv[]) {
+int main(int argc, char* argv[]) {
 
     // bisogna poter decidere a runtime se si vuole che l'inibitore sia attivo o meno 
       // (l'utente deve poter fermare e far ripartire il processo inibitore più volte da terminale)
@@ -42,19 +36,21 @@ int main(char* argv[]) {
 
     bzero(&sa, sizeof(&sa)); 
     sa.sa_handler = &signal_handler;
-    sigaction(SIGQUIT, &sa, NULL);
+    sigaction(SIGTSTP, &sa, NULL);
 
     sem.sem_num = STARTSEM;
     sem.sem_op = -1;
     semop(semid, &sem, 1);
-    
+
+    shmem_ptr -> inib_on = 0;
+    //! potrebbe dare problemi
     sem.sem_num = INIBSEM;
     sem.sem_op = -1;
     semop(semid, &sem, 1);
-  
 
     while (shmem_ptr -> termination == 0) {
       //! assorbe un quinto dell'energia totale
+      sleep(0.0001);
       shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - (shmem_ptr -> prod_en_tot / 5);
       printf("Ti fotto l'energia\n");
     }

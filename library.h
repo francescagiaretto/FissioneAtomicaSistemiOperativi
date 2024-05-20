@@ -21,7 +21,7 @@
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 90000000
 #define N_NUOVI_ATOMI 10
-#define SIM_DURATION 10
+#define SIM_DURATION 5
 #define ENERGY_EXPLODE_THRESHOLD 100000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE 8
@@ -88,6 +88,7 @@ typedef struct data_buffer {
   char * message; // termination message
   int attiv_signal;
   int simulation_start;
+  int inib_on;
   int termination;
   pid_t pid_master;
 } data_buffer;

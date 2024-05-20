@@ -4,10 +4,9 @@ void set_sem_values();
 void print_stats();
 void stat_total_value();
 
-int shmid, semid, available_en, msgid, inibsem_master;
+int shmid, semid, available_en, msgid;
 data_buffer * shmem_ptr;
 pid_t pid_alimentazione, pid_attivatore, pid_inibitore;
-
 
 void signal_handler(int sig) {
   switch(sig) {
@@ -16,29 +15,18 @@ void signal_handler(int sig) {
       shmem_ptr -> message = "timeout.";
     break;
 
-    case SIGQUIT:
-      if(semctl(semid, INIBSEM, GETVAL) == 0) { //! la risorsa è bloccata
-        if (inibsem_master == 1) { //! inibsem è in mano al master
-          sem.sem_num = INIBSEM;
-          sem.sem_op = 1;
-          semop(semid, &sem, 1);
-          printf("Inibitore ON. Turn off anytime with ctrl + '\' \n");
-          inibsem_master = 0;
-          kill(pid_inibitore, SIGQUIT);
-
-        } else if (inibsem_master == 0) { //! inibsem è in mano all'inibitore
-          kill(pid_inibitore, SIGQUIT); //! viene ordinato all'inibitore di liberare la risorsa
-          sem.sem_num = INIBSEM;
-          sem.sem_op = -1; //! la risorsa viene bloccata dal master
-          semop(semid, &sem, 1);
-          printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
-          inibsem_master = 1;
-        }
-      } else { //! la risorsa è liberata dall'inibitore
+    case SIGTSTP:
+      if (shmem_ptr -> inib_on != 0) {
+        kill(pid_inibitore, SIGTSTP);
+        shmem_ptr -> inib_on = 0;
+      } else {
+        // se rispondi y -> semctl(semid, INIBSEM, GETVAL) == -1 oppure se si vuole attivare l'inibitore
+        write(0, "SIGTSTP ARRIVATO\n", 17);
         sem.sem_num = INIBSEM;
-        sem.sem_op = -1;
+        sem.sem_op = 1;
         semop(semid, &sem, 1);
-        printf("Inibitore OFF. Turn on anytime with ctrl + '\' \n");
+        shmem_ptr -> inib_on = 1;
+        write(0, "Inibitore ON. Turn off anytime with ctrl + '\' \n", 45);
       }
     break;
 
@@ -89,6 +77,11 @@ int main(int argc, char* argv[]) {
   char * vec_alim[] = {"./alimentazione", id_shmat, id_sem, id_message, NULL};
   char * vec_attiv[] = {"./attivatore", id_sem, id_shmat, id_message, NULL};
   char * vec_inib[] = {"inibitore", id_sem, id_shmat, id_message, NULL};
+
+  fflush(stdout);
+  char risposta;
+  printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
+  scanf("%s", &risposta);
 
   pid_alimentazione = fork();
   switch(pid_alimentazione) {
@@ -188,27 +181,15 @@ int main(int argc, char* argv[]) {
   sa.sa_handler = &signal_handler;
   sigaction(SIGALRM, &sa, NULL);
   sigaction(SIGINT, &sa, NULL);
-  sigaction(SIGQUIT, &sa, NULL);
+  sigaction(SIGTSTP, &sa, NULL);
   sigaction(SIGCHLD, &sa, NULL);
 
   free(pid_atoms);
-
-  sem.sem_num = INIBSEM;
-  sem.sem_op = -1;
-  semop(semid, &sem, 1);
-  inibsem_master = 1;
 
   sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 3);
   semop(semid, &sem, 1);
   //CHECK_OPERATION;
-
-  char risposta;
-  printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
-  scanf("%s", &risposta);
-  if (tolower(risposta) == 'y') {
-    raise(SIGQUIT);
-  }
 
   //printf("PRE SIMULAZIONE\n");
   alarm(SIM_DURATION);
@@ -217,15 +198,16 @@ int main(int argc, char* argv[]) {
   sem.sem_op = N_ATOM_INIT +3;
   semop(semid, &sem, 1);
 
+  if (tolower(risposta) == 'y') {
+    raise(SIGTSTP);
+  }
+
   shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
 
   //CHECK_OPERATION;
   printf("COMINCIO SIMULAZIONE:\n\n");
 
-  
-  //printf("HO COMINCIATO LA SIMULAZIONE\n");
-
-  while(shmem_ptr -> termination  != 1) {
+  while(shmem_ptr -> termination != 1) {
     sleep(1);
     
     // checking explode condition
@@ -244,7 +226,6 @@ int main(int argc, char* argv[]) {
       shmem_ptr->message = "blackout.";
       raise(SIGINT);
     }
-
   }
 
   printf("Simulation terminated due to %s\n", shmem_ptr -> message);
@@ -255,7 +236,7 @@ int main(int argc, char* argv[]) {
   msgctl(msgid, IPC_RMID, NULL);
   kill(pid_alimentazione, SIGTERM);
   kill(pid_attivatore, SIGTERM);
-  kill(pid_inibitore, SIGTERM);
+  kill(pid_inibitore, SIGTERM); 
   killpg(getpgid(getpid()), SIGTERM);
 }
 
@@ -286,7 +267,7 @@ void set_sem_values(){
   TEST_ERROR;
 
   // handles inibitore
-  semctl(semid, INIBSEM, SETVAL, 1);
+  semctl(semid, INIBSEM, SETVAL, 0);
 }
 
 
