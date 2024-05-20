@@ -28,7 +28,7 @@ int main(int argc, char * argv[]) {
   //CHECK_OPERATION;
 
   while(1) {
-
+    sleep(1);
     nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
 
     for(int i = 0; i < N_NUOVI_ATOMI; i++){
@@ -40,12 +40,10 @@ int main(int argc, char * argv[]) {
 
         case -1:
           shmem_ptr->message = "meltdown.";
-          kill(shmem_ptr -> pid_master, SIGUSR1);
+          kill(shmem_ptr -> pid_master, SIGINT);
         break;
 
         case 0:
-          // new_atom(msgid, getpid());
-
           execve("./atomo", vec_atomo, NULL);
           TEST_ERROR;
         break;

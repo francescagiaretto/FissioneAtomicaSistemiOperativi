@@ -14,13 +14,14 @@
 #include <sys/msg.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <ctype.h>
 
 #define N_ATOM_INIT 10
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 90000000
 #define N_NUOVI_ATOMI 10
-#define SIM_DURATION 20
+#define SIM_DURATION 10
 #define ENERGY_EXPLODE_THRESHOLD 100000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE 8
@@ -34,6 +35,7 @@
 #define PROD_ENERGYSEM 3
 #define DIVISIONSEM 4
 #define ACTIVATIONSEM 5
+#define INIBSEM 6
 
 
 #define TEST_ERROR   if (errno) {fprintf(stderr, \

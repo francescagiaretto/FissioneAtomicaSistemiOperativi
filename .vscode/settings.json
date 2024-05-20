@@ -11,7 +11,12 @@
         "wait.h": "c",
         "signal.h": "c",
         "time.h": "c",
-        "msg.h": "c"
+        "msg.h": "c",
+        "ctype.h": "c",
+        "deque": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "initializer_list": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

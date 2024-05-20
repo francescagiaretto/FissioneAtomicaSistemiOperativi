@@ -4,32 +4,38 @@ void set_sem_values();
 void print_stats();
 void stat_total_value();
 
-int shmid, semid, inib_on, available_en, msgid;
+int shmid, semid, available_en, msgid;
 data_buffer * shmem_ptr;
-pid_t pid_alimentazione, pid_attivatore;
-int end;
+pid_t pid_alimentazione, pid_attivatore, pid_inibitore;
 
 
 void signal_handler(int sig) {
   switch(sig) {
     case SIGALRM:
-      end = 1;
+      shmem_ptr -> termination = 1;
       shmem_ptr -> message = "timeout.";
     break;
 
-    /* case SIGINT: 
-      if(inib_on == 0) {
-        inib_on = 1;
-        printf("Inibitore is on. You can turn it off whenever you want.\n");
-      } else if (inib_on == 1) {
-        inib_on = 0;
-        printf("Inibitore is off. You can turn it on whenever you want.\n");
+    case SIGUSR1: 
+    //! controlliamo quante risorse sono disponibili sul semaforo inibitore con semctl
+      if(semctl(semid, INIBSEM, GETVAL) == 0) {
+        sem.sem_num = INIBSEM;
+        //! libera la risorsa sul semaforo e quindi fa partire l'inibitore
+        sem.sem_op = 1;
+        semop(semid, &sem, 1);
+        printf("Inibitore ON.\n");
+        
+      } else if (semctl(semid, INIBSEM, GETVAL) == 1) {
+        //! blocca la risorsa e impedisce all'inibitore di continuare
+        sem.sem_num = INIBSEM;
+        sem.sem_op = -1;
+        semop(semid, &sem, 1);
+        printf("Inibitore OFF.\n");
       }
-     raise(SIGUSR1);
-    break; */
+    break;
 
-    case SIGUSR1:
-      end = 1;
+    case SIGINT:
+      shmem_ptr -> termination  = 1;
     break;
 
     case SIGCHLD:
@@ -44,7 +50,7 @@ int main(int argc, char* argv[]) {
   pid_t * pid_atoms;
   key_t shmkey, semkey, msgkey;
   char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8], id_message[8];
-  end = 0;
+  shmem_ptr -> termination  = 0;
   srand(getpid());
 
   shmkey = ftok("master.c", 'A');
@@ -73,13 +79,13 @@ int main(int argc, char* argv[]) {
   sprintf(id_message, "%d", msgid);
   char * vec_alim[] = {"./alimentazione", id_shmat, id_sem, id_message, NULL};
   char * vec_attiv[] = {"./attivatore", id_sem, id_shmat, id_message, NULL};
+  char * vec_inib[] = {"inibitore", id_sem, id_shmat, id_message, NULL};
 
   pid_alimentazione = fork();
-  printf("pid: %d\n", pid_alimentazione);
   switch(pid_alimentazione) {
     case -1:
       shmem_ptr->message = "meltdown.";
-      raise(SIGUSR1);
+      raise(SIGINT);
     break;
 
     case 0:
@@ -95,25 +101,44 @@ int main(int argc, char* argv[]) {
     default: // parent process
       switch(pid_attivatore = fork()) {
 
-          case -1:
-            shmem_ptr->message = "meltdown.";
-            raise(SIGUSR1);
-          break;
-
-          case 0:
-            sem.sem_num = WAITSEM;
-            sem.sem_op = 1;
-            semop(semid, &sem, 1);
-            //CHECK_OPERATION;
-
-            execve("./attivatore", vec_attiv, NULL);
-            TEST_ERROR;
-          break;
+        case -1:
+          shmem_ptr->message = "meltdown.";
+          raise(SIGINT);
+        break;
+        case 0:
+          sem.sem_num = WAITSEM;
+          sem.sem_op = 1;
+          semop(semid, &sem, 1);
+          //CHECK_OPERATION;
+          execve("./attivatore", vec_attiv, NULL);
+          TEST_ERROR;
+        break;
+        default:
+        //! attivazione inibitore
+        /*
+        l'inibitore deve rimanere attivo per non perdere tempo a disallocare e riallocare le risorse a ogni attivazione,
+        quindi impostiamo un semaforo dedicato INIBSEM che occupa la risorsa mentre l'inibitore non è attivo e la libera
+        quando ne viene richiesta l'attivazione (così evitiamo busy waiting e cicli infiniti in attesa di attivazione)
+        */
+          switch(pid_inibitore = fork()) {
+            case -1:
+              shmem_ptr->message = "meltdown.";
+              raise(SIGINT);
+            break;
+            case 0:
+              sem.sem_num = INIBSEM;
+              sem.sem_op = -1;
+              semop(semid, &sem, 1);
+              //CHECK_OPERATION;
+              execve("./inibitore", vec_inib, NULL);
+              TEST_ERROR;
+            break;
+          }
       }
     break;
   } 
 
-  shmem_ptr -> simulation_start = 1;
+  int simulation_start = 1;
   pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
   for(int i = 0; i < N_ATOM_INIT; i++) {
 
@@ -129,7 +154,7 @@ int main(int argc, char* argv[]) {
 
       case -1:
         shmem_ptr->message = "meltdown.";
-        raise(SIGUSR1);
+        raise(SIGINT);
       break;
 
       case 0: 
@@ -150,40 +175,49 @@ int main(int argc, char* argv[]) {
 
   struct sigaction sa;
 
+  semctl(semid, INIBSEM, SETVAL, 0);
+
   bzero(&sa, sizeof(&sa)); // emptying struct to send to child
   sa.sa_handler = &signal_handler;
   sigaction(SIGALRM, &sa, NULL);
-  sigaction(SIGUSR1, &sa, NULL);
+  sigaction(SIGINT, &sa, NULL);
 
   free(pid_atoms);
 
   sem.sem_num = WAITSEM;
-	sem.sem_op = -(N_ATOM_INIT + 2);
+	sem.sem_op = -(N_ATOM_INIT + 3);
   semop(semid, &sem, 1);
   //CHECK_OPERATION;
+
+  char risposta;
+  printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
+  scanf("%s", &risposta);
+  if (tolower(risposta) == 'y') {
+    raise(SIGUSR1);
+  }
 
   //printf("PRE SIMULAZIONE\n");
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
-  sem.sem_op = N_ATOM_INIT +2;
+  sem.sem_op = N_ATOM_INIT +3;
   semop(semid, &sem, 1);
 
   shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
+
   //CHECK_OPERATION;
   printf("COMINCIO SIMULAZIONE:\n\n");
 
   
   //printf("HO COMINCIATO LA SIMULAZIONE\n");
 
-  // ?? condizione for va bene? 
-  while(end != 1) {
+  while(shmem_ptr -> termination  != 1) {
     sleep(1);
     
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
-      shmem_ptr->message = "explode.";
-      raise(SIGUSR1);
+      shmem_ptr -> message = "explode.";
+      raise(SIGINT);
     }
     
     stat_total_value();
@@ -194,36 +228,20 @@ int main(int argc, char* argv[]) {
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
       shmem_ptr->message = "blackout.";
-      raise(SIGUSR1);
+      raise(SIGINT);
     }
-
-    /*
-      if (inib_on == 0) {
-        printf("Vuoi attivare l'inibitore?\n");
-        if (risposta == y || risposta == Y || risposta == enter) {
-          raise(SIGUSR2);
-          char * vec_inib[] = {"inibitore", inib_on, NULL};
-          execve("./inibitore", vec_inib, NULL);
-        }
-      }
-      else if (inib_on == 1) {
-        printf("Vuoi disattivare l'inibitore?\n");
-        if (risposta == y || risposta == Y || risposta == enter) {
-          raise(SIGUSR2);
-        }
-      }
-    */
 
   }
 
   printf("Simulation terminated due to %s\n", shmem_ptr -> message);
-  //shmem_ptr -> termination == 1;
+  shmem_ptr -> termination == 1;
   shmdt(shmem_ptr);
   shmctl(shmid, IPC_RMID, NULL);
   semctl(semid, 0, IPC_RMID);
   msgctl(msgid, IPC_RMID, NULL);
   kill(pid_alimentazione, SIGTERM);
   kill(pid_attivatore, SIGTERM);
+  kill(pid_inibitore, SIGTERM);
   killpg(getpgid(getpid()), SIGTERM);
 }
 

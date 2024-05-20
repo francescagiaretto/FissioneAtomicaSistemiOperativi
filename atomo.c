@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
 	{
 		case -1:
 			shmem_ptr->message = "meltdown.";
-			kill(shmem_ptr -> pid_master, SIGUSR1);
+			kill(shmem_ptr -> pid_master, SIGINT);
 		break;
 		
 		case 0: // checking child
@@ -88,8 +88,6 @@ void operate_in_sem(int sem_working, int en_lib){
 			//CHECK_OPERATION;
 
 			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
-			
-			// new_waste(msgid, getpid());
 
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
