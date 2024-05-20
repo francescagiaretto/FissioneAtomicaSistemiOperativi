@@ -7,38 +7,29 @@ void stat_total_value();
 int shmid, semid, inib_on, available_en, msgid;
 data_buffer * shmem_ptr;
 pid_t pid_alimentazione, pid_attivatore;
+int end;
 
 
 void signal_handler(int sig) {
   switch(sig) {
     case SIGALRM:
+      end = 1;
       shmem_ptr -> message = "timeout.";
-      raise(SIGUSR1);
     break;
 
-    case SIGINT: /*
+    /* case SIGINT: 
       if(inib_on == 0) {
         inib_on = 1;
         printf("Inibitore is on. You can turn it off whenever you want.\n");
       } else if (inib_on == 1) {
         inib_on = 0;
         printf("Inibitore is off. You can turn it on whenever you want.\n");
-      }*/
+      }
      raise(SIGUSR1);
-    break;
+    break; */
 
     case SIGUSR1:
-      printf("Simulation terminated due to %s\n", shmem_ptr -> message);
-      shmem_ptr -> termination == 1;
-      shmdt(shmem_ptr);
-      shmctl(shmid, IPC_RMID, NULL);
-      semctl(semid, 0, IPC_RMID);
-      msgctl(msgid, IPC_RMID, NULL);
-      kill(pid_alimentazione, SIGTERM);
-      TEST_ERROR;
-      kill(pid_attivatore, SIGTERM);
-      TEST_ERROR;
-      raise(SIGTERM);
+      end = 1;
     break;
 
     case SIGCHLD:
@@ -53,6 +44,7 @@ int main(int argc, char* argv[]) {
   pid_t * pid_atoms;
   key_t shmkey, semkey, msgkey;
   char n_atom[8], id_shmat[8], pointer_shmem[8], id_sem[8], id_message[8];
+  end = 0;
   srand(getpid());
 
   shmkey = ftok("master.c", 'A');
@@ -82,7 +74,9 @@ int main(int argc, char* argv[]) {
   char * vec_alim[] = {"./alimentazione", id_shmat, id_sem, id_message, NULL};
   char * vec_attiv[] = {"./attivatore", id_sem, id_shmat, id_message, NULL};
 
-  switch(pid_alimentazione = fork()) {
+  pid_alimentazione = fork();
+  printf("pid: %d\n", pid_alimentazione);
+  switch(pid_alimentazione) {
     case -1:
       shmem_ptr->message = "meltdown.";
       raise(SIGUSR1);
@@ -183,7 +177,7 @@ int main(int argc, char* argv[]) {
   //printf("HO COMINCIATO LA SIMULAZIONE\n");
 
   // ?? condizione for va bene? 
-  while(1) {
+  while(end != 1) {
     sleep(1);
     
     // checking explode condition
@@ -221,6 +215,16 @@ int main(int argc, char* argv[]) {
     */
 
   }
+
+  printf("Simulation terminated due to %s\n", shmem_ptr -> message);
+  //shmem_ptr -> termination == 1;
+  shmdt(shmem_ptr);
+  shmctl(shmid, IPC_RMID, NULL);
+  semctl(semid, 0, IPC_RMID);
+  msgctl(msgid, IPC_RMID, NULL);
+  kill(pid_alimentazione, SIGTERM);
+  kill(pid_attivatore, SIGTERM);
+  killpg(getpgid(getpid()), SIGTERM);
 }
 
 void set_sem_values(){
