@@ -9,7 +9,6 @@ data_buffer * shmem_ptr;
 
 int main(int argc, char* argv[]){
 
-
 	int child_atom_num, en_lib, parent_atom_num;
 	char division_atom_num[3], division_parent_num[4];
 
@@ -25,13 +24,15 @@ int main(int argc, char* argv[]){
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
 
+	new_atom(msgid, getpid());
+
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 		operate_in_sem(WASTESEM, 0);
+		new_waste(msgid, getpid());
 		raise(SIGTERM);
 	}
 	
 	generate_n_atom(&parent_atom_num, &child_atom_num);
-
 
 	sprintf(division_atom_num, "%d", child_atom_num);
 	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], argv[3], NULL};

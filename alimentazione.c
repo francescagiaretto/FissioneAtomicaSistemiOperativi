@@ -27,9 +27,9 @@ int main(int argc, char * argv[]) {
   semop(semid, &sem, 1);
   //CHECK_OPERATION;
 
-  while(1) {
+  while(shmem_ptr -> termination != 1) {
     sleep(1);
-    nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
+    //nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
 
     for(int i = 0; i < N_NUOVI_ATOMI; i++){
       atomic_num = rand() % N_ATOM_MAX + 1;
@@ -44,6 +44,7 @@ int main(int argc, char * argv[]) {
         break;
 
         case 0:
+          new_atom(msgid, getpid());
           execve("./atomo", vec_atomo, NULL);
           TEST_ERROR;
         break;

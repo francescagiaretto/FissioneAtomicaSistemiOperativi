@@ -5,22 +5,24 @@ data_buffer * shmem_ptr;
 
 void signal_handler(int sig){
   switch (sig) {
-    case  SIGINT:
+    case SIGQUIT:
       if (shmem_ptr -> inib_on != 0) {
         write(0, "Inibitore OFF. Turn off anytime with ctrl + backslash \n", 55);
-        /* sem.sem_num = ONSEM;
+        sem.sem_num = ONSEM;
         sem.sem_op = -1;
-        semop(semid, &sem, 1); */
+        semop(semid, &sem, 1); 
 
         shmem_ptr -> inib_on = 0;
 
-        /* sem.sem_num = ONSEM;
+        sem.sem_num = ONSEM;
         sem.sem_op = 1;
-        semop(semid, &sem, 1); */
-        //printf("inib_on inibitore = %d\n", shmem_ptr -> inib_on);
+        semop(semid, &sem, 1);
+
         sem.sem_num = INIBSEM;
         sem.sem_op = -1;
         semop(semid, &sem, 1);
+      } else if (shmem_ptr -> inib_on == 0) {
+        kill(shmem_ptr -> pid_master, SIGUSR1);
       }
     break;
   }
@@ -46,15 +48,13 @@ int main(int argc, char* argv[]) {
     bzero(&sa, sizeof(sa)); 
     sa.sa_handler = &signal_handler;
     sa.sa_flags = SA_RESTART;
-    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
 
     shmem_ptr -> inib_on = 0;
 
-    printf("%d in inibitore subito prima\n", semctl(semid, INIBSEM, GETVAL));
     sem.sem_num = INIBSEM;
     sem.sem_op = -1;
     semop(semid, &sem, 1);
-    printf("%d in inibitore subito dopo\n", semctl(semid, INIBSEM, GETVAL));
 
     sem.sem_num = STARTSEM;
     sem.sem_op = -1;
@@ -63,7 +63,8 @@ int main(int argc, char* argv[]) {
     while (shmem_ptr -> termination == 0) {
       //! assorbe un quinto dell'energia totale
       sleep(1);
-      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - (shmem_ptr -> prod_en_tot / 5);
+      shmem_ptr -> absorbed_en_rel = (shmem_ptr -> prod_en_tot)/5;
+      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
       //printf("%d è inib_on da attivo, ", shmem_ptr -> inib_on);
       //printf("Ti fotto l'energia\n");
     }

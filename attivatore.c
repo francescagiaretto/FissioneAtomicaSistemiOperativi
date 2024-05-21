@@ -3,12 +3,11 @@
 int semid, shmid, msgid;
 
 int main(int argc, char* argv[]) {
-	pid_t new_pid; int n_new_pid = 0;
+	pid_t new_pid, n_new_pid = 0;
 	semid = atoi(argv[1]);
 	shmid = atoi(argv[2]);
 	msgid = atoi(argv[3]);
 
-	message_buffer * mymessage; 
 	int * array_new_atoms = malloc(N_ATOM_INIT*sizeof(pid_t));
 
 	data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
@@ -21,28 +20,15 @@ int main(int argc, char* argv[]) {
 	sem.sem_num = STARTSEM;
  	sem.sem_op = -1;
   	semop(semid, &sem, 1);
-	TEST_ERROR;
 
-	//printf("ATTIVATORE: %d, shmid: %d, semid: %d\n\n", getpid(), shmid, semid);
+	while(shmem_ptr -> termination != 1) {
+		/*nanosleep(&step_nanosec, NULL);
+		new_pid = atom_update(msgid, array_new_atoms);
+		printf("%d\n", new_pid);*/
+	}
+}
 
-
-
-/*	msgrcv(msgid, &mymessage, sizeof(mymessage), PID_TYPE, 0);
-	array_new_atoms[0] = atoi(mymessage->message);
-	printf("%d\n\n", array_new_atoms[0]); 
- */
-
-
-
-
-	while(1);
-
-	//! bisogna decidere il criterio per cui si continua ad attivare (es. numero max di atomi)
-
-	/*
-	Ciclo STEP_ATTIVATORE volte e ogni volta controllo se posso continuare ad attivare sennò stop
-
-	for ( ; 1 ;) {
+	/* for ( ; 1 ;) {
 		for(int i = 0; i < sizeof(pid_atoms[]); i++) {
 			kill(pid_atoms[i], SIGINT);
 		} 
@@ -55,7 +41,7 @@ int main(int argc, char* argv[]) {
 
 	int n_atoms = rand() % (pid_atoms + 1);
 
-	/* altra implementazione
+	altra implementazione
 
 	int n_atoms = rand() % (pid_atoms + 1);
 	for(int i = 0; i < n_atoms; i++) {
@@ -63,10 +49,5 @@ int main(int argc, char* argv[]) {
 		invia comando di scissione a pid_atoms[chosen] con msgsnd() di tipo scissione;
 	} 
 	nanosleep(&step_nanosec, NULL);
-
-	*/
-
-	// printf("\n\n\nTEST ATTIVATORE\n\n\n");
-
-	// semaforo che controlla n atomi da decidere (possono lavorare 3 atomi insieme)
 }
+*/

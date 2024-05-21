@@ -15,39 +15,41 @@ void signal_handler(int sig) {
       shmem_ptr -> message = "timeout.";
     break;
 
-    case SIGQUIT:
+    //! dà problemi quando si accende l'inibitore a inizio simulazione, lo si spegne, alla seconda riaccensione dà on off
+    case SIGUSR1:
       if (shmem_ptr -> inib_on == 1) {
         //printf("inib_on master tre= %d\n", shmem_ptr -> inib_on);
-        kill(pid_inibitore, SIGINT); 
+        kill(pid_inibitore, SIGQUIT); 
         TEST_ERROR;
       } else if(shmem_ptr -> inib_on == 0){
         // se rispondi y -> semctl(semid, INIBSEM, GETVAL) == -1 oppure se si vuole attivare l'inibitore
         // write(0, "SIGQUIT ARRIVATO\n", 17);
         write(0, "Inibitore ON. Turn off anytime with ctrl + backslash \n", 55);
         //printf("inib_on master= %d\n", shmem_ptr -> inib_on);
-        /* sem.sem_num = ONSEM;
+        sem.sem_num = ONSEM;
         sem.sem_op = -1;
-        semop(semid, &sem, 1); */
+        semop(semid, &sem, 1);
 
         shmem_ptr -> inib_on = 1;
 
-        /* sem.sem_num = ONSEM;
+        sem.sem_num = ONSEM;
         sem.sem_op = 1;
-        semop(semid, &sem, 1); */
-        printf("inib_on master cambiato= %d\n", shmem_ptr -> inib_on);
+        semop(semid, &sem, 1); 
+        
         sem.sem_num = INIBSEM;
         sem.sem_op = 1;
-        semop(semid, &sem, 1);
-        printf("%d in master\n", semctl(semid, INIBSEM, GETVAL));
-      }
+        semop(semid, &sem, 1); 
+    }
+      
     break;
 
     case SIGINT:
       shmem_ptr -> termination  = 1;
+      shmem_ptr -> message = "timeout.";
     break;
 
-    case SIGCHLD:
-      shmem_ptr -> attiv_signal = 0;
+    case SIGQUIT:
+     
     break;
   }
 }
@@ -83,7 +85,7 @@ int main(int argc, char* argv[]) {
   set_sem_values();
   sem.sem_flg = 0;
 
-  printf("%d in master all'inizio\n", semctl(semid, INIBSEM, GETVAL));
+  //printf("%d in master all'inizio\n", semctl(semid, INIBSEM, GETVAL));
 
   sprintf(id_shmat, "%d", shmid);
   sprintf(id_sem, "%d", semid);
@@ -194,11 +196,10 @@ int main(int argc, char* argv[]) {
 
   bzero(&sa, sizeof(sa)); // emptying struct to send to child
   sa.sa_handler = &signal_handler;
-  sa.sa_flags = SA_RESTART;
   sigaction(SIGALRM, &sa, NULL);
   sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGUSR1, &sa, NULL);
   sigaction(SIGQUIT, &sa, NULL);
-  sigaction(SIGCHLD, &sa, NULL);
 
   free(pid_atoms);
 
@@ -207,7 +208,6 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
   //CHECK_OPERATION;
 
-  //printf("PRE SIMULAZIONE\n");
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
@@ -215,13 +215,10 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
 
   if (tolower(risposta) == 'y') {
-    raise(SIGQUIT);
+    raise(SIGUSR1);
   }
 
   shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
-
-  //CHECK_OPERATION;
-  printf("COMINCIO SIMULAZIONE:\n\n");
 
   while(shmem_ptr -> termination != 1) {
     sleep(1);
@@ -301,11 +298,13 @@ void print_stats() {
   }
   printf("\n");
 
-  char *col1[11] = {"Last second activations:","Total activations:","Last second divisions:","Total divisions:",
+  char *col1[15] = {"Last second activations:","Total activations:","Last second divisions:","Total divisions:",
     "Last second produced energy:","Total produced energy:","Last second consumed energy:","Total consumed energy:",
-    "Last second waste:","Total waste:"};
-  int col2[11] = {shmem_ptr -> act_rel, shmem_ptr -> act_tot, shmem_ptr -> div_rel, shmem_ptr -> div_tot, shmem_ptr -> prod_en_rel,
-    shmem_ptr -> prod_en_tot, shmem_ptr -> cons_en_rel, shmem_ptr -> cons_en_tot, shmem_ptr -> waste_rel, shmem_ptr -> waste_tot};
+    "Last second waste:","Total waste:","Last second absorbed energy:","Total absorbed energy:",
+    "Last second undivided atoms:","Total undivided atoms:"};
+  int col2[15] = {shmem_ptr -> act_rel, shmem_ptr -> act_tot, shmem_ptr -> div_rel, shmem_ptr -> div_tot, shmem_ptr -> prod_en_rel,
+    shmem_ptr -> prod_en_tot, shmem_ptr -> cons_en_rel, shmem_ptr -> cons_en_tot, shmem_ptr -> waste_rel, shmem_ptr -> waste_tot,
+    shmem_ptr -> absorbed_en_rel, shmem_ptr -> absorbed_en_tot, shmem_ptr -> undiv_rel, shmem_ptr -> undiv_tot};
 
   for (long unsigned int i = 0; i < (sizeof(col1)/sizeof(col1[0]))-1; i++) {
     printf("%-*s | %-*d\n", col1_width, col1[i], col2_width, col2[i]);
@@ -326,4 +325,6 @@ void stat_total_value() {
   shmem_ptr -> div_tot = shmem_ptr -> div_tot + shmem_ptr -> div_rel;
   shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot + shmem_ptr -> prod_en_rel;
   shmem_ptr -> cons_en_tot = shmem_ptr -> cons_en_tot + shmem_ptr -> cons_en_rel;
+  shmem_ptr -> absorbed_en_tot = shmem_ptr -> absorbed_en_tot + shmem_ptr -> absorbed_en_rel;
+  shmem_ptr -> undiv_tot = shmem_ptr -> undiv_tot + shmem_ptr -> undiv_rel;
 }
