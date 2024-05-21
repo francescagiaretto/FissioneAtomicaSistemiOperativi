@@ -18,14 +18,12 @@ void signal_handler(int sig) {
     //! dà problemi quando si accende l'inibitore a inizio simulazione, lo si spegne, alla seconda riaccensione dà on off
     case SIGUSR1:
       if (shmem_ptr -> inib_on == 1) {
-        //printf("inib_on master tre= %d\n", shmem_ptr -> inib_on);
+
         kill(pid_inibitore, SIGQUIT); 
         TEST_ERROR;
       } else if(shmem_ptr -> inib_on == 0){
-        // se rispondi y -> semctl(semid, INIBSEM, GETVAL) == -1 oppure se si vuole attivare l'inibitore
-        // write(0, "SIGQUIT ARRIVATO\n", 17);
         write(0, "Inibitore ON. Turn off anytime with ctrl + backslash \n", 55);
-        //printf("inib_on master= %d\n", shmem_ptr -> inib_on);
+ 
         sem.sem_num = ONSEM;
         sem.sem_op = -1;
         semop(semid, &sem, 1);
@@ -45,7 +43,7 @@ void signal_handler(int sig) {
 
     case SIGINT:
       shmem_ptr -> termination  = 1;
-      shmem_ptr -> message = "timeout.";
+      shmem_ptr -> message = "user.";
     break;
 
     case SIGQUIT:
