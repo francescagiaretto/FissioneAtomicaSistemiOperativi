@@ -1,6 +1,6 @@
 
 
-code di messaggi)
+code di messaggi
 - segnale scissione
 
 SHARED MEMORY

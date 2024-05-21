@@ -15,18 +15,30 @@ void signal_handler(int sig) {
       shmem_ptr -> message = "timeout.";
     break;
 
-    case SIGTSTP:
-      if (shmem_ptr -> inib_on != 0) {
-        kill(pid_inibitore, SIGTSTP);
-        shmem_ptr -> inib_on = 0;
-      } else {
+    case SIGQUIT:
+      if (shmem_ptr -> inib_on == 1) {
+        //printf("inib_on master tre= %d\n", shmem_ptr -> inib_on);
+        kill(pid_inibitore, SIGINT); 
+        TEST_ERROR;
+      } else if(shmem_ptr -> inib_on == 0){
         // se rispondi y -> semctl(semid, INIBSEM, GETVAL) == -1 oppure se si vuole attivare l'inibitore
-        write(0, "SIGTSTP ARRIVATO\n", 17);
+        // write(0, "SIGQUIT ARRIVATO\n", 17);
+        write(0, "Inibitore ON. Turn off anytime with ctrl + backslash \n", 55);
+        //printf("inib_on master= %d\n", shmem_ptr -> inib_on);
+        /* sem.sem_num = ONSEM;
+        sem.sem_op = -1;
+        semop(semid, &sem, 1); */
+
+        shmem_ptr -> inib_on = 1;
+
+        /* sem.sem_num = ONSEM;
+        sem.sem_op = 1;
+        semop(semid, &sem, 1); */
+        printf("inib_on master cambiato= %d\n", shmem_ptr -> inib_on);
         sem.sem_num = INIBSEM;
         sem.sem_op = 1;
         semop(semid, &sem, 1);
-        shmem_ptr -> inib_on = 1;
-        write(0, "Inibitore ON. Turn off anytime with ctrl + '\' \n", 45);
+        printf("%d in master\n", semctl(semid, INIBSEM, GETVAL));
       }
     break;
 
@@ -56,7 +68,7 @@ int main(int argc, char* argv[]) {
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
-  semid = semget(semkey, 7, IPC_CREAT | 0666);
+  semid = semget(semkey, 8, IPC_CREAT | 0666);
   TEST_ERROR;
 
   msgid = msgget(msgkey, IPC_CREAT | 0666);
@@ -71,13 +83,16 @@ int main(int argc, char* argv[]) {
   set_sem_values();
   sem.sem_flg = 0;
 
+  printf("%d in master all'inizio\n", semctl(semid, INIBSEM, GETVAL));
+
   sprintf(id_shmat, "%d", shmid);
   sprintf(id_sem, "%d", semid);
   sprintf(id_message, "%d", msgid);
   char * vec_alim[] = {"./alimentazione", id_shmat, id_sem, id_message, NULL};
   char * vec_attiv[] = {"./attivatore", id_sem, id_shmat, id_message, NULL};
-  char * vec_inib[] = {"inibitore", id_sem, id_shmat, id_message, NULL};
+  char * vec_inib[] = {"./inibitore", id_sem, id_shmat, id_message, NULL};
 
+  //! evita che risposta sia un valore preso a caso dal buffer
   fflush(stdout);
   char risposta;
   printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
@@ -177,11 +192,12 @@ int main(int argc, char* argv[]) {
 
   struct sigaction sa;
 
-  bzero(&sa, sizeof(&sa)); // emptying struct to send to child
+  bzero(&sa, sizeof(sa)); // emptying struct to send to child
   sa.sa_handler = &signal_handler;
+  sa.sa_flags = SA_RESTART;
   sigaction(SIGALRM, &sa, NULL);
   sigaction(SIGINT, &sa, NULL);
-  sigaction(SIGTSTP, &sa, NULL);
+  sigaction(SIGQUIT, &sa, NULL);
   sigaction(SIGCHLD, &sa, NULL);
 
   free(pid_atoms);
@@ -199,7 +215,7 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
 
   if (tolower(risposta) == 'y') {
-    raise(SIGTSTP);
+    raise(SIGQUIT);
   }
 
   shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
@@ -217,7 +233,7 @@ int main(int argc, char* argv[]) {
     }
     
     stat_total_value();
-    print_stats();
+    //print_stats();
 
     bzero(shmem_ptr, 4*sizeof(int));
 
@@ -268,6 +284,8 @@ void set_sem_values(){
 
   // handles inibitore
   semctl(semid, INIBSEM, SETVAL, 0);
+
+  semctl(semid, ONSEM, SETVAL, 1);
 }
 
 
