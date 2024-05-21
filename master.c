@@ -46,7 +46,7 @@ void signal_handler(int sig) {
     break;
 
     case SIGQUIT:
-     
+     printf("al master è arrivato sigquit\n");
     break;
   }
 }

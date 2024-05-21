@@ -6,6 +6,7 @@ data_buffer * shmem_ptr;
 void signal_handler(int sig){
   switch (sig) {
     case SIGQUIT:
+      printf("a inib è arrivato sigquit\n");
       if (shmem_ptr -> inib_on != 0) {
         write(0, "Inibitore OFF. Turn off anytime with ctrl + backslash \n", 55);
         sem.sem_num = ONSEM;
