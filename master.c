@@ -43,7 +43,6 @@ void signal_handler(int sig) {
 
     case SIGINT:
       shmem_ptr -> termination  = 1;
-      shmem_ptr -> message = "user.";
     break;
 
     case SIGQUIT:
