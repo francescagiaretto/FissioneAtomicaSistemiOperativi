@@ -15,6 +15,10 @@ void signal_handler(int sig) {
       shmem_ptr -> message = "timeout.";
     break;
 
+    case SIGTSTP:
+      shmem_ptr -> termination = 1;
+    break;
+
     //! dà problemi quando si accende l'inibitore a inizio simulazione, lo si spegne, alla seconda riaccensione dà on off
     case SIGUSR1:
       if (shmem_ptr -> inib_on == 1) {
@@ -35,6 +39,7 @@ void signal_handler(int sig) {
 
     case SIGINT:
       shmem_ptr -> termination  = 1;
+      shmem_ptr -> message = "user.";
     break;
 
     case SIGQUIT:
@@ -93,7 +98,7 @@ int main(int argc, char* argv[]) {
   switch(pid_alimentazione) {
     case -1:
       shmem_ptr->message = "meltdown.";
-      raise(SIGINT);
+      raise(SIGTSTP);
     break;
 
     case 0:
@@ -110,7 +115,7 @@ int main(int argc, char* argv[]) {
 
         case -1:
           shmem_ptr->message = "meltdown.";
-          raise(SIGINT);
+          raise(SIGTSTP);
         break;
         case 0:
           sem.sem_num = WAITSEM;
@@ -130,7 +135,7 @@ int main(int argc, char* argv[]) {
           switch(pid_inibitore = fork()) {
             case -1:
               shmem_ptr->message = "meltdown.";
-              raise(SIGINT);
+              raise(SIGTSTP);
             break;
             
             case 0:
@@ -162,7 +167,7 @@ int main(int argc, char* argv[]) {
 
       case -1:
         shmem_ptr->message = "meltdown.";
-        raise(SIGINT);
+        raise(SIGTSTP);
       break;
 
       case 0: 
@@ -189,6 +194,7 @@ int main(int argc, char* argv[]) {
   sigaction(SIGINT, &sa, NULL);
   sigaction(SIGUSR1, &sa, NULL);
   sigaction(SIGQUIT, &sa, NULL);
+  sigaction(SIGTSTP, &sa, NULL);
 
   free(pid_atoms);
 
@@ -215,7 +221,7 @@ int main(int argc, char* argv[]) {
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
       shmem_ptr -> message = "explode.";
-      raise(SIGINT);
+      raise(SIGTSTP);
     }
     
     stat_total_value();
@@ -226,7 +232,7 @@ int main(int argc, char* argv[]) {
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
       shmem_ptr->message = "blackout.";
-      raise(SIGINT);
+      raise(SIGTSTP);
     }
   }
 

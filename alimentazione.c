@@ -40,7 +40,7 @@ int main(int argc, char * argv[]) {
 
         case -1:
           shmem_ptr->message = "meltdown.";
-          kill(shmem_ptr -> pid_master, SIGINT);
+          kill(shmem_ptr -> pid_master, SIGTSTP);
         break;
 
         case 0:

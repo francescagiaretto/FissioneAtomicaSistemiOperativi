@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 
 	/* for ( ; 1 ;) {
 		for(int i = 0; i < sizeof(pid_atoms[]); i++) {
-			kill(pid_atoms[i], SIGINT);
+			kill(pid_atoms[i], SIGTSTP);
 		} 
 		nanosleep(&step_nanosec, NULL);
 	}
