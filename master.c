@@ -227,9 +227,9 @@ int main(int argc, char* argv[]) {
     }
     
     stat_total_value();
-    //print_stats();
+    print_stats();
 
-    bzero(shmem_ptr, 4*sizeof(int));
+    bzero(shmem_ptr, 7*sizeof(int));
 
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {

@@ -67,14 +67,14 @@ typedef struct data_buffer {
   int div_rel;
   int act_rel;
   int cons_en_rel;
+  int absorbed_en_rel;
+  int undiv_rel;
   int waste_tot;
   int prod_en_tot;
   int div_tot;
   int act_tot;
   int cons_en_tot;
-  int absorbed_en_rel;
   int absorbed_en_tot;
-  int undiv_rel;
   int undiv_tot;
   char * message; // termination message
   int simulation_start;
