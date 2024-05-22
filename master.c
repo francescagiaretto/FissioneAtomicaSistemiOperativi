@@ -23,16 +23,8 @@ void signal_handler(int sig) {
         TEST_ERROR;
       } else if(shmem_ptr -> inib_on == 0){
         write(0, "Inibitore ON. Turn off anytime with ctrl + backslash \n", 55);
- 
-        sem.sem_num = ONSEM;
-        sem.sem_op = -1;
-        semop(semid, &sem, 1);
 
         shmem_ptr -> inib_on = 1;
-
-        sem.sem_num = ONSEM;
-        sem.sem_op = 1;
-        semop(semid, &sem, 1); 
         
         sem.sem_num = INIBSEM;
         sem.sem_op = 1;
@@ -67,7 +59,7 @@ int main(int argc, char* argv[]) {
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
-  semid = semget(semkey, 8, IPC_CREAT | 0666);
+  semid = semget(semkey, 7, IPC_CREAT | 0666);
   TEST_ERROR;
 
   msgid = msgget(msgkey, IPC_CREAT | 0666);
@@ -278,8 +270,7 @@ void set_sem_values(){
 
   // handles inibitore
   semctl(semid, INIBSEM, SETVAL, 0);
-
-  semctl(semid, ONSEM, SETVAL, 1);
+  TEST_ERROR;
 }
 
 

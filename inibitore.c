@@ -9,19 +9,9 @@ void signal_handler(int sig){
       printf("a inib è arrivato sigquit\n");
       if (shmem_ptr -> inib_on != 0) {
         write(0, "Inibitore OFF. Turn off anytime with ctrl + backslash \n", 55);
-        sem.sem_num = ONSEM;
-        sem.sem_op = -1;
-        semop(semid, &sem, 1); 
 
         shmem_ptr -> inib_on = 0;
-
-        sem.sem_num = ONSEM;
-        sem.sem_op = 1;
-        semop(semid, &sem, 1);
-
-        sem.sem_num = INIBSEM;
-        sem.sem_op = -1;
-        semop(semid, &sem, 1);
+        
       } else if (shmem_ptr -> inib_on == 0) {
         kill(shmem_ptr -> pid_master, SIGUSR1);
       }
@@ -53,25 +43,30 @@ int main(int argc, char* argv[]) {
 
     shmem_ptr -> inib_on = 0;
 
-    sem.sem_num = INIBSEM;
-    sem.sem_op = -1;
-    semop(semid, &sem, 1);
-
     sem.sem_num = STARTSEM;
     sem.sem_op = -1;
     semop(semid, &sem, 1);
 
+    sem.sem_num = INIBSEM;
+    sem.sem_op = -1;
+    semop(semid, &sem, 1);
+
     while (shmem_ptr -> termination == 0) {
-      //! assorbe un quinto dell'energia totale
+      //? rivedere la sleep
       sleep(1);
+
+      //! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
+      if(shmem_ptr -> inib_on == 0) {
+        sem.sem_num = INIBSEM;
+        sem.sem_op = -1;
+        semop(semid, &sem, 1);
+      }
+      
+      //! assorbe un quinto dell'energia totale
       shmem_ptr -> absorbed_en_rel = (shmem_ptr -> prod_en_tot)/5;
       shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
-      //printf("%d è inib_on da attivo, ", shmem_ptr -> inib_on);
-      //printf("Ti fotto l'energia\n");
-    }
 
-      // limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
+        // limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
         // la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)
-      
-        //!MANDA SEGNALE A MASTER
+    }
 }
