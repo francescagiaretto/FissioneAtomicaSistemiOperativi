@@ -13,6 +13,9 @@ void signal_handler(int sig){
         
       } else if (shmem_ptr -> inib_on == 0) {
         kill(shmem_ptr -> pid_master, SIGUSR1);
+        /*  prob = rand() % 2; 
+        	se è zero scinderà quelli pari se è 1 scinderà quelli dispari.
+        */
       }
     break;
   }
@@ -27,12 +30,13 @@ int main(int argc, char* argv[]) {
         // ? conseguenza naturale o va imposto
 
     semid = atoi(argv[1]);
-	  shmid = atoi(argv[2]);
-	  msgid = atoi(argv[3]);
+	shmid = atoi(argv[2]);
+	msgid = atoi(argv[3]);
 
     shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
-	  TEST_ERROR;
+	TEST_ERROR;
 
+    srand(getpid());
     struct sigaction sa;
 
     bzero(&sa, sizeof(sa)); 
@@ -51,21 +55,21 @@ int main(int argc, char* argv[]) {
     semop(semid, &sem, 1);
 
     while (shmem_ptr -> termination == 0) {
-      //? rivedere la sleep
-      sleep(1);
-
-      //! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
-      if(shmem_ptr -> inib_on == 0) {
-        sem.sem_num = INIBSEM;
-        sem.sem_op = -1;
-        semop(semid, &sem, 1);
-      }
-      
-      //! assorbe un quinto dell'energia totale
-      shmem_ptr -> absorbed_en_rel = (shmem_ptr -> prod_en_tot)/5;
-      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
-
-        // limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
-        // la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)
+      	//? rivedere la sleep
+      	sleep(1);
+	
+      	//! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
+      	if(shmem_ptr -> inib_on == 0) {
+      	  sem.sem_num = INIBSEM;
+      	  sem.sem_op = -1;
+      	  semop(semid, &sem, 1);
+      	}
+	
+      	//! assorbe un quinto dell'energia totale
+      	shmem_ptr -> absorbed_en_rel = (shmem_ptr -> prod_en_tot)/5;
+      	shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
+	
+    		// limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
+      	// la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)
     }
 }

@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 	shmid = atoi(argv[2]);
 	msgid = atoi(argv[3]);
 
-	int * array_new_atoms = malloc(N_ATOM_INIT*sizeof(pid_t));
+	pid_t * array_new_atoms = (pid_t *)malloc(N_ATOM_INIT*sizeof(pid_t));
 
 	data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
@@ -22,10 +22,14 @@ int main(int argc, char* argv[]) {
   	semop(semid, &sem, 1);
 
 	while(shmem_ptr -> termination != 1) {
-		/*nanosleep(&step_nanosec, NULL);
-		new_pid = atom_update(msgid, array_new_atoms);
-		printf("%d\n", new_pid);*/
-	}
+		nanosleep(&step_nanosec, NULL);
+		/* while(c'è qualcosa da leggere) {
+			if(atom_update(msgid, new_pid) == -1) {
+				errore
+			}	
+		arraydipid[i] = new_pid;
+		}		
+	*/}
 }
 
 	/* for ( ; 1 ;) {

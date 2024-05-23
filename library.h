@@ -28,6 +28,7 @@
 #define SHM_SIZE 500
 #define PID_TYPE 1
 #define WASTE_TYPE 2
+#define NUM_ATTIV 10
 
 #define WAITSEM 0
 #define STARTSEM 1
