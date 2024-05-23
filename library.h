@@ -95,33 +95,3 @@ typedef struct data_buffer {
   int termination;
   pid_t pid_master;
 } data_buffer;
-
-int new_waste(int msg_queue, int pid){
-    message_buffer mymessage;
-    mymessage.mtype = WASTE_TYPE;
-    sprintf(mymessage.message, "%d" , pid);
-    return msgsnd(msg_queue, &mymessage, sizeof(mymessage) - sizeof(long), 0); 
-}
-
-int waste_update(int msg_queue, int *pid){
-    message_buffer mymessage;
-    int pid_received = msgrcv(msg_queue, &mymessage, sizeof(mymessage) - sizeof(long), WASTE_TYPE, IPC_NOWAIT);
-    if(pid_received != -1)
-        *pid = atoi(mymessage.message);
-    return pid_received;
-}
-
-int new_atom(int msg_queue, int pid){
-    message_buffer mymessage;
-    mymessage.mtype = PID_TYPE;
-    sprintf(mymessage.message, "%d" , pid);
-    return msgsnd(msg_queue, &mymessage, sizeof(mymessage) - sizeof(long), 0); 
-}
-
-int atom_update(int msg_queue, int *pid){
-    message_buffer mymessage;
-    int pid_received = msgrcv(msg_queue, &mymessage, sizeof(mymessage) - sizeof(long), PID_TYPE, IPC_NOWAIT);
-    if(pid_received != -1)
-        *pid = atoi(mymessage.message);
-    return pid_received;
-}

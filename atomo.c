@@ -24,11 +24,9 @@ int main(int argc, char* argv[]){
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
 
-	new_atom(msgid, getpid());
-
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 		operate_in_sem(WASTESEM, 0);
-		new_waste(msgid, getpid());
+		
 		raise(SIGTERM);
 	}
 	

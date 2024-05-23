@@ -44,7 +44,6 @@ int main(int argc, char * argv[]) {
         break;
 
         case 0:
-          new_atom(msgid, getpid());
           execve("./atomo", vec_atomo, NULL);
           TEST_ERROR;
         break;
