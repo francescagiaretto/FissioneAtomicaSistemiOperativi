@@ -43,7 +43,6 @@ void signal_handler(int sig) {
     break;
 
     case SIGQUIT:
-     printf("al master è arrivato sigquit\n");
     break;
   }
 }
@@ -64,7 +63,7 @@ int main(int argc, char* argv[]) {
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
-  semid = semget(semkey, 7, IPC_CREAT | 0666);
+  semid = semget(semkey, 6, IPC_CREAT | 0666);
   TEST_ERROR;
 
   msgid = msgget(msgkey, IPC_CREAT | 0666);
@@ -117,6 +116,7 @@ int main(int argc, char* argv[]) {
           shmem_ptr->message = "meltdown.";
           raise(SIGTSTP);
         break;
+
         case 0:
           sem.sem_num = WAITSEM;
           sem.sem_op = 1;
@@ -125,6 +125,7 @@ int main(int argc, char* argv[]) {
           execve("./attivatore", vec_attiv, NULL);
           TEST_ERROR;
         break;
+        
         default:
         //! attivazione inibitore
         /*
@@ -268,10 +269,6 @@ void set_sem_values(){
 
   // handles divisions
   semctl(semid, DIVISIONSEM, SETVAL, 1);
-  TEST_ERROR;
-
-  // handles activations
-  semctl(semid, ACTIVATIONSEM, SETVAL, 1);
   TEST_ERROR;
 
   // handles inibitore

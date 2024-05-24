@@ -27,16 +27,13 @@
 #define STEP_ALIMENTAZIONE 8
 #define SHM_SIZE 500
 #define PID_TYPE 1
-#define WASTE_TYPE 2
-#define NUM_ATTIV 10
 
 #define WAITSEM 0
 #define STARTSEM 1
 #define WASTESEM 2
 #define PROD_ENERGYSEM 3
 #define DIVISIONSEM 4
-#define ACTIVATIONSEM 5
-#define INIBSEM 6
+#define INIBSEM 5
 
 #define TEST_ERROR   if (errno) {fprintf(stderr, \
 					   "%s:%d: PID=%5d: Error %d (%s)\n",\
@@ -68,10 +65,9 @@
 
 struct sembuf sem;
 
-
 typedef struct message {
     long mtype;
-    char message[10];
+    char mymessage[10];
 } message_buffer;
 
 typedef struct data_buffer {
@@ -93,5 +89,21 @@ typedef struct data_buffer {
   int simulation_start;
   int inib_on;
   int termination;
+  int remainder;
   pid_t pid_master;
 } data_buffer;
+
+int send_atom_pid(int msgid, int pid) {
+  message_buffer message;
+  message.mtype = PID_TYPE;
+  sprintf(message.mymessage, "%d", pid);
+  return msgsnd(msgid, &message, sizeof(message) - sizeof(long), 0);
+}
+
+int receive_pid(int msgid) {
+  message_buffer message;
+  if(msgrcv(msgid, &message, sizeof(message) - sizeof(long), PID_TYPE, IPC_NOWAIT) == -1) {
+    return -1;
+  }
+  return atoi(message.mymessage);
+}

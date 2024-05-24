@@ -7,6 +7,14 @@ int energy(int, int);
 int semid, shmid, msgid;
 data_buffer * shmem_ptr;
 
+void signal_handler(int sig) {
+	switch(sig) {
+		case SIGUSR2:
+			//fork();
+		break;
+	}
+}
+
 int main(int argc, char* argv[]){
 
 	int child_atom_num, en_lib, parent_atom_num;
@@ -20,22 +28,29 @@ int main(int argc, char* argv[]){
 	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
+	struct sigaction sa;
+	bzero(&sa, sizeof(sa));
+	sa.sa_handler = &signal_handler;
+  	sigaction(SIGUSR2, &sa, NULL);
+
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
 
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 		operate_in_sem(WASTESEM, 0);
-		
 		raise(SIGTERM);
 	}
+
+	//! ogni atomo manda all'attivatore il suo pid
+	send_atom_pid(msgid, getpid());
+	TEST_ERROR;
 	
 	generate_n_atom(&parent_atom_num, &child_atom_num);
 
 	sprintf(division_atom_num, "%d", child_atom_num);
 	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], argv[3], NULL};
 
-	operate_in_sem(ACTIVATIONSEM, 0);
 	switch (fork())
 	{
 		case -1:
@@ -116,32 +131,12 @@ void operate_in_sem(int sem_working, int en_lib){
 
 			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
 
-			/* int bytes = sprintf(mymessage -> message, "%d,", getpid());
-			mymessage->type = PID_TYPE;
-			msgsnd(msgid, &mymessage, bytes++, 0); */
-			// TEST_ERROR; 
-
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
 			//CHECK_OPERATION;
 		break;
-
-		case ACTIVATIONSEM:
-			sem.sem_num = ACTIVATIONSEM;
-			sem.sem_op = -1;
-			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
-
-			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
-
-			sem.sem_num = ACTIVATIONSEM;
-			sem.sem_op = 1;
-			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
-		break;
 	}
-
 }
 
 int energy(int child, int parent) {

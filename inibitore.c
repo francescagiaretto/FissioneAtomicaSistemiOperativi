@@ -12,10 +12,10 @@ void signal_handler(int sig){
         shmem_ptr -> inib_on = 0;
         
       } else if (shmem_ptr -> inib_on == 0) {
+        //! generiamo un numero randomico tra 0 e 1; se esce 0 l'attivatore uccide i pari, se esce 1 i dispari
+        shmem_ptr -> remainder = rand() % 2;
+        
         kill(shmem_ptr -> pid_master, SIGUSR1);
-        /*  prob = rand() % 2; 
-        	se è zero scinderà quelli pari se è 1 scinderà quelli dispari.
-        */
       }
     break;
   }
@@ -27,36 +27,34 @@ int main(int argc, char* argv[]) {
       // (l'utente deve poter fermare e far ripartire il processo inibitore più volte da terminale)
 
     // non devono avvenire explode e meltdown
-        // ? conseguenza naturale o va imposto
 
-    semid = atoi(argv[1]);
+  semid = atoi(argv[1]);
 	shmid = atoi(argv[2]);
 	msgid = atoi(argv[3]);
 
-    shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
+  shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
-    srand(getpid());
-    struct sigaction sa;
+  srand(getpid());
 
-    bzero(&sa, sizeof(sa)); 
-    sa.sa_handler = &signal_handler;
-    sa.sa_flags = SA_RESTART;
-    sigaction(SIGQUIT, &sa, NULL);
+  struct sigaction sa;
+  bzero(&sa, sizeof(sa)); 
+  sa.sa_handler = &signal_handler;
+  sa.sa_flags = SA_RESTART;
+  sigaction(SIGQUIT, &sa, NULL);
 
-    shmem_ptr -> inib_on = 0;
+  shmem_ptr -> inib_on = 0;
 
-    sem.sem_num = STARTSEM;
-    sem.sem_op = -1;
-    semop(semid, &sem, 1);
+  sem.sem_num = STARTSEM;
+  sem.sem_op = -1;
+  semop(semid, &sem, 1);
 
-    sem.sem_num = INIBSEM;
-    sem.sem_op = -1;
-    semop(semid, &sem, 1);
+  sem.sem_num = INIBSEM;
+  sem.sem_op = -1;
+  semop(semid, &sem, 1);
 
-    while (shmem_ptr -> termination == 0) {
-      	//? rivedere la sleep
-      	sleep(1);
+  while (shmem_ptr -> termination == 0) {
+      	sleep(0.5);
 	
       	//! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
       	if(shmem_ptr -> inib_on == 0) {
