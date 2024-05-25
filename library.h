@@ -19,10 +19,10 @@
 #define N_ATOM_INIT 100
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 2000
-#define STEP_ATTIVATORE 90000000
+#define STEP_ATTIVATORE 1000
 #define N_NUOVI_ATOMI 100
 #define SIM_DURATION 10
-#define ENERGY_EXPLODE_THRESHOLD 100000000
+#define ENERGY_EXPLODE_THRESHOLD 900000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE 8
 #define SHM_SIZE 500
@@ -100,13 +100,15 @@ int send_atom_pid(int msgid, int pid) {
   message_buffer message;
   message.mtype = PID_TYPE;
   sprintf(message.mymessage, "%d", pid);
+  printf("sending pid no.: %d\n", pid);
   return msgsnd(msgid, &message, sizeof(message) - sizeof(long), 0);
 }
 
 int receive_pid(int msgid) {
   message_buffer message;
-  if(msgrcv(msgid, &message, sizeof(message) - sizeof(long), PID_TYPE, IPC_NOWAIT) == -1) {
+  if(msgrcv(msgid, &message, (sizeof(message) - sizeof(long)), 0, 0) == -1) {
     return -1;
   }
+  printf("receiving pid no.: %d\n", atoi(message.mymessage));
   return atoi(message.mymessage);
 }

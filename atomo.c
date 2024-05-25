@@ -4,13 +4,13 @@ void generate_n_atom(int *, int *);
 void operate_in_sem(int, int);
 int energy(int, int);
 
-int semid, shmid, msgid;
+int semid, shmid, msgid, atom_activation;
 data_buffer * shmem_ptr;
 
 void signal_handler(int sig) {
 	switch(sig) {
 		case SIGUSR2:
-			//fork(); bbbbbooooooooooh POOSEY
+			atom_activation = 1;
 		break;
 	}
 }
@@ -19,6 +19,8 @@ int main(int argc, char* argv[]){
 
 	int child_atom_num, en_lib, parent_atom_num;
 	char division_atom_num[3], division_parent_num[4];
+
+	atom_activation = 0;
 
 	parent_atom_num = atoi(argv[1]);
 	shmid = atoi(argv[2]);
@@ -37,8 +39,12 @@ int main(int argc, char* argv[]){
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
 
-	if(parent_atom_num <= MIN_N_ATOMICO) { 
+	if(parent_atom_num <= MIN_N_ATOMICO || (shmem_ptr -> inib_on == 1 && (shmem_ptr -> remainder == getpid()%2))) { 
 		operate_in_sem(WASTESEM, 0);
+		//! se l'inibitore è acceso e il pid dell'atomo è pari (remainder = 0) o dispari (remainder = 1) aggiungiamo quell'atomo alla conta degli undivided
+		if (shmem_ptr -> inib_on == 1 && (shmem_ptr -> remainder == getpid()%2)) {
+			shmem_ptr -> undiv_rel = shmem_ptr -> undiv_rel + 1;
+		}
 		raise(SIGTERM);
 	}
 
@@ -51,29 +57,30 @@ int main(int argc, char* argv[]){
 	sprintf(division_atom_num, "%d", child_atom_num);
 	char * vec_atomo[] = {"atomo", division_atom_num, argv[2], argv[3], NULL};
 
-	switch (fork())
-	{
-		case -1:
-			shmem_ptr->message = "meltdown.";
-			kill(shmem_ptr -> pid_master, SIGTSTP);
-		break;
-		
-		case 0: // checking child
-			operate_in_sem(DIVISIONSEM, 0);
-			execve("./atomo", vec_atomo, NULL);
-			TEST_ERROR;
-		break;
-		
-		default: // checking parent
-			en_lib = energy(child_atom_num, parent_atom_num);
+	if (atom_activation == 1) {
+		switch (fork()) {
+			case -1:
+				shmem_ptr->message = "meltdown.";
+				kill(shmem_ptr -> pid_master, SIGTSTP);
+			break;
 			
-			operate_in_sem(PROD_ENERGYSEM, en_lib); // saving relative produced energy in shmem
-			sprintf(division_parent_num, "%d", parent_atom_num);
+			case 0: // checking child
+				operate_in_sem(DIVISIONSEM, 0);
+				execve("./atomo", vec_atomo, NULL);
+				TEST_ERROR;
+			break;
+			
+			default: // checking parent
+				en_lib = energy(child_atom_num, parent_atom_num);
+				
+				operate_in_sem(PROD_ENERGYSEM, en_lib); // saving relative produced energy in shmem
+				sprintf(division_parent_num, "%d", parent_atom_num);
 
-			char * new_vec_atomo[] = {"./atomo", division_parent_num, argv[2], argv[3], NULL};
-			execve("atomo", new_vec_atomo, NULL);
-			TEST_ERROR;
-		break;
+				char * new_vec_atomo[] = {"./atomo", division_parent_num, argv[2], argv[3], NULL};
+				execve("atomo", new_vec_atomo, NULL);
+				TEST_ERROR;
+			break;
+		}
 	}
 }
 
