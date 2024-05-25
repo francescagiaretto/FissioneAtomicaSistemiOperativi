@@ -220,6 +220,12 @@ int main(int argc, char* argv[]) {
     sleep(1);
 
     shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
+
+    if (shmem_ptr -> inib_on == 1) {
+      //! assorbe un quinto dell'energia totale
+      shmem_ptr -> absorbed_en_rel = (shmem_ptr -> prod_en_tot)/5;
+      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
+    }
     
     stat_total_value();
 

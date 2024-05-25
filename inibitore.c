@@ -54,20 +54,11 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
 
   while (shmem_ptr -> termination == 0) {
-      	sleep(1);
-	
-      	//! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
-      	if(shmem_ptr -> inib_on == 0) {
-      	  sem.sem_num = INIBSEM;
-      	  sem.sem_op = -1;
-      	  semop(semid, &sem, 1);
-      	}
-	
-      	//! assorbe un quinto dell'energia totale
-      	shmem_ptr -> absorbed_en_rel = (shmem_ptr -> prod_en_tot)/5;
-      	shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
-	
-    		// limita il numero di scissioni agendo sull'operazione di scissione rendendola probabilistica (decidendo se 
-      	// la scissione debba avvenire o meno oppure trasformando in  scoria uno degli atomi prodotti dopo la scissione)
+    //! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
+    if(shmem_ptr -> inib_on == 0) {
+      sem.sem_num = INIBSEM;
+      sem.sem_op = -1;
+      semop(semid, &sem, 1);
     }
+  }
 }
