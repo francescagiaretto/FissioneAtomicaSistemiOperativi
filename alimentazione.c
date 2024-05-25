@@ -3,6 +3,13 @@
 void signal_handler(int sig);
 int semid, shmid, msgid;
 
+void signal_handler(int sig) {
+	switch(sig) {
+		case SIGQUIT:
+
+		break;
+	}
+}
 
 int main(int argc, char * argv[]) {
 
@@ -21,6 +28,12 @@ int main(int argc, char * argv[]) {
   struct timespec step_nanosec;
   step_nanosec.tv_sec = 0;           // seconds   
   step_nanosec.tv_nsec = STEP_ALIMENTAZIONE;   // nanoseconds
+
+
+  struct sigaction sa;
+  bzero(&sa, sizeof(sa)); // emptying struct to send to child
+  sa.sa_handler = &signal_handler;
+  sigaction(SIGQUIT, &sa, NULL);
 
   sem.sem_num = STARTSEM;
   sem.sem_op = -1;

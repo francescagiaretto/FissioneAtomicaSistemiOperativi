@@ -12,9 +12,6 @@ void signal_handler(int sig) {
 		case SIGUSR2:
 			atom_activation = 1;
 		break;
-
-		case SIGQUIT:
-		break;
 	}
 }
 
