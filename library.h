@@ -16,11 +16,11 @@
 #include <sys/sem.h>
 #include <ctype.h>
 
-#define N_ATOM_INIT 10
+#define N_ATOM_INIT 100
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 2000
 #define STEP_ATTIVATORE 90000000
-#define N_NUOVI_ATOMI 10
+#define N_NUOVI_ATOMI 100
 #define SIM_DURATION 10
 #define ENERGY_EXPLODE_THRESHOLD 100000000
 #define MIN_N_ATOMICO 30
@@ -78,6 +78,7 @@ typedef struct data_buffer {
   int cons_en_rel;
   int absorbed_en_rel;
   int undiv_rel;
+
   int waste_tot;
   int prod_en_tot;
   int div_tot;
@@ -85,7 +86,9 @@ typedef struct data_buffer {
   int cons_en_tot;
   int absorbed_en_tot;
   int undiv_tot;
+  
   char * message; // termination message
+  int avaliable_energy;
   int simulation_start;
   int inib_on;
   int termination;

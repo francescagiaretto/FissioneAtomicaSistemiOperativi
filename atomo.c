@@ -10,7 +10,7 @@ data_buffer * shmem_ptr;
 void signal_handler(int sig) {
 	switch(sig) {
 		case SIGUSR2:
-			//fork();
+			//fork(); bbbbbooooooooooh POOSEY
 		break;
 	}
 }

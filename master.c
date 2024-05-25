@@ -214,27 +214,32 @@ int main(int argc, char* argv[]) {
     raise(SIGUSR1);
   }
 
-  shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
+  shmem_ptr -> avaliable_energy = 0;
 
   while(shmem_ptr -> termination != 1) {
     sleep(1);
+
+    shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
     
+    stat_total_value();
+
     // checking explode condition
     if (shmem_ptr -> prod_en_tot  >= ENERGY_EXPLODE_THRESHOLD) {
       shmem_ptr -> message = "explode.";
       raise(SIGTSTP);
     }
-    
-    stat_total_value();
-    print_stats();
-
-    bzero(shmem_ptr, 7*sizeof(int));
 
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
       shmem_ptr->message = "blackout.";
       raise(SIGTSTP);
     }
+
+    print_stats();
+
+    bzero(shmem_ptr, 7*sizeof(int));
+    
+    // checking blackout condition
   }
 
   printf("Simulation terminated due to %s\n", shmem_ptr -> message);
@@ -314,7 +319,7 @@ void stat_total_value() {
   shmem_ptr -> waste_tot = shmem_ptr -> waste_tot + shmem_ptr -> waste_rel;
   shmem_ptr -> act_tot = shmem_ptr -> act_tot + shmem_ptr -> act_rel;
   shmem_ptr -> div_tot = shmem_ptr -> div_tot + shmem_ptr -> div_rel;
-  shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot + shmem_ptr -> prod_en_rel;
+  shmem_ptr -> prod_en_tot = (shmem_ptr -> prod_en_tot + shmem_ptr -> prod_en_rel) - shmem_ptr -> cons_en_rel;
   shmem_ptr -> cons_en_tot = shmem_ptr -> cons_en_tot + shmem_ptr -> cons_en_rel;
   shmem_ptr -> absorbed_en_tot = shmem_ptr -> absorbed_en_tot + shmem_ptr -> absorbed_en_rel;
   shmem_ptr -> undiv_tot = shmem_ptr -> undiv_tot + shmem_ptr -> undiv_rel;

@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
 
   while (shmem_ptr -> termination == 0) {
-      	sleep(0.5);
+      	sleep(1);
 	
       	//! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
       	if(shmem_ptr -> inib_on == 0) {
