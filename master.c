@@ -88,10 +88,6 @@ int main(int argc, char* argv[]) {
   char * vec_inib[] = {"./inibitore", id_sem, id_shmat, id_message, NULL};
 
   //! evita che risposta sia un valore preso a caso dal buffer
-  fflush(stdout);
-  char risposta;
-  printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
-  scanf("%s", &risposta);
 
   pid_alimentazione = fork();
   switch(pid_alimentazione) {
@@ -204,6 +200,13 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
   //CHECK_OPERATION;
 
+  fflush(stdout);
+  char risposta;
+  do {
+    printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
+    scanf("%s", &risposta);
+  } while(tolower(risposta) != 'y' && tolower(risposta) != 'n');
+
   alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
@@ -220,12 +223,6 @@ int main(int argc, char* argv[]) {
     sleep(1);
 
     shmem_ptr -> cons_en_rel = ENERGY_DEMAND;
-
-    if (shmem_ptr -> inib_on == 1) {
-      //! assorbe un quinto dell'energia totale
-      shmem_ptr -> absorbed_en_rel = (shmem_ptr -> prod_en_tot)/5;
-      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
-    }
     
     stat_total_value();
 

@@ -28,9 +28,26 @@ int main(int argc, char* argv[]) {
 			perror("pid attivatore");
 		exit(EXIT_FAILURE);
 		}
-		
-		//!segnale di scissione
-		shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
-		kill(new_pid, SIGUSR2);
+
+		if (shmem_ptr -> inib_on == 1 && (shmem_ptr -> remainder == new_pid%2)) {
+			kill(new_pid, SIGTERM);
+			sem.sem_num = WASTESEM;
+			sem.sem_op = -1;
+			semop(semid, &sem, 1);
+			//CHECK_OPERATION;
+
+			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
+
+			sem.sem_num = WASTESEM;
+			sem.sem_op = 1;
+			semop(semid, &sem, 1);
+			//CHECK_OPERATION;
+			
+			shmem_ptr -> undiv_rel = shmem_ptr -> undiv_rel + 1;
+		} else {
+			//!segnale di scissione
+			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
+			kill(new_pid, SIGUSR2);
+		}
 	}
 }
