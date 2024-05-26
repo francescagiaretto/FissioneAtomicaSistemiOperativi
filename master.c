@@ -89,8 +89,7 @@ int main(int argc, char* argv[]) {
 
   //! evita che risposta sia un valore preso a caso dal buffer
 
-  pid_alimentazione = fork();
-  switch(pid_alimentazione) {
+  switch(pid_alimentazione = fork()) {
     case -1:
       shmem_ptr->message = "meltdown.";
       raise(SIGTSTP);
@@ -148,7 +147,7 @@ int main(int argc, char* argv[]) {
     break;
   } 
   
-  int simulation_start = 1;
+  shmem_ptr -> simulation_start = 1;
   pid_atoms = malloc(sizeof(pid_t) * N_ATOM_INIT);    // dynamic mem allocated for pid atomi array
   for(int i = 0; i < N_ATOM_INIT; i++) {
 
@@ -183,6 +182,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  fflush(stdout);
+  char risposta;
+  do {
+    printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
+    scanf("%s", &risposta);
+  } while(tolower(risposta) != 'y' && tolower(risposta) != 'n');
+
   struct sigaction sa;
 
   bzero(&sa, sizeof(sa)); // emptying struct to send to child
@@ -199,13 +205,6 @@ int main(int argc, char* argv[]) {
 	sem.sem_op = -(N_ATOM_INIT + 3);
   semop(semid, &sem, 1);
   //CHECK_OPERATION;
-
-  fflush(stdout);
-  char risposta;
-  do {
-    printf("Do you want to turn inibitore on? (y for yes, n for no)\n");
-    scanf("%s", &risposta);
-  } while(tolower(risposta) != 'y' && tolower(risposta) != 'n');
 
   alarm(SIM_DURATION);
   
@@ -232,28 +231,30 @@ int main(int argc, char* argv[]) {
       raise(SIGTSTP);
     }
 
+    print_stats();
+
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
       shmem_ptr->message = "blackout.";
       raise(SIGTSTP);
+    } else {
+      shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - ENERGY_DEMAND;
     }
-
-    print_stats();
 
     bzero(shmem_ptr, 7*sizeof(int));
     
     // checking blackout condition
   }
 
-  printf("Simulation terminated due to %s\n", shmem_ptr -> message);
   shmem_ptr -> termination == 1;
+  printf("Simulation terminated due to %s\n", shmem_ptr -> message);
+  semctl(semid, 0, IPC_RMID);
+  /* kill(pid_alimentazione, SIGTERM);
+  kill(pid_attivatore, SIGTERM);
+  kill(pid_inibitore, SIGTERM); */
   shmdt(shmem_ptr);
   shmctl(shmid, IPC_RMID, NULL);
-  semctl(semid, 0, IPC_RMID);
   msgctl(msgid, IPC_RMID, NULL);
-  kill(pid_alimentazione, SIGTERM);
-  kill(pid_attivatore, SIGTERM);
-  kill(pid_inibitore, SIGTERM); 
   killpg(getpgid(getpid()), SIGTERM);
 }
 
@@ -322,7 +323,7 @@ void stat_total_value() {
   shmem_ptr -> waste_tot = shmem_ptr -> waste_tot + shmem_ptr -> waste_rel;
   shmem_ptr -> act_tot = shmem_ptr -> act_tot + shmem_ptr -> act_rel;
   shmem_ptr -> div_tot = shmem_ptr -> div_tot + shmem_ptr -> div_rel;
-  shmem_ptr -> prod_en_tot = (shmem_ptr -> prod_en_tot + shmem_ptr -> prod_en_rel) - shmem_ptr -> cons_en_rel;
+  shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot + shmem_ptr -> prod_en_rel;
   shmem_ptr -> cons_en_tot = shmem_ptr -> cons_en_tot + shmem_ptr -> cons_en_rel;
   shmem_ptr -> absorbed_en_tot = shmem_ptr -> absorbed_en_tot + shmem_ptr -> absorbed_en_rel;
   shmem_ptr -> undiv_tot = shmem_ptr -> undiv_tot + shmem_ptr -> undiv_rel;

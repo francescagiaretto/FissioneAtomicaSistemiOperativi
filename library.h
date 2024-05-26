@@ -16,11 +16,11 @@
 #include <sys/sem.h>
 #include <ctype.h>
 
-#define N_ATOM_INIT 1000
+#define N_ATOM_INIT 100
 #define N_ATOM_MAX 118
-#define ENERGY_DEMAND 2000
+#define ENERGY_DEMAND 500
 #define STEP_ATTIVATORE 1000
-#define N_NUOVI_ATOMI 1000
+#define N_NUOVI_ATOMI 10
 #define SIM_DURATION 10
 #define ENERGY_EXPLODE_THRESHOLD 10000000
 #define MIN_N_ATOMICO 30
@@ -44,7 +44,7 @@
 					   strerror(errno));}
 
 
-//#define CHECK_OPERATION switch (errno) { \
+#define CHECK_OPERATION switch (errno) { \
 		                        case EIDRM: \
 		                        	printf("PID = %d, riga:%d : semaphore removed while process was waiting\n", \
 		                        	       getpid(), __LINE__); \
