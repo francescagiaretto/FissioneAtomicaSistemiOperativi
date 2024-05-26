@@ -14,7 +14,12 @@ void signal_handler(int sig) {
 		break;
 		
 		case SIGQUIT:
+			pause();
 		break;
+
+		case SIGSEGV:
+    	kill(shmem_ptr -> pid_master, SIGSEGV);
+    break;
 	}
 }
 
@@ -39,6 +44,7 @@ int main(int argc, char* argv[]){
 	sa.sa_handler = &signal_handler;
   	sigaction(SIGUSR2, &sa, NULL);
 	sigaction(SIGQUIT, &sa, NULL);
+	sigaction(SIGSEGV, &sa, NULL);
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different
 
@@ -64,8 +70,12 @@ int main(int argc, char* argv[]){
 	if (atom_activation == 1) {
 		switch (fork()) {
 			case -1:
-				shmem_ptr->message = "meltdown.";
-				kill(shmem_ptr -> pid_master, SIGTSTP);
+        	sem.sem_num = MELTDOWNSEM;
+        	sem.sem_op = -1;
+        	semop(semid, &sem, 1);
+
+        	shmem_ptr -> message = "meltdown.";
+			kill(shmem_ptr -> pid_master, SIGUSR2);
 			break;
 
 			case 0: // checking child

@@ -25,7 +25,7 @@
 #define ENERGY_EXPLODE_THRESHOLD 10000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE 8
-#define SHM_SIZE 500
+#define SHM_SIZE 50
 #define PID_TYPE 1
 
 #define WAITSEM 0
@@ -34,6 +34,7 @@
 #define PROD_ENERGYSEM 3
 #define DIVISIONSEM 4
 #define INIBSEM 5
+#define MELTDOWNSEM 6
 
 #define TEST_ERROR   if (errno) {fprintf(stderr, \
 					   "%s:%d: PID=%5d: Error %d (%s)\n",\
@@ -88,11 +89,11 @@ typedef struct data_buffer {
   int undiv_tot;
   
   char * message; // termination message
-  int avaliable_energy;
   int simulation_start;
   int inib_on;
   int termination;
   int remainder;
+  int meltdown_case;
   pid_t pid_master;
 } data_buffer;
 

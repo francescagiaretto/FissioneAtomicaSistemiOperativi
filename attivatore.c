@@ -1,11 +1,16 @@
 #include "library.h"
 
 int semid, shmid, msgid;
+data_buffer * shmem_ptr;
 
 void signal_handler(int sig) {
 	switch(sig) {
 		case SIGQUIT:
 		break;
+		
+		case SIGSEGV:
+    	kill(shmem_ptr -> pid_master, SIGSEGV);
+    break;
 	}
 }
 
@@ -15,7 +20,7 @@ int main(int argc, char* argv[]) {
 	shmid = atoi(argv[2]);
 	msgid = atoi(argv[3]);
 
-	data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
+	shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
 	TEST_ERROR;
 
 	struct timespec step_nanosec;
@@ -27,10 +32,11 @@ int main(int argc, char* argv[]) {
   	sa.sa_handler = &signal_handler;
   	sa.sa_flags = SA_RESTART;
   	sigaction(SIGQUIT, &sa, NULL);
+	sigaction(SIGSEGV, &sa, NULL);
 
 	sem.sem_num = STARTSEM;
  	sem.sem_op = -1;
-  semop(semid, &sem, 1);
+  	semop(semid, &sem, 1);
 
   //! fare aggiustamenti e capire se le attivazioni seguono una logica con gli atomi
 
@@ -38,9 +44,11 @@ int main(int argc, char* argv[]) {
 		nanosleep(&step_nanosec, NULL);
 
 		//! riceviamo il pid di ogni atomo
+		//printf("RICEVO PID\n");
 		do { 
 			new_pid = receive_pid(msgid);
 		} while(new_pid == -1 && errno == EINTR);
+		//printf("POST RICEZIONE PID\n");
 
 		if (shmem_ptr -> inib_on == 1 && shmem_ptr -> remainder == new_pid % 2) {
 			//printf("Ho impedito la scissione di %d, avente resto %d\n", new_pid, shmem_ptr -> remainder);

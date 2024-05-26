@@ -2,12 +2,17 @@
 
 void signal_handler(int sig);
 int semid, shmid, msgid;
+data_buffer * shmem_ptr;
 
 void signal_handler(int sig) {
 	switch(sig) {
 		case SIGQUIT:
 
 		break;
+
+    case SIGSEGV:
+      kill(shmem_ptr -> pid_master, SIGSEGV);
+    break;
 	}
 }
 
@@ -21,7 +26,7 @@ int main(int argc, char * argv[]) {
   semid = atoi(argv[2]);
   msgid = atoi(argv[3]);
 
-  data_buffer * shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
+  shmem_ptr = (data_buffer *) shmat(shmid, NULL, 0);
   TEST_ERROR;
 
   //* STRUCT defines a nanosec-based sleep (can't be done with standard sleep())
@@ -34,6 +39,7 @@ int main(int argc, char * argv[]) {
   bzero(&sa, sizeof(sa)); // emptying struct to send to child
   sa.sa_handler = &signal_handler;
   sigaction(SIGQUIT, &sa, NULL);
+  sigaction(SIGSEGV, &sa, NULL);
 
   sem.sem_num = STARTSEM;
   sem.sem_op = -1;
@@ -42,7 +48,7 @@ int main(int argc, char * argv[]) {
 
   while(shmem_ptr -> termination != 1) {
     nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
-
+    
     for(int i = 0; i < N_NUOVI_ATOMI; i++){
       atomic_num = rand() % N_ATOM_MAX + 1;
       sprintf(n_atom, "%d", atomic_num);
@@ -51,8 +57,12 @@ int main(int argc, char * argv[]) {
       switch(fork()) {
 
         case -1:
-          shmem_ptr->message = "meltdown.";
-          kill(shmem_ptr -> pid_master, SIGTSTP);
+          sem.sem_num = MELTDOWNSEM;
+          sem.sem_op = -1;
+          semop(semid, &sem, 1);
+
+          shmem_ptr -> message = "meltdown.";
+          kill(shmem_ptr -> pid_master, SIGUSR2);
         break;
 
         case 0:

@@ -18,6 +18,10 @@ void signal_handler(int sig){
         kill(shmem_ptr -> pid_master, SIGUSR1);
       }
     break;
+
+    case SIGSEGV:
+      kill(shmem_ptr -> pid_master, SIGSEGV);
+    break;
   }
 }
 
@@ -42,6 +46,7 @@ int main(int argc, char* argv[]) {
   sa.sa_handler = &signal_handler;
   sa.sa_flags = SA_RESTART;
   sigaction(SIGQUIT, &sa, NULL);
+  sigaction(SIGSEGV, &sa, NULL);
 
   shmem_ptr -> inib_on = 0;
 

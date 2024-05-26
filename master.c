@@ -15,8 +15,14 @@ void signal_handler(int sig) {
       shmem_ptr -> message = "timeout.";
     break;
 
-    case SIGTSTP:
+    case SIGUSR2:
       shmem_ptr -> termination = 1;
+      write(0, "Simulation terminated due to meltdown.\n", 39);
+      semctl(semid, 0, IPC_RMID);
+      shmdt(shmem_ptr);
+      shmctl(shmid, IPC_RMID, NULL);
+      msgctl(msgid, IPC_RMID, NULL);
+      killpg(getpgid(getpid()), SIGTERM);
     break;
 
     //! dà problemi quando si accende l'inibitore a inizio simulazione, lo si spegne, alla seconda riaccensione dà on off
@@ -34,7 +40,6 @@ void signal_handler(int sig) {
         sem.sem_op = 1;
         semop(semid, &sem, 1); 
     }
-      
     break;
 
     case SIGINT:
@@ -44,6 +49,12 @@ void signal_handler(int sig) {
 
     case SIGQUIT:
     break;
+
+    case SIGSEGV:
+      shmem_ptr -> termination  = 1;
+      shmem_ptr -> message = "segmentation fault.";
+    break;
+
   }
 }
 
@@ -63,7 +74,7 @@ int main(int argc, char* argv[]) {
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
-  semid = semget(semkey, 6, IPC_CREAT | 0666);
+  semid = semget(semkey, 7, IPC_CREAT | 0666);
   TEST_ERROR;
 
   msgid = msgget(msgkey, IPC_CREAT | 0666);
@@ -74,6 +85,7 @@ int main(int argc, char* argv[]) {
 
   shmem_ptr -> pid_master = getpid();
   shmem_ptr -> termination  = 0;
+  shmem_ptr -> meltdown_case = 0;
 
   set_sem_values();
   sem.sem_flg = 0;
@@ -91,8 +103,12 @@ int main(int argc, char* argv[]) {
 
   switch(pid_alimentazione = fork()) {
     case -1:
+      sem.sem_num = MELTDOWNSEM;
+      sem.sem_op = -1;
+      semop(semid, &sem, 1);
+
       shmem_ptr->message = "meltdown.";
-      raise(SIGTSTP);
+      raise(SIGUSR2);
     break;
 
     case 0:
@@ -108,8 +124,12 @@ int main(int argc, char* argv[]) {
       switch(pid_attivatore = fork()) {
 
         case -1:
+          sem.sem_num = MELTDOWNSEM;
+          sem.sem_op = -1;
+          semop(semid, &sem, 1); 
+          
           shmem_ptr->message = "meltdown.";
-          raise(SIGTSTP);
+          raise(SIGUSR2);
         break;
 
         case 0:
@@ -130,8 +150,12 @@ int main(int argc, char* argv[]) {
         */
           switch(pid_inibitore = fork()) {
             case -1:
+              sem.sem_num = MELTDOWNSEM;
+              sem.sem_op = -1;
+              semop(semid, &sem, 1);
+
               shmem_ptr->message = "meltdown.";
-              raise(SIGTSTP);
+              raise(SIGUSR2);
             break;
             
             case 0:
@@ -162,8 +186,12 @@ int main(int argc, char* argv[]) {
     switch(pid_atoms[i]) {
 
       case -1:
+        sem.sem_num = MELTDOWNSEM;
+        sem.sem_op = -1;
+        semop(semid, &sem, 1);
+
         shmem_ptr->message = "meltdown.";
-        raise(SIGTSTP);
+        raise(SIGUSR2);
       break;
 
       case 0: 
@@ -197,7 +225,8 @@ int main(int argc, char* argv[]) {
   sigaction(SIGINT, &sa, NULL);
   sigaction(SIGUSR1, &sa, NULL);
   sigaction(SIGQUIT, &sa, NULL);
-  sigaction(SIGTSTP, &sa, NULL);
+  sigaction(SIGUSR2, &sa, NULL);
+  sigaction(SIGSEGV, &sa, NULL);
 
   free(pid_atoms);
 
@@ -215,8 +244,6 @@ int main(int argc, char* argv[]) {
   if (tolower(risposta) == 'y') {
     raise(SIGUSR1);
   }
-
-  shmem_ptr -> avaliable_energy = 0;
 
   while(shmem_ptr -> termination != 1) {
     sleep(1);
@@ -242,16 +269,13 @@ int main(int argc, char* argv[]) {
     }
 
     bzero(shmem_ptr, 7*sizeof(int));
-    
-    // checking blackout condition
+
+    // segm fault arriva dopo qua
+
   }
 
-  shmem_ptr -> termination == 1;
   printf("Simulation terminated due to %s\n", shmem_ptr -> message);
   semctl(semid, 0, IPC_RMID);
-  /* kill(pid_alimentazione, SIGTERM);
-  kill(pid_attivatore, SIGTERM);
-  kill(pid_inibitore, SIGTERM); */
   shmdt(shmem_ptr);
   shmctl(shmid, IPC_RMID, NULL);
   msgctl(msgid, IPC_RMID, NULL);
@@ -282,6 +306,9 @@ void set_sem_values(){
 
   // handles inibitore
   semctl(semid, INIBSEM, SETVAL, 0);
+  TEST_ERROR;
+
+  semctl(semid, MELTDOWNSEM, SETVAL, 1);
   TEST_ERROR;
 }
 
