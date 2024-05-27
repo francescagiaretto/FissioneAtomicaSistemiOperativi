@@ -112,7 +112,6 @@ int main(int argc, char* argv[]) {
       /* sem.sem_num = WAITSEM;
       sem.sem_op = 1;
       semop(semid, &sem, 1); */
-      //CHECK_OPERATION;
       execve("./alimentazione", vec_alim, NULL);
       TEST_ERROR;
     break;
@@ -133,7 +132,6 @@ int main(int argc, char* argv[]) {
           /* sem.sem_num = WAITSEM;
           sem.sem_op = 1;
           semop(semid, &sem, 1); */
-          //CHECK_OPERATION;
           execve("./attivatore", vec_attiv, NULL);
           TEST_ERROR;
         break;
@@ -159,7 +157,6 @@ int main(int argc, char* argv[]) {
               /* sem.sem_num = WAITSEM;
               sem.sem_op = 1;
               semop(semid, &sem, 1); */
-              //CHECK_OPERATION;
               execve("./inibitore", vec_inib, NULL);
               TEST_ERROR;
             break;
@@ -196,7 +193,6 @@ int main(int argc, char* argv[]) {
         /* sem.sem_num = WAITSEM;
         sem.sem_op = 1;
         semop(semid, &sem, 1);*/
-        //CHECK_OPERATION;
 
         execve("./atomo", vec_atomo, NULL);
         TEST_ERROR;
@@ -230,7 +226,6 @@ int main(int argc, char* argv[]) {
   /* sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 3);
   semop(semid, &sem, 1); */
-  //CHECK_OPERATION;
   
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +3;

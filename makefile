@@ -3,20 +3,23 @@ CFLAGS = -Wvla -Wextra -Werror
 
 init: master atomo attivatore alimentazione inibitore library.h
 
-master: master.c library.h
-	$(CC) master.c $(CFLAGS) -o master
+library.o: library.c library.h
+	$(CC) library.c $(CFLAGS) library.o -o library
 
-atomo: atomo.c library.h
-	$(CC) atomo.c $(CFLAGS) -o atomo
+master: master.c library.o
+	$(CC) master.c $(CFLAGS) library.o -o master
 
-attivatore: attivatore.c library.h
-	$(CC) attivatore.c $(CFLAGS) -o attivatore
+atomo: atomo.c library.o
+	$(CC) atomo.c $(CFLAGS) library.o -o atomo
 
-alimentazione: alimentazione.c library.h
-	$(CC) alimentazione.c $(CFLAGS) -o alimentazione
+attivatore: attivatore.c library.o
+	$(CC) attivatore.c $(CFLAGS) library.o -o attivatore
 
-inibitore: inibitore.c library.h
-	$(CC) inibitore.c $(CFLAGS) -o inibitore
+alimentazione: alimentazione.c library.o
+	$(CC) alimentazione.c $(CFLAGS) library.o -o alimentazione
+
+inibitore: inibitore.c library.o
+	$(CC) inibitore.c $(CFLAGS) library.o -o inibitore
 	
 run: 
 	./master

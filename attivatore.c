@@ -63,14 +63,12 @@ int main(int argc, char* argv[]) {
 			sem.sem_num = WASTESEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 
 			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 
 			shmem_ptr -> undiv_rel = shmem_ptr -> undiv_rel + 1;
 			}

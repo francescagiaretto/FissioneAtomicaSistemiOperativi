@@ -116,42 +116,36 @@ void operate_in_sem(int sem_working, int en_lib){
 			sem.sem_num = WASTESEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 
 			shmem_ptr -> waste_rel = shmem_ptr -> waste_rel +1;
 
 			sem.sem_num = WASTESEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 		break;
 
 		case PROD_ENERGYSEM:
 			sem.sem_num = PROD_ENERGYSEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 
 			shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel + en_lib;
 
 			sem.sem_num = PROD_ENERGYSEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 		break;
 
 		case DIVISIONSEM:
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 
 			shmem_ptr -> div_rel = shmem_ptr -> div_rel + 1;
 
 			sem.sem_num = DIVISIONSEM;
 			sem.sem_op = 1;
 			semop(semid, &sem, 1);
-			//CHECK_OPERATION;
 		break;
 	}
 }
