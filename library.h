@@ -16,25 +16,24 @@
 #include <sys/sem.h>
 #include <ctype.h>
 
-#define N_ATOM_INIT 100
+#define N_ATOM_INIT 5
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 500
 #define STEP_ATTIVATORE 1000
-#define N_NUOVI_ATOMI 10
-#define SIM_DURATION 10
+#define N_NUOVI_ATOMI 1
+#define SIM_DURATION 15
 #define ENERGY_EXPLODE_THRESHOLD 10000000
 #define MIN_N_ATOMICO 30
 #define STEP_ALIMENTAZIONE 8
 #define SHM_SIZE 50
 #define PID_TYPE 1
 
-#define WAITSEM 0
-#define STARTSEM 1
-#define WASTESEM 2
-#define PROD_ENERGYSEM 3
-#define DIVISIONSEM 4
-#define INIBSEM 5
-#define MELTDOWNSEM 6
+#define STARTSEM 0
+#define WASTESEM 1
+#define PROD_ENERGYSEM 2
+#define DIVISIONSEM 3
+#define INIBSEM 4
+#define MELTDOWNSEM 5
 
 #define TEST_ERROR   if (errno) {fprintf(stderr, \
 					   "%s:%d: PID=%5d: Error %d (%s)\n",\

@@ -112,9 +112,9 @@ int main(int argc, char* argv[]) {
     break;
 
     case 0:
-      sem.sem_num = WAITSEM;
+      /* sem.sem_num = WAITSEM;
       sem.sem_op = 1;
-      semop(semid, &sem, 1);
+      semop(semid, &sem, 1); */
       //CHECK_OPERATION;
       execve("./alimentazione", vec_alim, NULL);
       TEST_ERROR;
@@ -133,9 +133,9 @@ int main(int argc, char* argv[]) {
         break;
 
         case 0:
-          sem.sem_num = WAITSEM;
+          /* sem.sem_num = WAITSEM;
           sem.sem_op = 1;
-          semop(semid, &sem, 1);
+          semop(semid, &sem, 1); */
           //CHECK_OPERATION;
           execve("./attivatore", vec_attiv, NULL);
           TEST_ERROR;
@@ -159,9 +159,9 @@ int main(int argc, char* argv[]) {
             break;
             
             case 0:
-              sem.sem_num = WAITSEM;
+              /* sem.sem_num = WAITSEM;
               sem.sem_op = 1;
-              semop(semid, &sem, 1);
+              semop(semid, &sem, 1); */
               //CHECK_OPERATION;
               execve("./inibitore", vec_inib, NULL);
               TEST_ERROR;
@@ -196,9 +196,9 @@ int main(int argc, char* argv[]) {
 
       case 0: 
         free(pid_atoms);
-        sem.sem_num = WAITSEM;
+        /* sem.sem_num = WAITSEM;
         sem.sem_op = 1;
-        semop(semid, &sem, 1);
+        semop(semid, &sem, 1);*/
         //CHECK_OPERATION;
 
         execve("./atomo", vec_atomo, NULL);
@@ -230,16 +230,16 @@ int main(int argc, char* argv[]) {
 
   free(pid_atoms);
 
-  sem.sem_num = WAITSEM;
+  /* sem.sem_num = WAITSEM;
 	sem.sem_op = -(N_ATOM_INIT + 3);
-  semop(semid, &sem, 1);
+  semop(semid, &sem, 1); */
   //CHECK_OPERATION;
-
-  alarm(SIM_DURATION);
   
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +3;
   semop(semid, &sem, 1);
+
+  alarm(SIM_DURATION);
 
   if (tolower(risposta) == 'y') {
     raise(SIGUSR1);
@@ -284,10 +284,6 @@ int main(int argc, char* argv[]) {
 
 void set_sem_values(){
   
-  //prevents the simulation from starting before everything is set
-  semctl(semid, WAITSEM, SETVAL, 0);
-  TEST_ERROR;
-
   //allows the simulation to start after everything is set
   semctl(semid, STARTSEM, SETVAL, 0);
   TEST_ERROR;
@@ -308,6 +304,7 @@ void set_sem_values(){
   semctl(semid, INIBSEM, SETVAL, 0);
   TEST_ERROR;
 
+  // handles meltdown termination
   semctl(semid, MELTDOWNSEM, SETVAL, 1);
   TEST_ERROR;
 }
