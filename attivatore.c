@@ -44,15 +44,14 @@ int main(int argc, char* argv[]) {
 		nanosleep(&step_nanosec, NULL);
 
 		//! riceviamo il pid di ogni atomo
-		//printf("RICEVO PID\n");
 		do { 
 			new_pid = receive_pid(msgid);
 		} while(new_pid == -1 && errno == EINTR);
-		//printf("POST RICEZIONE PID\n");
 
 		if (shmem_ptr -> inib_on == 1 && shmem_ptr -> remainder == new_pid % 2) {
-			//printf("Ho impedito la scissione di %d, avente resto %d\n", new_pid, shmem_ptr -> remainder);
+			printf("Ho impedito la scissione di %d, avente resto %d\n", new_pid, shmem_ptr -> remainder);
 			kill(new_pid, SIGTERM);
+			
 			sem.sem_num = WASTESEM;
 			sem.sem_op = -1;
 			semop(semid, &sem, 1);
@@ -68,7 +67,7 @@ int main(int argc, char* argv[]) {
 			shmem_ptr -> undiv_rel = shmem_ptr -> undiv_rel + 1;
 		} else {
 			//!segnale di scissione
-			//printf("scissione di %d\n", new_pid);
+			printf("scissione di %d\n", new_pid);
 			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
 			kill(new_pid, SIGUSR2);
 		}

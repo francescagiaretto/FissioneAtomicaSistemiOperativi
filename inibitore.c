@@ -48,6 +48,10 @@ int main(int argc, char* argv[]) {
   sigaction(SIGQUIT, &sa, NULL);
   sigaction(SIGSEGV, &sa, NULL);
 
+  struct timespec step_nanosec;
+  step_nanosec.tv_sec = 0;           // seconds   
+  step_nanosec.tv_nsec = STEP_INIBITORE;   // nanoseconds
+
   shmem_ptr -> inib_on = 0;
 
   sem.sem_num = STARTSEM;
@@ -59,7 +63,8 @@ int main(int argc, char* argv[]) {
   semop(semid, &sem, 1);
 
   while (shmem_ptr -> termination == 0) {
-    sleep(1);
+    nanosleep(&step_nanosec, NULL);
+    
     //! se l'inibitore viene disattivato il semaforo blocca la stampa dell'energia evitando l'attesa attiva
     if(shmem_ptr -> inib_on == 0) {
       sem.sem_num = INIBSEM;

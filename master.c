@@ -32,13 +32,14 @@ void signal_handler(int sig) {
         kill(pid_inibitore, SIGQUIT); 
         TEST_ERROR;
       } else if(shmem_ptr -> inib_on == 0){
-        write(0, "Inibitore ON. Turn off anytime with ctrl + backslash \n", 55);
 
         shmem_ptr -> inib_on = 1;
         
         sem.sem_num = INIBSEM;
         sem.sem_op = 1;
         semop(semid, &sem, 1); 
+
+        write(0, "Inibitore ON. Turn off anytime with ctrl + backslash \n", 55);
     }
     break;
 
@@ -258,7 +259,7 @@ int main(int argc, char* argv[]) {
       raise(SIGTSTP);
     }
 
-    print_stats();
+    // print_stats();
 
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
