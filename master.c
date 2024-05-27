@@ -259,7 +259,7 @@ int main(int argc, char* argv[]) {
       raise(SIGTSTP);
     }
 
-    // print_stats();
+    print_stats();
 
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {

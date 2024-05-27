@@ -52,7 +52,6 @@ int main(int argc, char* argv[]){
 
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 		operate_in_sem(WASTESEM, 0);
-		printf("[%d] -> divento scoria con n°atomico = %d\n", getpid(), parent_atom_num);
 		exit(0);
 	}
 
@@ -61,7 +60,6 @@ int main(int argc, char* argv[]){
 
 	// pause() mette in waiting il programma finche non gli viene lanciato un qualsiasi segbale
 	pause();
-	printf("[%d] -> mi scindo\n", getpid());
 
 	generate_n_atom(&parent_atom_num, &child_atom_num);
 	sprintf(division_atom_num, "%d", child_atom_num);
