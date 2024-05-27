@@ -12,9 +12,7 @@ void signal_handler(int sig){
         shmem_ptr -> inib_on = 0;
         
       } else if (shmem_ptr -> inib_on == 0) {
-        //! generiamo un numero randomico tra 0 e 1; se esce 0 l'attivatore uccide i pari, se esce 1 i dispari
-        shmem_ptr -> remainder = rand() % 2;
-        
+        //! generiamo un numero randomico tra 0 e 1; se esce 0 l'attivatore uccide i pari, se esce 1 i dispari      
         kill(shmem_ptr -> pid_master, SIGUSR1);
       }
     break;
