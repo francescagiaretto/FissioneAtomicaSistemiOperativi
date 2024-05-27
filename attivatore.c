@@ -27,21 +27,19 @@ int main(int argc, char* argv[]) {
 	TEST_ERROR;
 
 	struct timespec step_nanosec;
-  	step_nanosec.tv_sec = 0;          
-  	step_nanosec.tv_nsec = STEP_ATTIVATORE;  
+	step_nanosec.tv_sec = 0;          
+	step_nanosec.tv_nsec = STEP_ATTIVATORE;  
 
 	struct sigaction sa;
-  	bzero(&sa, sizeof(sa)); 
-  	sa.sa_handler = &signal_handler;
-  	sa.sa_flags = SA_RESTART;
-  	sigaction(SIGQUIT, &sa, NULL);
+	bzero(&sa, sizeof(sa)); 
+	sa.sa_handler = &signal_handler;
+	sa.sa_flags = SA_RESTART;
+	sigaction(SIGQUIT, &sa, NULL);
 	sigaction(SIGSEGV, &sa, NULL);
 
 	sem.sem_num = STARTSEM;
  	sem.sem_op = -1;
-  	semop(semid, &sem, 1);
-
-  //! fare aggiustamenti e capire se le attivazioni seguono una logica con gli atomi
+	semop(semid, &sem, 1);
 
 	while (shmem_ptr -> termination != 1) {
 		nanosleep(&step_nanosec, NULL);

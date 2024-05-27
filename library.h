@@ -92,8 +92,6 @@ typedef struct data_buffer {
   int simulation_start;
   int inib_on;
   int termination;
-  int remainder;
-  int meltdown_case;
   pid_t pid_master;
 } data_buffer;
 

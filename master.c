@@ -30,11 +30,9 @@ void signal_handler(int sig) {
     //! dà problemi quando si accende l'inibitore a inizio simulazione, lo si spegne, alla seconda riaccensione dà on off
     case SIGUSR1:
       if (shmem_ptr -> inib_on == 1) {
-
         kill(pid_inibitore, SIGQUIT); 
         TEST_ERROR;
       } else if(shmem_ptr -> inib_on == 0){
-
         shmem_ptr -> inib_on = 1;
         
         sem.sem_num = INIBSEM;
@@ -42,7 +40,7 @@ void signal_handler(int sig) {
         semop(semid, &sem, 1); 
 
         write(0, "Inibitore ON. Turn off anytime with ctrl + backslash \n", 55);
-    }
+      }
     break;
 
     case SIGINT:
@@ -57,7 +55,6 @@ void signal_handler(int sig) {
       shmem_ptr -> termination  = 1;
       shmem_ptr -> message = "segmentation fault.";
     break;
-
   }
 }
 
@@ -88,7 +85,6 @@ int main(int argc, char* argv[]) {
 
   shmem_ptr -> pid_master = getpid();
   shmem_ptr -> termination  = 0;
-  shmem_ptr -> meltdown_case = 0;
 
   set_sem_values();
   sem.sem_flg = 0;
@@ -101,8 +97,6 @@ int main(int argc, char* argv[]) {
   char * vec_alim[] = {"./alimentazione", id_shmat, id_sem, id_message, NULL};
   char * vec_attiv[] = {"./attivatore", id_sem, id_shmat, id_message, NULL};
   char * vec_inib[] = {"./inibitore", id_sem, id_shmat, id_message, NULL};
-
-  //! evita che risposta sia un valore preso a caso dal buffer
 
   switch(pid_alimentazione = fork()) {
     case -1:

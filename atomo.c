@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
 	//! ogni atomo manda all'attivatore il suo pid
 	send_atom_pid(msgid, getpid());
 
-	// pause() mette in waiting il programma finche non gli viene lanciato un qualsiasi segbale
+	//! pause() mette in waiting il programma finche non gli viene lanciato un qualsiasi segnale
 	pause();
 
 	generate_n_atom(&parent_atom_num, &child_atom_num);
@@ -68,12 +68,10 @@ int main(int argc, char* argv[]){
 	if (atom_activation == 1) {
 		switch (fork()) {
 			case -1:
-        	sem.sem_num = MELTDOWNSEM;
-        	sem.sem_op = -1;
-        	semop(semid, &sem, 1);
-
-			printf("meltdown atomo\n");
-			kill(shmem_ptr -> pid_master, SIGUSR2);
+				sem.sem_num = MELTDOWNSEM;
+				sem.sem_op = -1;
+				semop(semid, &sem, 1);
+				kill(shmem_ptr -> pid_master, SIGUSR2);
 			break;
 
 			case 0: // checking child

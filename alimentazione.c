@@ -59,8 +59,6 @@ int main(int argc, char * argv[]) {
           sem.sem_num = MELTDOWNSEM;
           sem.sem_op = -1;
           semop(semid, &sem, 1);
-
-          printf("meltdown alimentazione\n");
           kill(shmem_ptr -> pid_master, SIGUSR2);
         break;
 
