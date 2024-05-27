@@ -27,10 +27,7 @@ void signal_handler(int sig){
 
 int main(int argc, char* argv[]) {
 
-    // bisogna poter decidere a runtime se si vuole che l'inibitore sia attivo o meno 
-      // (l'utente deve poter fermare e far ripartire il processo inibitore più volte da terminale)
-
-    // non devono avvenire explode e meltdown
+  int absorbing_energy;
 
   semid = atoi(argv[1]);
 	shmid = atoi(argv[2]);
@@ -72,8 +69,9 @@ int main(int argc, char* argv[]) {
       semop(semid, &sem, 1);
     }
     
-      //! assorbe un quinto dell'energia totale
-    shmem_ptr -> absorbed_en_rel = shmem_ptr -> prod_en_tot/10;
-    shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - shmem_ptr -> absorbed_en_rel;
+    //! assorbe un quinto dell'energia totale
+    absorbing_energy = shmem_ptr -> prod_en_tot/10;
+    shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - absorbing_energy;
+    shmem_ptr -> absorbed_en_rel = shmem_ptr -> absorbed_en_rel + absorbing_energy;
   }
 }
