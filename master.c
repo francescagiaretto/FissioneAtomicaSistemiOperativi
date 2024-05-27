@@ -16,8 +16,10 @@ void signal_handler(int sig) {
     break;
 
     case SIGUSR2:
-      shmem_ptr -> termination = 1;
       write(0, "Simulation terminated due to meltdown.\n", 39);
+      kill(pid_alimentazione, SIGTERM);
+      kill(pid_attivatore, SIGTERM);
+      kill(pid_inibitore, SIGTERM);
       semctl(semid, 0, IPC_RMID);
       shmdt(shmem_ptr);
       shmctl(shmid, IPC_RMID, NULL);
@@ -260,6 +262,7 @@ int main(int argc, char* argv[]) {
     }
 
     print_stats();
+    bzero(shmem_ptr, 7*sizeof(int));
 
     // checking blackout condition
     if (ENERGY_DEMAND > shmem_ptr -> prod_en_tot) {
@@ -268,11 +271,6 @@ int main(int argc, char* argv[]) {
     } else {
       shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - ENERGY_DEMAND;
     }
-
-    bzero(shmem_ptr, 7*sizeof(int));
-
-    // segm fault arriva dopo qua
-
   }
 
   printf("Simulation terminated due to %s\n", shmem_ptr -> message);

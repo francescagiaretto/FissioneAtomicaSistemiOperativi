@@ -10,12 +10,15 @@ void signal_handler(int sig) {
 		
 		case SIGSEGV:
     	kill(shmem_ptr -> pid_master, SIGSEGV);
-    break;
+    	break;
 	}
 }
 
 int main(int argc, char* argv[]) {
+
 	pid_t new_pid;
+	int prob_division;
+
 	semid = atoi(argv[1]);
 	shmid = atoi(argv[2]);
 	msgid = atoi(argv[3]);
@@ -48,7 +51,15 @@ int main(int argc, char* argv[]) {
 			new_pid = receive_pid(msgid);
 		} while(new_pid == -1 && errno == EINTR);
 
-		if (shmem_ptr -> inib_on == 1 && shmem_ptr -> remainder == new_pid % 2) {
+		if (shmem_ptr -> inib_on == 1) {
+			prob_division = rand() % 11;
+
+			if(prob_division <= 2) {
+				//!segnale di scissione
+				shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;
+				kill(new_pid, SIGUSR2);
+			} else {
+
 			kill(new_pid, SIGTERM);
 			
 			sem.sem_num = WASTESEM;
@@ -64,6 +75,8 @@ int main(int argc, char* argv[]) {
 			//CHECK_OPERATION;
 
 			shmem_ptr -> undiv_rel = shmem_ptr -> undiv_rel + 1;
+			}
+			
 		} else {
 			//!segnale di scissione
 			shmem_ptr -> act_rel = shmem_ptr -> act_rel + 1;

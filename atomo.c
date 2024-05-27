@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
         	sem.sem_op = -1;
         	semop(semid, &sem, 1);
 
-        	shmem_ptr -> message = "meltdown.";
+			printf("meltdown atomo\n");
 			kill(shmem_ptr -> pid_master, SIGUSR2);
 			break;
 

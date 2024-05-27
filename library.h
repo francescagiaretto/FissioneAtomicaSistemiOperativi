@@ -16,7 +16,7 @@
 #include <sys/sem.h>
 #include <ctype.h>
 
-#define N_ATOM_INIT 10
+#define N_ATOM_INIT 100
 #define N_ATOM_MAX 118
 #define ENERGY_DEMAND 500
 #define STEP_ATTIVATORE 1
@@ -24,8 +24,8 @@
 #define SIM_DURATION 15
 #define ENERGY_EXPLODE_THRESHOLD 10000000
 #define MIN_N_ATOMICO 30
-#define STEP_ALIMENTAZIONE 8
-#define STEP_INIBITORE 8
+#define STEP_ALIMENTAZIONE 99
+#define STEP_INIBITORE 5
 #define SHM_SIZE 50
 #define PID_TYPE 1
 
