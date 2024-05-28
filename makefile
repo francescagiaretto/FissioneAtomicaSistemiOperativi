@@ -1,24 +1,27 @@
 CC = gcc
 CFLAGS = -Wvla -Wextra -Werror
+LIBRARY = library.h
+OBJS = master.o atomo.o attivatore.o alimentazione.o inibitore.o
 
-init: master atomo attivatore alimentazione inibitore library.h
+%.o: %.c $(LIBRARY)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-master: master.c library.h
-	$(CC) master.c $(CFLAGS) -o master
+master: master.c alimentazione.o attivatore.o atomo.o inibitore.o
+	$(CC) $(CFLAGS) master.c -o master
 
-atomo: atomo.c library.h
-	$(CC) atomo.c $(CFLAGS) -o atomo
+alimentazione: alimentazione.c 
+	$(CC) $(CFLAGS) alimentazione.c -o alimentazione
 
-attivatore: attivatore.c library.h
-	$(CC) attivatore.c $(CFLAGS) -o attivatore
+attivatore: attivatore.c
+	$(CC) $(CFLAGS) attivatore.c -o attivatore
 
-alimentazione: alimentazione.c library.h
-	$(CC) alimentazione.c $(CFLAGS) -o alimentazione
+atomo: atomo.c
+	$(CC) $(CFLAGS) atomo.c -o atomo
 
-inibitore: inibitore.c library.h
-	$(CC) inibitore.c $(CFLAGS) -o inibitore
-	
-run: 
+inibitore: inibitore.c
+	$(CC) $(CFLAGS) inibitore.c -o inibitore
+
+run:
 	./master
 
 clean:

@@ -12,10 +12,6 @@ void signal_handler(int sig) {
 		case SIGUSR2:
 			atom_activation = 1;
 		break;
-		
-		case SIGQUIT:
-			pause();
-		break;
 
 		case SIGSEGV:
     	kill(shmem_ptr -> pid_master, SIGSEGV);
@@ -39,11 +35,16 @@ int main(int argc, char* argv[]){
 	TEST_ERROR;
 
 	struct sigaction sa;
+	sigset_t mymask;
 
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = &signal_handler;
+	sa.sa_mask = mymask;
+
+	sigemptyset(&mymask);
+	sigaddset(&mymask, SIGQUIT);
+	sigprocmask(SIG_BLOCK, &mymask, NULL);
   	sigaction(SIGUSR2, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
 	sigaction(SIGSEGV, &sa, NULL);
 
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different

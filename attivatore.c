@@ -5,8 +5,6 @@ data_buffer * shmem_ptr;
 
 void signal_handler(int sig) {
 	switch(sig) {
-		case SIGQUIT:
-		break;
 		
 		case SIGSEGV:
     	kill(shmem_ptr -> pid_master, SIGSEGV);
@@ -31,10 +29,16 @@ int main(int argc, char* argv[]) {
 	step_nanosec.tv_nsec = STEP_ATTIVATORE;  
 
 	struct sigaction sa;
+	sigset_t mymask;
+
 	bzero(&sa, sizeof(sa)); 
 	sa.sa_handler = &signal_handler;
 	sa.sa_flags = SA_RESTART;
-	sigaction(SIGQUIT, &sa, NULL);
+	sa.sa_mask = mymask;
+	
+	sigemptyset(&mymask);
+	sigaddset(&mymask, SIGQUIT);
+	sigprocmask(SIG_BLOCK, &mymask, NULL);
 	sigaction(SIGSEGV, &sa, NULL);
 
 	sem.sem_num = STARTSEM;
