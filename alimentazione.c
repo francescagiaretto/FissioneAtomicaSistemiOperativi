@@ -43,7 +43,6 @@ int main(int argc, char * argv[]) {
   sem.sem_num = STARTSEM;
   sem.sem_op = -1;
   semop(semid, &sem, 1);
-  //CHECK_OPERATION;
 
   while(shmem_ptr -> termination != 1) {
     nanosleep(&step_nanosec, NULL); // ricontrolla bene questo, se arriva un segnale va avanti, metti conttollo che riesca a riportarti ad aspettare del tempo
