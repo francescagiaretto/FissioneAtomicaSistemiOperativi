@@ -50,6 +50,7 @@ int main(int argc, char* argv[]){
 	srand(getpid()); //*  getpid is a better option than time(NULL): time randomizes based on program time which may be identical for more than one atom, while pid is always different
 
 	if(shmem_ptr -> simulation_start == 1) {operate_in_sem(STARTSEM, 0); }
+	printf("atomo\n");
 
 	if(parent_atom_num <= MIN_N_ATOMICO) { 
 		operate_in_sem(WASTESEM, 0);

@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
   shmid = shmget(shmkey, SHM_SIZE, IPC_CREAT | 0666);
   TEST_ERROR;
 
-  semid = semget(semkey, 7, IPC_CREAT | 0666);
+  semid = semget(semkey, 6, IPC_CREAT | 0666);
   TEST_ERROR;
 
   msgid = msgget(msgkey, IPC_CREAT | 0666);
@@ -109,9 +109,6 @@ int main(int argc, char* argv[]) {
     break;
 
     case 0:
-      /* sem.sem_num = WAITSEM;
-      sem.sem_op = 1;
-      semop(semid, &sem, 1); */
       execve("./alimentazione", vec_alim, NULL);
       TEST_ERROR;
     break;
@@ -129,9 +126,6 @@ int main(int argc, char* argv[]) {
         break;
 
         case 0:
-          /* sem.sem_num = WAITSEM;
-          sem.sem_op = 1;
-          semop(semid, &sem, 1); */
           execve("./attivatore", vec_attiv, NULL);
           TEST_ERROR;
         break;
@@ -154,9 +148,6 @@ int main(int argc, char* argv[]) {
             break;
             
             case 0:
-              /* sem.sem_num = WAITSEM;
-              sem.sem_op = 1;
-              semop(semid, &sem, 1); */
               execve("./inibitore", vec_inib, NULL);
               TEST_ERROR;
             break;
@@ -190,10 +181,6 @@ int main(int argc, char* argv[]) {
 
       case 0: 
         free(pid_atoms);
-        /* sem.sem_num = WAITSEM;
-        sem.sem_op = 1;
-        semop(semid, &sem, 1);*/
-
         execve("./atomo", vec_atomo, NULL);
         TEST_ERROR;
       break;
@@ -222,10 +209,6 @@ int main(int argc, char* argv[]) {
   sigaction(SIGSEGV, &sa, NULL);
 
   free(pid_atoms);
-
-  /* sem.sem_num = WAITSEM;
-	sem.sem_op = -(N_ATOM_INIT + 3);
-  semop(semid, &sem, 1); */
   
   sem.sem_num = STARTSEM;
   sem.sem_op = N_ATOM_INIT +3;
@@ -295,6 +278,7 @@ void set_sem_values(){
   // handles meltdown termination
   semctl(semid, MELTDOWNSEM, SETVAL, 1);
   TEST_ERROR;
+
 }
 
 

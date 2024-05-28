@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	sa.sa_handler = &signal_handler;
 	sa.sa_flags = SA_RESTART;
 	sa.sa_mask = mymask;
-	
+
 	sigemptyset(&mymask);
 	sigaddset(&mymask, SIGQUIT);
 	sigprocmask(SIG_BLOCK, &mymask, NULL);
@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
 	sem.sem_num = STARTSEM;
  	sem.sem_op = -1;
 	semop(semid, &sem, 1);
+	printf("attivatore\n");
 
 	while (shmem_ptr -> termination != 1) {
 		nanosleep(&step_nanosec, NULL);

@@ -53,6 +53,8 @@ int main(int argc, char* argv[]) {
   sem.sem_op = -1;
   semop(semid, &sem, 1);
 
+  printf("inibit\n");
+
   sem.sem_num = INIBSEM;
   sem.sem_op = -1;
   semop(semid, &sem, 1);
