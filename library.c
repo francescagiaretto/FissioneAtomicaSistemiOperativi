@@ -1,6 +1,3 @@
-#ifndef LIBRARY_C
-#define LIBRARY_C
-
 #define MAX(a, b) ((a > b) ? (a) : (b))
 #include <stdlib.h>
 #include <stdio.h>
@@ -69,5 +66,3 @@ int receive_pid(int msgid) {
   }
   return atoi(message.mymessage);
 }
-
-#endif /* LIBRARY_C */

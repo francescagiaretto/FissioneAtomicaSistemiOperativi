@@ -68,8 +68,8 @@ int main(int argc, char* argv[]) {
     }
     
     //! assorbe un quinto dell'energia totale
-    absorbing_energy = shmem_ptr -> prod_en_tot/10;
-    shmem_ptr -> prod_en_tot = shmem_ptr -> prod_en_tot - absorbing_energy;
+    absorbing_energy = shmem_ptr -> prod_en_rel/10;
+    shmem_ptr -> prod_en_rel = shmem_ptr -> prod_en_rel - absorbing_energy;
     shmem_ptr -> absorbed_en_rel = shmem_ptr -> absorbed_en_rel + absorbing_energy;
   }
 }
